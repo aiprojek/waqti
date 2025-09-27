@@ -25,15 +25,8 @@ interface PageProps {
 }
 
 export const InfoPage: React.FC<PageProps> = ({ onBack, defaultTab = 'about' }) => {
-    const { settings } = useSettings();
     const [activeTab, setActiveTab] = useState<TabNameKey>(defaultTab);
     const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-    
-    const backgroundStyle = useMemo(() => ({
-        backgroundImage: settings.wallpaper ? `url(${settings.wallpaper})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-    }), [settings.wallpaper]);
 
     const TAB_COMPONENTS: Record<TabNameKey, React.ReactNode> = {
         'about': <AboutTab />,
@@ -42,78 +35,76 @@ export const InfoPage: React.FC<PageProps> = ({ onBack, defaultTab = 'about' }) 
     };
 
     return (
-        <div style={backgroundStyle} className="min-h-screen font-sans text-slate-800 dark:text-white bg-gray-100 dark:bg-gradient-to-b dark:from-gray-900 dark:to-slate-800">
-            <div className="h-screen bg-white/80 dark:bg-black/60 backdrop-blur-md flex flex-col">
-                <header className="bg-white/80 dark:bg-slate-900/80 p-4 flex items-center border-b border-slate-200 dark:border-slate-700 z-10 flex-shrink-0">
-                    <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
-                        <BackIcon />
-                    </button>
-                    <h2 className="text-2xl font-bold text-center flex-grow">{t('info.title')}</h2>
-                    <div className="w-10"></div> {/* Spacer to balance the title */}
-                </header>
+        <div className="h-screen bg-white/80 dark:bg-black/60 backdrop-blur-md flex flex-col">
+            <header className="bg-white/80 dark:bg-slate-900/80 p-4 flex items-center border-b border-slate-200 dark:border-slate-700 z-10 flex-shrink-0">
+                <button onClick={onBack} className="p-2 rounded-full hover:bg-black/10 dark:hover:bg-white/20 transition-colors">
+                    <BackIcon />
+                </button>
+                <h2 className="text-2xl font-bold text-center flex-grow">{t('info.title')}</h2>
+                <div className="w-10"></div> {/* Spacer to balance the title */}
+            </header>
 
-                 <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-                    <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-4 flex-shrink-0">
-                        {/* Mobile Dropdown */}
-                        <div className="md:hidden relative">
+             <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
+                <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-4 flex-shrink-0">
+                    {/* Mobile Dropdown */}
+                    <div className="md:hidden relative">
+                        <button
+                            onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
+                            className="w-full flex justify-between items-center p-3 rounded-md font-semibold bg-slate-200/50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600"
+                        >
+                            <span>{t(`info.tabs.${activeTab}`)}</span>
+                            <span className={`transform transition-transform duration-200 ${isMobileNavOpen ? 'rotate-180' : ''}`}>
+                                <ChevronDownIcon />
+                            </span>
+                        </button>
+                        {isMobileNavOpen && (
+                            <>
+                            <div className="fixed inset-0 z-10" onClick={() => setIsMobileNavOpen(false)}></div>
+                            <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-800 rounded-md shadow-lg z-20 border border-slate-200 dark:border-slate-700 py-1">
+                                {TABS.map(tabKey => (
+                                    <button
+                                        key={tabKey}
+                                        onClick={() => {
+                                            setActiveTab(tabKey as TabNameKey);
+                                            setIsMobileNavOpen(false);
+                                        }}
+                                        className={`w-full text-left p-3 text-sm font-medium transition-colors ${
+                                            activeTab === tabKey 
+                                            ? 'bg-[var(--accent-color)] text-white' 
+                                            : 'hover:bg-slate-100 dark:hover:bg-slate-700'
+                                        }`}
+                                    >
+                                        {t(`info.tabs.${tabKey}`)}
+                                    </button>
+                                ))}
+                            </div>
+                            </>
+                        )}
+                    </div>
+
+                    {/* Desktop Sidebar */}
+                    <nav className="hidden md:flex flex-col gap-2">
+                        {TABS.map(tabKey => (
                             <button
-                                onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
-                                className="w-full flex justify-between items-center p-3 rounded-md font-semibold bg-slate-200/50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600"
+                                key={tabKey}
+                                onClick={() => setActiveTab(tabKey as TabNameKey)}
+                                className={`w-full text-left p-3 rounded-md text-sm font-semibold transition-colors ${
+                                    activeTab === tabKey 
+                                    ? 'bg-[var(--accent-color)] text-white' 
+                                    : 'hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
+                                }`}
                             >
-                                <span>{t(`info.tabs.${activeTab}`)}</span>
-                                <span className={`transform transition-transform duration-200 ${isMobileNavOpen ? 'rotate-180' : ''}`}>
-                                    <ChevronDownIcon />
-                                </span>
+                                {t(`info.tabs.${tabKey}`)}
                             </button>
-                            {isMobileNavOpen && (
-                                <>
-                                <div className="fixed inset-0 z-10" onClick={() => setIsMobileNavOpen(false)}></div>
-                                <div className="absolute top-full left-0 w-full mt-2 bg-white dark:bg-slate-800 rounded-md shadow-lg z-20 border border-slate-200 dark:border-slate-700 py-1">
-                                    {TABS.map(tabKey => (
-                                        <button
-                                            key={tabKey}
-                                            onClick={() => {
-                                                setActiveTab(tabKey as TabNameKey);
-                                                setIsMobileNavOpen(false);
-                                            }}
-                                            className={`w-full text-left p-3 text-sm font-medium transition-colors ${
-                                                activeTab === tabKey 
-                                                ? 'bg-[var(--accent-color)] text-white' 
-                                                : 'hover:bg-slate-100 dark:hover:bg-slate-700'
-                                            }`}
-                                        >
-                                            {t(`info.tabs.${tabKey}`)}
-                                        </button>
-                                    ))}
-                                </div>
-                                </>
-                            )}
-                        </div>
+                        ))}
+                    </nav>
+                </aside>
 
-                        {/* Desktop Sidebar */}
-                        <nav className="hidden md:flex flex-col gap-2">
-                            {TABS.map(tabKey => (
-                                <button
-                                    key={tabKey}
-                                    onClick={() => setActiveTab(tabKey as TabNameKey)}
-                                    className={`w-full text-left p-3 rounded-md text-sm font-semibold transition-colors ${
-                                        activeTab === tabKey 
-                                        ? 'bg-[var(--accent-color)] text-white' 
-                                        : 'hover:bg-slate-200/50 dark:hover:bg-slate-700/50'
-                                    }`}
-                                >
-                                    {t(`info.tabs.${tabKey}`)}
-                                </button>
-                            ))}
-                        </nav>
-                    </aside>
-
-                    <main className="flex-grow p-6 overflow-y-auto">
-                        <div className="max-w-4xl mx-auto space-y-6">
-                            {TAB_COMPONENTS[activeTab]}
-                        </div>
-                    </main>
-                </div>
+                <main className="flex-grow p-6 overflow-y-auto">
+                    <div className="max-w-4xl mx-auto space-y-6">
+                        {TAB_COMPONENTS[activeTab]}
+                    </div>
+                </main>
             </div>
         </div>
     );

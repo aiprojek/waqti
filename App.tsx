@@ -371,25 +371,33 @@ const DynamicBackgroundView: React.FC<{
     }, [currentTime, prayerTimes, settings]);
 
 
-    const backgroundStyle = useMemo(() => ({
+    const imageBackgroundStyle: React.CSSProperties = {
         backgroundImage: activeWallpaper ? `url(${activeWallpaper})` : 'none',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-    }), [activeWallpaper]);
+    };
 
     return (
         <div 
-            style={backgroundStyle} 
             className={`
                 h-screen font-sans text-slate-800 dark:text-white 
-                bg-gray-100 dark:bg-gradient-to-br dark:from-gray-900 dark:via-slate-800 dark:to-gray-900 
-                transition-colors duration-500 w-full relative
-                ${settings.enableBackgroundAnimation ? 'animate-aurora' : ''}
+                bg-gray-100 dark:bg-gray-900 
+                transition-colors duration-500 w-full relative overflow-hidden
             `}
         >
-            <div className="absolute inset-0 bg-black/20 z-0"></div>
+            {/* Layer 1: Background Image */}
+            <div style={imageBackgroundStyle} className="absolute inset-0 transition-all duration-1000"></div>
+
+            {/* Layer 2: Unified semi-transparent overlay for darkening, gradients, and aurora animation */}
+            <div className={`
+                absolute inset-0 transition-opacity duration-500
+                bg-black/20
+                dark:bg-gradient-to-br dark:from-slate-900/70 dark:via-slate-800/50 dark:to-slate-900/70
+                ${settings.theme === 'dark' && settings.enableBackgroundAnimation ? 'animate-aurora' : ''}
+            `}></div>
             
-            <div className="relative z-10 h-full flex flex-col w-full">
+            {/* Layer 3: Content */}
+            <div className="relative z-10 h-full w-full">
                  {children}
             </div>
         </div>
@@ -406,19 +414,19 @@ const MainViewLayout: React.FC<{
 }> = React.memo(({ prayerTimes, stale, onSettingsClick, onInfoClick }) => {
     const { settings } = useSettings();
     return (
-        <>
+        <div className="h-full flex flex-col w-full">
             <AppHeader onSettingsClick={onSettingsClick} onInfoClick={onInfoClick} />
             <main className={`flex-grow flex flex-col min-h-0 p-4 gap-4 md:gap-8 relative ${settings.layoutTemplate !== 'dashboard-info' ? 'justify-center items-center' : ''}`}>
                  <TimeSensitiveContent prayerTimes={prayerTimes} stale={stale} />
             </main>
             <Footer />
-        </>
+        </div>
     );
 });
 
 const AppContent = () => {
     const [currentView, setCurrentView] = useState<'main' | 'settings' | 'info'>('main');
-    const [infoDefaultTab, setInfoDefaultTab] = useState<'about' | 'guide'>('about');
+    const [infoDefaultTab, setInfoDefaultTab] = useState<'about' | 'guide' | 'contact'>('about');
     const { prayerTimes, stale } = usePrayerTimes();
     const { language } = useLanguage();
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -472,23 +480,27 @@ const AppContent = () => {
         return <WelcomeModal onClose={handleCloseWelcome} onGoToGuide={handleGoToGuide} />;
     }
 
-    switch (currentView) {
-        case 'settings':
-            return <SettingsPage key={key} onBack={() => setCurrentView('main')} />;
-        case 'info':
-            return <InfoPage key={key} onBack={() => setCurrentView('main')} defaultTab={infoDefaultTab} />;
-        default:
-             return (
-                <DynamicBackgroundView prayerTimes={prayerTimes}>
-                    <MainViewLayout 
-                        prayerTimes={prayerTimes}
-                        stale={stale}
-                        onSettingsClick={() => setCurrentView('settings')} 
-                        onInfoClick={handleInfoClick} 
-                    />
-                </DynamicBackgroundView>
-            );
-    }
+    return (
+        <DynamicBackgroundView prayerTimes={prayerTimes}>
+            {(() => {
+                switch (currentView) {
+                    case 'settings':
+                        return <SettingsPage key={key} onBack={() => setCurrentView('main')} />;
+                    case 'info':
+                        return <InfoPage key={key} onBack={() => setCurrentView('main')} defaultTab={infoDefaultTab} />;
+                    default:
+                        return (
+                            <MainViewLayout 
+                                prayerTimes={prayerTimes}
+                                stale={stale}
+                                onSettingsClick={() => setCurrentView('settings')} 
+                                onInfoClick={handleInfoClick} 
+                            />
+                        );
+                }
+            })()}
+        </DynamicBackgroundView>
+    );
 };
 
 const App = () => (
