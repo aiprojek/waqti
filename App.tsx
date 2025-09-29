@@ -386,7 +386,16 @@ const DynamicBackgroundView: React.FC<{
             `}
         >
             {/* Layer 1: Background Image */}
-            <div style={imageBackgroundStyle} className="absolute inset-0 transition-all duration-1000"></div>
+            <div 
+                style={imageBackgroundStyle} 
+                className={`
+                    absolute inset-0 transition-all duration-1000
+                    ${settings.enableBackgroundAnimation 
+                        ? 'animate-subtle-pan-zoom' 
+                        : 'transform scale-110'
+                    }
+                `}
+            ></div>
 
             {/* Layer 2: Unified semi-transparent overlay for darkening, gradients, and aurora animation */}
             <div className={`

@@ -88,6 +88,22 @@
         animation: aurora-bg 20s ease infinite;
       }
 
+      /* NEW: Animation for a subtle pan-and-zoom on the background image */
+      @keyframes subtle-pan-zoom {
+        0% {
+          transform: scale(1.1) translateX(-2%);
+        }
+        50% {
+          transform: scale(1.15) translateX(2%);
+        }
+        100% {
+          transform: scale(1.1) translateX(-2%);
+        }
+      }
+      .animate-subtle-pan-zoom {
+        animation: subtle-pan-zoom 60s ease-in-out infinite;
+      }
+
       /* NEW: Elegant fade-in animation for clock numbers */
       @keyframes fade-in {
         from {
