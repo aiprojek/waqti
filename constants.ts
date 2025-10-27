@@ -11,7 +11,7 @@ export const IQAMAH_PRAYERS: PrayerName[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 
 
 // --- Kumpulan Dzikir Setelah Shalat (Updated Default List) ---
 export const DHIKR_LIST: Dhikr[] = [
-    { id: 'dhikr-1', arabic: "أَسْتَغْfِرُ اللَّهَ الْعَظِيمَ (٣×)", latin: "Astaghfirullahal 'adziim (3x)" },
+    { id: 'dhikr-1', arabic: "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ (٣×)", latin: "Astaghfirullahal 'adziim (3x)" },
     { id: 'dhikr-2', arabic: "اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، تَبَارَكْتَ يَا ذَا الْجَلَالِ وَالْإِكْرَامِ", latin: "Allahumma antas salaam wa minkas salaam tabaarokta yaa dzal jalaali wal ikroom." },
     { id: 'dhikr-3', arabic: "سُبْحَانَ اللَّهِ (٣٣×)", latin: "Subhanallah (33x)" },
     { id: 'dhikr-4', arabic: "الْحَمْدُ لِلَّهِ (٣٣×)", latin: "Alhamdulillah (33x)" },

@@ -83,6 +83,18 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
                 
                 savedSettings.slides = finalSlides;
                 
+                // NEW: Migration for Istighfar typo in dhikrList
+                if (savedSettings.dhikrList && Array.isArray(savedSettings.dhikrList)) {
+                    const typoIstighfar = "أَسْتَغْfِرُ اللَّهَ الْعَظِيمَ (٣×)";
+                    const correctIstighfar = "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ (٣×)";
+                    savedSettings.dhikrList = savedSettings.dhikrList.map(dhikr => {
+                        if (dhikr.id === 'dhikr-1' && dhikr.arabic === typoIstighfar) {
+                            return { ...dhikr, arabic: correctIstighfar };
+                        }
+                        return dhikr;
+                    });
+                }
+
                 finalSettings = { ...DEFAULT_SETTINGS, ...savedSettings };
 
             } else {
@@ -125,6 +137,18 @@ export const SettingsProvider: React.FC<{ children: ReactNode }> = ({ children }
                         if (!parsed.dhikrList || !Array.isArray(parsed.dhikrList)) {
                             parsed.dhikrList = DEFAULT_SETTINGS.dhikrList;
                             parsed.selectedDhikr = DEFAULT_SETTINGS.selectedDhikr;
+                        }
+
+                        // NEW: Migration for Istighfar typo in dhikrList from localStorage
+                        if (parsed.dhikrList && Array.isArray(parsed.dhikrList)) {
+                            const typoIstighfar = "أَسْتَغْfِرُ اللَّهَ الْعَظِيمَ (٣×)";
+                            const correctIstighfar = "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ (٣×)";
+                            parsed.dhikrList = parsed.dhikrList.map((dhikr: any) => {
+                                if (dhikr.id === 'dhikr-1' && dhikr.arabic === typoIstighfar) {
+                                    return { ...dhikr, arabic: correctIstighfar };
+                                }
+                                return dhikr;
+                            });
                         }
                         
                         const migratedSettings = { ...DEFAULT_SETTINGS, ...parsed };
