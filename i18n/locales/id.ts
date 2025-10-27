@@ -112,6 +112,7 @@ export const id = {
                 title: 'Wallpaper Utama',
                 useUrl: 'Gunakan URL',
                 upload: 'Unggah',
+                useColor: 'Warna Polos',
                 url: 'URL Gambar Wallpaper',
                 selectFile: 'Pilih File Gambar...',
                 maxSize: 'Ukuran file maks 2MB.',
@@ -266,7 +267,7 @@ export const id = {
 <li><strong>Mode Orientasi:</strong> 'Landscape' cocok untuk layar lebar (monitor), 'Portrait' untuk layar tinggi. Ini akan mempengaruhi tata letak.</li>
 <li><strong>Template Layout:</strong> Pilih penampilan layar utama. 'Fokus Jam' berukuran besar dan jelas, 'Dasbor Informasi' menampilkan berbagai info, dan 'Minimalis' tampil sederhana.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
-<li><strong>Wallpaper:</strong> Atur gambar latar layar utama, bisa melalui URL atau unggah gambar.</li>
+<li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Anda bisa menggunakan gambar via URL, mengunggah gambar sendiri, atau memilih 'Warna Polos' untuk menggunakan warna matte sederhana.</li>
 <li><strong>Wallpaper Kontekstual:</strong> Jika aktif, wallpaper akan berubah otomatis mengikuti periode waktu shalat saat ini (misal: gambar berbeda untuk Subuh, Zuhur, dst).</li>
 <li><strong>Teks Berjalan:</strong> Tampilkan tulisan bergerak di bagian bawah layar. Mode 'Kustom' menggunakan teks yang Anda tulis, mode 'Tema' memilih acak dari ayat Al-Qur'an atau hadits.</li>
 </ul>`

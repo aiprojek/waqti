@@ -112,6 +112,7 @@ export const en = {
                 title: 'Main Wallpaper',
                 useUrl: 'Use URL',
                 upload: 'Upload',
+                useColor: 'Solid Color',
                 url: 'Wallpaper Image URL',
                 selectFile: 'Select Image File...',
                 maxSize: 'Max file size is 2MB.',
@@ -266,7 +267,7 @@ export const en = {
 <li><strong>Orientation Mode:</strong> 'Landscape' is suitable for wide screens (monitors), 'Portrait' is for tall screens. This affects the layout.</li>
 <li><strong>Display Layout Template:</strong> Select the main screen appearance. 'Focus Clock' is large and clear, 'Information Dashboard' shows various info, and 'Minimalist' is simple.</li>
 <li><strong>Accent Color:</strong> The primary color used for highlights, buttons, and the next prayer time marker.</li>
-<li><strong>Wallpaper:</strong> Set the background image for the main screen, either via URL or by uploading an image.</li>
+<li><strong>Wallpaper:</strong> Set the background for the main screen. You can use an image via URL, upload your own image, or choose 'Solid Color' to select a simple matte color.</li>
 <li><strong>Contextual Wallpaper:</strong> If enabled, the wallpaper will change automatically based on the current prayer time period (e.g., a different image for Fajr, Dhuhr, etc.).</li>
 <li><strong>Running Text:</strong> Display a moving text at the bottom of the screen. 'Custom' mode uses text you write, while 'Themed' mode randomly selects from Quranic verses or hadiths.</li>
 </ul>`

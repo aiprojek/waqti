@@ -12,6 +12,8 @@ const VIBRANT_COLORS = [
     '#38BDF8', '#818CF8', '#8B5CF6',
 ];
 
+const MATTE_COLORS = ['#334155', '#4b5563', '#52525b', '#57534e', '#4338ca', '#065f46', '#854d0e'];
+
 
 // BUG FIX #3: Correctly type WallpaperPicker as a React.FC with a props interface to resolve issue with the 'key' prop.
 interface WallpaperPickerProps {
@@ -23,7 +25,11 @@ interface WallpaperPickerProps {
 
 // Reusable component for picking a wallpaper (URL or Upload)
 const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChange, onReset }) => {
-    const [type, setType] = useState<'url' | 'upload'>(value?.startsWith('data:image') ? 'upload' : 'url');
+    const [type, setType] = useState<'url' | 'upload' | 'color'>(() => {
+        if (value?.startsWith('#')) return 'color';
+        if (value?.startsWith('data:image')) return 'upload';
+        return 'url';
+    });
     const [status, setStatus] = useState<{message: string, type: 'success' | 'error' | 'info'}>({message: '', type: 'info'});
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +41,9 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
 
     useEffect(() => {
         // Sync type if value is changed externally (e.g. reset)
-        setType(value?.startsWith('data:image') ? 'upload' : 'url');
+        if (value?.startsWith('#')) setType('color');
+        else if (value?.startsWith('data:image')) setType('upload');
+        else setType('url');
     }, [value]);
     
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,7 +73,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
         <div className="p-4 border border-slate-300 dark:border-slate-600 rounded-lg bg-slate-200/30 dark:bg-slate-700/30">
             <h5 className="font-semibold text-slate-700 dark:text-slate-200 mb-2">{label}</h5>
             <div className="space-y-4">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                     <label className="flex items-center space-x-2 cursor-pointer">
                         <input type="radio" name={`wallpaperType-${label}`} value="url" checked={type === 'url'} onChange={() => setType('url')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
                         <span>{t('settings.display.wallpaper.useUrl')}</span>
@@ -74,11 +82,15 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
                         <input type="radio" name={`wallpaperType-${label}`} value="upload" checked={type === 'upload'} onChange={() => setType('upload')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
                         <span>{t('settings.display.wallpaper.upload')}</span>
                     </label>
+                    <label className="flex items-center space-x-2 cursor-pointer">
+                        <input type="radio" name={`wallpaperType-${label}`} value="color" checked={type === 'color'} onChange={() => setType('color')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
+                        <span>{t('settings.display.wallpaper.useColor')}</span>
+                    </label>
                 </div>
 
                 {type === 'url' ? (
-                    <Input label={t('settings.display.wallpaper.url')} value={value?.startsWith('data:image') ? '' : value || ''} onChange={(e) => onChange(e.target.value)} placeholder="https://..." />
-                ) : (
+                    <Input label={t('settings.display.wallpaper.url')} value={value?.startsWith('data:image') || value?.startsWith('#') ? '' : value || ''} onChange={(e) => onChange(e.target.value)} placeholder="https://..." />
+                ) : type === 'upload' ? (
                     <div>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
                         <button type="button" onClick={() => fileInputRef.current?.click()} className="w-full px-4 py-2 bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-slate-800 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors">
@@ -86,12 +98,26 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
                         </button>
                         <p className={`text-xs mt-1 px-1 ${statusColor}`}>{status.message}</p>
                     </div>
+                ) : (
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {MATTE_COLORS.map(color => (
+                            <button key={color} type="button" onClick={() => onChange(color)} className={`w-8 h-8 rounded-full transition-transform transform hover:scale-110 ${value === color ? 'ring-2 ring-offset-2 ring-offset-slate-200 dark:ring-offset-slate-700 ring-[var(--accent-color)]' : ''}`} style={{ backgroundColor: color }} aria-label={`Select color ${color}`} />
+                        ))}
+                         <div className="relative w-8 h-8">
+                            <input type="color" value={value?.startsWith('#') ? value : '#000000'} onChange={(e) => onChange(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Custom color picker"/>
+                            <div className="w-full h-full rounded-full border-2 border-dashed border-slate-400 dark:border-slate-500" style={{backgroundColor: (value && !MATTE_COLORS.includes(value)) ? value : 'transparent'}} aria-hidden="true" />
+                        </div>
+                    </div>
                 )}
                 
                 {value && (
                     <div className="flex items-center gap-4">
                          <div className="relative group w-24 h-16 rounded-md overflow-hidden border border-slate-300 dark:border-slate-600 flex-shrink-0">
-                            <img src={value} alt={`${label} preview`} className="w-full h-full object-cover" />
+                            {value.startsWith('#') ? (
+                                <div className="w-full h-full" style={{backgroundColor: value}}></div>
+                            ) : (
+                                <img src={value} alt={`${label} preview`} className="w-full h-full object-cover" />
+                            )}
                         </div>
                         <button type="button" onClick={onReset} className="text-sm text-red-500 hover:underline">{t('settings.display.wallpaper.reset')}</button>
                     </div>
@@ -110,8 +136,8 @@ interface DisplaySettingsTabProps {
     handleCustomTextChange: (index: number, html: string) => void;
     addCustomText: () => void;
     removeCustomText: (index: number) => void;
-    wallpaperType: 'url' | 'upload';
-    setWallpaperType: React.Dispatch<React.SetStateAction<'url' | 'upload'>>;
+    wallpaperType: 'url' | 'upload'; // This prop is now managed internally by a new state
+    setWallpaperType: React.Dispatch<React.SetStateAction<'url' | 'upload'>>; // This prop is now managed internally by a new state
     uploadStatus: { message: string; type: 'success' | 'error' | 'info' };
     fileInputRef: React.RefObject<HTMLInputElement>;
     handleFileChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -126,8 +152,8 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
     handleCustomTextChange,
     addCustomText,
     removeCustomText,
-    wallpaperType,
-    setWallpaperType,
+    // wallpaperType, // No longer needed as prop
+    // setWallpaperType, // No longer needed as prop
     uploadStatus,
     fileInputRef,
     handleFileChange,
@@ -135,6 +161,20 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
 }) => {
     const localeData = getLocale();
     const THEME_OPTIONS = localeData.defaults.themeOptions;
+    
+    const [mainWallpaperType, setMainWallpaperType] = useState<'url' | 'upload' | 'color'>(() => {
+        const wallpaper = localSettings.wallpaper || '';
+        if (wallpaper.startsWith('#')) return 'color';
+        if (wallpaper.startsWith('data:image')) return 'upload';
+        return 'url';
+    });
+    
+    useEffect(() => {
+        const wallpaper = localSettings.wallpaper || '';
+        if (wallpaper.startsWith('#')) setMainWallpaperType('color');
+        else if (wallpaper.startsWith('data:image')) setMainWallpaperType('upload');
+        else setMainWallpaperType('url');
+    }, [localSettings.wallpaper]);
 
     return (
         <>
@@ -207,20 +247,24 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
 
             <CollapsibleSection title={t('settings.display.wallpaper.title')}>
                 <div className="space-y-4">
-                    <div className="flex items-center gap-4">
+                    <div className="flex flex-wrap items-center gap-4">
                         <label className="flex items-center space-x-2 cursor-pointer">
-                            <input type="radio" name="wallpaperType" value="url" checked={wallpaperType === 'url'} onChange={() => setWallpaperType('url')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
+                            <input type="radio" name="wallpaperType" value="url" checked={mainWallpaperType === 'url'} onChange={() => setMainWallpaperType('url')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
                             <span>{t('settings.display.wallpaper.useUrl')}</span>
                         </label>
                         <label className="flex items-center space-x-2 cursor-pointer">
-                            <input type="radio" name="wallpaperType" value="upload" checked={wallpaperType === 'upload'} onChange={() => setWallpaperType('upload')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
+                            <input type="radio" name="wallpaperType" value="upload" checked={mainWallpaperType === 'upload'} onChange={() => setMainWallpaperType('upload')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
                             <span>{t('settings.display.wallpaper.upload')}</span>
+                        </label>
+                         <label className="flex items-center space-x-2 cursor-pointer">
+                            <input type="radio" name="wallpaperType" value="color" checked={mainWallpaperType === 'color'} onChange={() => setMainWallpaperType('color')} className="w-4 h-4 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
+                            <span>{t('settings.display.wallpaper.useColor')}</span>
                         </label>
                     </div>
                     
-                    {wallpaperType === 'url' ? (
-                        <Input label={t('settings.display.wallpaper.url')} name="wallpaper" value={localSettings.wallpaper.startsWith('data:image') ? '' : localSettings.wallpaper} onChange={handleInputChange} placeholder="https://..." />
-                    ) : (
+                    {mainWallpaperType === 'url' ? (
+                        <Input label={t('settings.display.wallpaper.url')} name="wallpaper" value={localSettings.wallpaper.startsWith('data:image') || localSettings.wallpaper.startsWith('#') ? '' : localSettings.wallpaper} onChange={handleInputChange} placeholder="https://..." />
+                    ) : mainWallpaperType === 'upload' ? (
                         <div>
                             <input 
                                 type="file" 
@@ -239,12 +283,26 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                             </button>
                             <p className={`text-xs mt-1 px-1 ${uploadStatusColor}`}>{uploadStatus.message || t('settings.display.wallpaper.maxSize')}</p>
                         </div>
+                    ) : (
+                         <div className="flex items-center gap-2 flex-wrap">
+                            {MATTE_COLORS.map(color => (
+                                <button key={color} type="button" onClick={() => setLocalSettings(p => ({...p, wallpaper: color}))} className={`w-8 h-8 rounded-full transition-transform transform hover:scale-110 ${localSettings.wallpaper === color ? 'ring-2 ring-offset-2 ring-offset-slate-200 dark:ring-offset-slate-700 ring-[var(--accent-color)]' : ''}`} style={{ backgroundColor: color }} aria-label={`Select color ${color}`} />
+                            ))}
+                            <div className="relative w-8 h-8">
+                                <input type="color" name="wallpaper" value={localSettings.wallpaper.startsWith('#') ? localSettings.wallpaper : '#000000'} onChange={handleInputChange} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Custom color picker"/>
+                                <div className="w-full h-full rounded-full border-2 border-dashed border-slate-400 dark:border-slate-500" style={{backgroundColor: (localSettings.wallpaper.startsWith('#') && !MATTE_COLORS.includes(localSettings.wallpaper)) ? localSettings.wallpaper : 'transparent'}} aria-hidden="true" />
+                            </div>
+                        </div>
                     )}
                     {localSettings.wallpaper && (
                         <div className="mt-2">
                             <p className="text-sm font-medium text-slate-600 dark:text-slate-300 mb-1">{t('settings.display.wallpaper.preview')}</p>
                             <div className="relative group w-40 h-24 rounded-md overflow-hidden border border-slate-300 dark:border-slate-600">
-                                <img src={localSettings.wallpaper} alt="Wallpaper preview" className="w-full h-full object-cover" />
+                                {localSettings.wallpaper.startsWith('#') ? (
+                                    <div className="w-full h-full" style={{backgroundColor: localSettings.wallpaper}}></div>
+                                ) : (
+                                    <img src={localSettings.wallpaper} alt="Wallpaper preview" className="w-full h-full object-cover" />
+                                )}
                                 <button 
                                     onClick={() => {
                                         setLocalSettings(prev => ({...prev, wallpaper: getDefaultSettings(getLocale().general.credit === 'Made by AI Projek' ? 'en' : 'id').wallpaper}));

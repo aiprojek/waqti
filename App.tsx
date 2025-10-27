@@ -371,11 +371,16 @@ const DynamicBackgroundView: React.FC<{
     }, [currentTime, prayerTimes, settings]);
 
 
-    const imageBackgroundStyle: React.CSSProperties = {
-        backgroundImage: activeWallpaper ? `url(${activeWallpaper})` : 'none',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-    };
+    const backgroundStyle: React.CSSProperties = {};
+    if (activeWallpaper) {
+        if (activeWallpaper.startsWith('#')) {
+            backgroundStyle.backgroundColor = activeWallpaper;
+        } else {
+            backgroundStyle.backgroundImage = `url(${activeWallpaper})`;
+            backgroundStyle.backgroundSize = 'cover';
+            backgroundStyle.backgroundPosition = 'center';
+        }
+    }
 
     return (
         <div 
@@ -385,12 +390,12 @@ const DynamicBackgroundView: React.FC<{
                 transition-colors duration-500 w-full relative overflow-hidden
             `}
         >
-            {/* Layer 1: Background Image */}
+            {/* Layer 1: Background Image or Color */}
             <div 
-                style={imageBackgroundStyle} 
+                style={backgroundStyle} 
                 className={`
                     absolute inset-0 transition-all duration-1000
-                    ${settings.enableBackgroundAnimation 
+                    ${settings.enableBackgroundAnimation && !activeWallpaper?.startsWith('#')
                         ? 'animate-subtle-pan-zoom' 
                         : 'transform scale-110'
                     }
