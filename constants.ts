@@ -134,6 +134,7 @@ export const getDefaultSettings = (lang: Language): Settings => {
         displayMode: 'landscape',
         layoutTemplate: 'focus-jam',
         enableBackgroundAnimation: true,
+        enableDimScreen: false,
         customTexts: [{ 
             id: 'default-1', 
             content: `"${locale.footer.runningText.text}" <span class="opacity-80 italic text-xs">(${locale.footer.runningText.source})</span>`

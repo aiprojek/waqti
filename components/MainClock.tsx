@@ -127,6 +127,10 @@ export const MainClock: React.FC<MainClockProps> = (props) => {
                         </p>
                     </div>
                 );
+            case DisplayState.DimScreen:
+                return (
+                    <div className="fixed inset-0 bg-black z-50"></div>
+                );
             case DisplayState.Dhikr:
                 const currentDhikr = filteredDhikrList[currentDhikrIndex];
                 if (!currentDhikr) {

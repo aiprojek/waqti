@@ -204,6 +204,15 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                         />
                     </div>
                     <div className="md:col-span-2">
+                        <Checkbox
+                            label={t('settings.display.dimScreen.enable')}
+                            help={t('settings.display.dimScreen.help')}
+                            name="enableDimScreen"
+                            checked={localSettings.enableDimScreen}
+                            onChange={handleInputChange}
+                        />
+                    </div>
+                    <div className="md:col-span-2">
                         <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 block">{t('settings.display.accentColor')}</label>
                         <div className="flex items-center gap-2 mt-2">
                             {VIBRANT_COLORS.map(color => (

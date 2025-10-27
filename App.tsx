@@ -114,6 +114,9 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
             case DisplayState.PrayerInProgress:
                 document.title = t('main.prayerInProgress');
                 break;
+            case DisplayState.DimScreen:
+                document.title = t('main.prayerInProgress');
+                break;
             case DisplayState.Dhikr:
                 document.title = t('main.dhikr');
                 break;
@@ -193,17 +196,38 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
             }, khutbahDurationMs);
             return () => clearTimeout(timer);
         } else if (displayState === DisplayState.PrayerInProgress && activePrayer) {
+            if (settings.enableDimScreen && !isJumatPrayer) {
+                // Show "Prayer in Progress" message for 10s, then switch to DimScreen
+                const timer = setTimeout(() => {
+                    setDisplayState(DisplayState.DimScreen);
+                }, 10000);
+                return () => clearTimeout(timer);
+            } else {
+                // Original behavior if dim screen is disabled or it's Jum'ah
+                const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
+                const prayerDurationMs = durationForCurrentPrayer * 60 * 1000;
+                const timer = setTimeout(() => {
+                    if (isJumatPrayer || !settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
+                        setDisplayState(DisplayState.Clock);
+                        setActivePrayer(null);
+                    } else {
+                        setDisplayState(DisplayState.Dhikr);
+                    }
+                }, prayerDurationMs);
+                return () => clearTimeout(timer);
+            }
+        } else if (displayState === DisplayState.DimScreen && activePrayer) {
             const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
-            const prayerDurationMs = durationForCurrentPrayer * 60 * 1000;
+            // Duration is total prayer duration MINUS the 10 seconds for the message
+            const dimDurationMs = (durationForCurrentPrayer * 60 * 1000) - 10000;
             const timer = setTimeout(() => {
-                // On Friday, Dhikr is skipped
-                if (isJumatPrayer || !settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
+                if (!settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
                     setDisplayState(DisplayState.Clock);
                     setActivePrayer(null);
                 } else {
                     setDisplayState(DisplayState.Dhikr);
                 }
-            }, prayerDurationMs);
+            }, Math.max(0, dimDurationMs));
             return () => clearTimeout(timer);
         } else if (displayState === DisplayState.Dhikr) {
             const dhikrDurationMs = settings.dhikrDuration * 60 * 1000;

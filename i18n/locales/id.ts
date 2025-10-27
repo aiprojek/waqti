@@ -107,6 +107,10 @@ export const id = {
             layoutDashboard: 'Dasbor Informasi',
             layoutMinimalist: 'Minimalis',
             bgAnimation: 'Aktifkan Animasi Latar Belakang',
+            dimScreen: {
+                enable: 'Aktifkan Layar Redup saat Shalat',
+                help: 'Layar akan menjadi hitam selama periode "Shalat Didirikan" untuk mensimulasikan layar mati.'
+            },
             accentColor: 'Warna Aksen',
             wallpaper: {
                 title: 'Wallpaper Utama',
@@ -233,7 +237,7 @@ export const id = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " dengan penyederhanaan penggunaan yaitu tanpa perlu akun dan backoffice untuk menggunakan. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan yang personal dengan waktu shalat.",
             featuresTitle: 'Fitur Utama',
-            features: "Waktu Shalat Otomatis:Menghitung waktu shalat berdasarkan kota dan metode pilihan.|Kalkulasi Kustom:Sesuaikan metode, madhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan hitung mundur dari adzan ke iqamah.|Mode Jum'at:Mode tampilan khusus untuk shalat Jum'at.|Layout Tampilan:Pilih dari mode Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal kajian, dan laporan keuangan.|Kustomisasi Tema:Ubah warna aksen dan gambar latar belakang.|Teks Berjalan:Tampilkan pesan kustom atau konten bertema.|Tampilan Dzikir:Menampilkan rangkaian dzikir setelah shalat.|Dukungan Offline:Tetap berfungsi meski tanpa koneksi internet.|Dukungan PWA:Dapat diinstal di perangkat Anda untuk akses cepat dan pengalaman seperti aplikasi asli.|Mode Orientasi:Mendukung tampilan landscape (lebar) dan portrait (tinggi) yang responsif.|Cadangkan & Pulihkan Data:Ekspor dan impor semua pengaturan Anda dengan mudah.",
+            features: "Waktu Shalat Otomatis:Menghitung waktu shalat berdasarkan kota dan metode pilihan.|Kalkulasi Kustom:Sesuaikan metode, madhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan hitung mundur dari adzan ke iqamah.|Mode Jum'at:Mode tampilan khusus untuk shalat Jum'at.|Layout Tampilan:Pilih dari mode Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal kajian, dan laporan keuangan.|Kustomisasi Tema:Ubah warna aksen dan gambar latar belakang.|Teks Berjalan:Tampilkan pesan kustom atau konten bertema.|Tampilan Dzikir:Menampilkan rangkaian dzikir setelah shalat.|Layar Redup:Fitur opsional untuk membuat layar menjadi hitam saat shalat, meminimalkan gangguan.|Dukungan Offline:Tetap berfungsi meski tanpa koneksi internet.|Dukungan PWA:Dapat diinstal di perangkat Anda untuk akses cepat dan pengalaman seperti aplikasi asli.|Mode Orientasi:Mendukung tampilan landscape (lebar) dan portrait (tinggi) yang responsif.|Cadangkan & Pulihkan Data:Ekspor dan impor semua pengaturan Anda dengan mudah.",
             supportTitle: 'Pengembang',
             coffee: 'Traktir Kopi',
             discussion: 'Diskusi',
@@ -266,6 +270,7 @@ export const id = {
 <li><strong>Tema:</strong> Pilih antara tampilan gelap atau terang.</li>
 <li><strong>Mode Orientasi:</strong> 'Landscape' cocok untuk layar lebar (monitor), 'Portrait' untuk layar tinggi. Ini akan mempengaruhi tata letak.</li>
 <li><strong>Template Layout:</strong> Pilih penampilan layar utama. 'Fokus Jam' berukuran besar dan jelas, 'Dasbor Informasi' menampilkan berbagai info, dan 'Minimalis' tampil sederhana.</li>
+<li><strong>Aktifkan Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
 <li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Anda bisa menggunakan gambar via URL, mengunggah gambar sendiri, atau memilih 'Warna Polos' untuk menggunakan warna matte sederhana.</li>
 <li><strong>Wallpaper Kontekstual:</strong> Jika aktif, wallpaper akan berubah otomatis mengikuti periode waktu shalat saat ini (misal: gambar berbeda untuk Subuh, Zuhur, dst).</li>

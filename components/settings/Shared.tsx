@@ -83,11 +83,14 @@ export const Select = ({ label, children, ...props }: React.SelectHTMLAttributes
     </div>
 );
 
-export const Checkbox = ({ label, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string }) => (
-    <label className="flex items-center space-x-2 cursor-pointer">
-        <input type="checkbox" {...props} className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
-        <span className="text-slate-700 dark:text-slate-300">{label}</span>
-    </label>
+export const Checkbox = ({ label, help, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; help?: string }) => (
+    <div>
+        <label className="flex items-center space-x-2 cursor-pointer">
+            <input type="checkbox" {...props} className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
+            <span className="text-slate-700 dark:text-slate-300">{label}</span>
+        </label>
+        {help && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ml-7">{help}</p>}
+    </div>
 );
 
 

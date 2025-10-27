@@ -99,6 +99,7 @@ export interface Settings {
     // NEW: Layout Template setting
     layoutTemplate: LayoutTemplate;
     enableBackgroundAnimation: boolean;
+    enableDimScreen: boolean;
     customTexts: Array<{ id: string; content: string; }>; // Replaces runningText
     enableRunningText: boolean; // NEW: On/Off switch for the running text feature
     runningTextMode: 'custom' | 'themed'; // Renamed 'static' to 'custom'
@@ -125,6 +126,7 @@ export enum DisplayState {
     PrayerTime,
     IqamahCountdown,
     PrayerInProgress,
+    DimScreen,
     Dhikr,
     KhutbahInProgress, // NEW: For Friday prayer
 }

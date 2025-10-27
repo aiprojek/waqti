@@ -107,6 +107,10 @@ export const en = {
             layoutDashboard: 'Information Dashboard',
             layoutMinimalist: 'Minimalist',
             bgAnimation: 'Enable Background Animation',
+            dimScreen: {
+                enable: 'Enable Dim Screen during Prayer',
+                help: 'The screen will turn black during the "Prayer in Progress" period to simulate being off.'
+            },
             accentColor: 'Accent Color',
             wallpaper: {
                 title: 'Main Wallpaper',
@@ -233,7 +237,7 @@ export const en = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " with simplified usage—no account or backoffice needed. The name Waqti (وقتي) means 'My Time', emphasizing a personal connection to prayer times.",
             featuresTitle: 'Key Features',
-            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Offline Support:Continues to function even without an internet connection.|PWA Support:Can be installed on your device for quick access and a native app-like experience.|Orientation Modes:Responsive support for both landscape (wide) and portrait (tall) displays.|Backup & Restore Data:Easily export and import all your settings.",
+            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer, minimizing distractions.|Offline Support:Continues to function even without an internet connection.|PWA Support:Can be installed on your device for quick access and a native app-like experience.|Orientation Modes:Responsive support for both landscape (wide) and portrait (tall) displays.|Backup & Restore Data:Easily export and import all your settings.",
             supportTitle: 'Developer',
             coffee: 'Buy Me a Coffee',
             discussion: 'Join Discussion',
@@ -266,6 +270,7 @@ export const en = {
 <li><strong>Theme:</strong> Choose between a dark or light appearance.</li>
 <li><strong>Orientation Mode:</strong> 'Landscape' is suitable for wide screens (monitors), 'Portrait' is for tall screens. This affects the layout.</li>
 <li><strong>Display Layout Template:</strong> Select the main screen appearance. 'Focus Clock' is large and clear, 'Information Dashboard' shows various info, and 'Minimalist' is simple.</li>
+<li><strong>Enable Dim Screen:</strong> If enabled, the screen will go black during the prayer time (after the initial 'Establish the Prayer' message) to reduce distractions.</li>
 <li><strong>Accent Color:</strong> The primary color used for highlights, buttons, and the next prayer time marker.</li>
 <li><strong>Wallpaper:</strong> Set the background for the main screen. You can use an image via URL, upload your own image, or choose 'Solid Color' to select a simple matte color.</li>
 <li><strong>Contextual Wallpaper:</strong> If enabled, the wallpaper will change automatically based on the current prayer time period (e.g., a different image for Fajr, Dhuhr, etc.).</li>
