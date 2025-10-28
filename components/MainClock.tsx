@@ -76,6 +76,12 @@ export const MainClock: React.FC<MainClockProps> = (props) => {
         };
     }, [displayState, settings.dhikrDuration, filteredDhikrList]);
 
+    // NEW: Handle DimScreen at the top level of this component to avoid being constrained by parent transforms.
+    // This ensures it covers the entire viewport.
+    if (internalDisplayState === DisplayState.DimScreen) {
+        return <div className="fixed inset-0 bg-black z-50"></div>;
+    }
+
     const renderContent = () => {
         const prayerName = (isFriday && activePrayer === 'Dhuhr' && settings.enableFridayMode) 
             ? t('general.jumat').toUpperCase()
@@ -127,10 +133,7 @@ export const MainClock: React.FC<MainClockProps> = (props) => {
                         </p>
                     </div>
                 );
-            case DisplayState.DimScreen:
-                return (
-                    <div className="fixed inset-0 bg-black z-50"></div>
-                );
+            // REMOVED: DimScreen case is now handled outside this render function.
             case DisplayState.Dhikr:
                 const currentDhikr = filteredDhikrList[currentDhikrIndex];
                 if (!currentDhikr) {
