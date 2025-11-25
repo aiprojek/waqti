@@ -1,3 +1,4 @@
+
 import React, { useMemo } from 'react';
 import usePrayerTimes from '../hooks/usePrayerTimes';
 import { useSettings } from '../contexts/SettingsContext';
@@ -40,6 +41,7 @@ export const PrayerTimesDisplay = () => {
     const { settings } = useSettings();
     const { currentTime } = useClock();
     const isFriday = currentTime.getDay() === 5;
+    const dayOfMonth = currentTime.getDate();
 
     const prayerTimesToUse = useMemo(() => {
         if (!prayerTimes) return null;
@@ -58,7 +60,7 @@ export const PrayerTimesDisplay = () => {
         return IQAMAH_PRAYERS
             .map(name => ({ name, time: parseTimeToDate(prayerTimesToUse[name]) }))
             .sort((a, b) => a.time.getTime() - b.time.getTime());
-    }, [prayerTimesToUse]);
+    }, [prayerTimesToUse, dayOfMonth]); // Add dayOfMonth so dates are refreshed daily
 
     const nextPrayer = useMemo(() => {
         if (sortedPrayerTimes.length === 0) return null;

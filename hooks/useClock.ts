@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 
 const HIJRI_MONTHS_LATIN = [
@@ -11,6 +12,19 @@ const useClock = () => {
     const [time, setTime] = useState(new Date());
     const { language } = useLanguage();
     const locale = language === 'id' ? 'id-ID' : 'en-US';
+
+    // Optimize: Memoize the formatters to avoid recreating them every second
+    const hijriFormatter = useMemo(() => {
+        try {
+            return new Intl.DateTimeFormat('en-u-ca-islamic', {
+                day: 'numeric',
+                month: 'numeric',
+                year: 'numeric'
+            });
+        } catch (e) {
+            return null;
+        }
+    }, []);
 
     useEffect(() => {
         const timerId = setInterval(() => {
@@ -50,13 +64,7 @@ const useClock = () => {
     
     const formatHijriDate = (date: Date) => {
          try {
-            // Use a neutral locale ('en') with the islamic calendar to get numeric parts
-            // This avoids locale-specific month names and ensures we get a consistent base
-            const hijriFormatter = new Intl.DateTimeFormat('en-u-ca-islamic', {
-                day: 'numeric',
-                month: 'numeric',
-                year: 'numeric'
-            });
+            if (!hijriFormatter) throw new Error("Intl not supported");
 
             // formatToParts is more robust for extracting specific date components
             const parts = hijriFormatter.formatToParts(date);

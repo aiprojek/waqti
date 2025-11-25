@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import type { PrayerTimes } from '../types';
 import { useSettings } from '../contexts/SettingsContext';
@@ -11,6 +12,20 @@ const usePrayerTimes = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [stale, setStale] = useState(false); // UX Improvement: for graceful loading
+    
+    // NEW: Track the current day of the month to trigger refreshes automatically at midnight
+    const [dateTicker, setDateTicker] = useState(new Date().getDate());
+
+    useEffect(() => {
+        // Check for date change every minute
+        const timer = setInterval(() => {
+            const now = new Date();
+            if (now.getDate() !== dateTicker) {
+                setDateTicker(now.getDate());
+            }
+        }, 60000);
+        return () => clearInterval(timer);
+    }, [dateTicker]);
 
     useEffect(() => {
         const fetchPrayerTimes = async () => {
@@ -135,7 +150,8 @@ const usePrayerTimes = () => {
             fetchPrayerTimes();
         }
     }, [
-        settings, // Depend on the whole settings object to refetch when any relevant setting changes
+        settings,
+        dateTicker // NEW: Re-run when the day changes
     ]);
 
     return { prayerTimes, loading, error, stale };

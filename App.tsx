@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PrayerTimesDisplay } from './components/PrayerTimesDisplay';
 import { MainClock } from './components/MainClock';
@@ -23,6 +24,11 @@ import { db } from './lib/db';
 const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: boolean }> = ({ prayerTimes, stale }) => {
     const { settings } = useSettings();
     const { currentTime } = useClock();
+    
+    // FIX: Get current day of month to force sortedPrayerTimes recalculation when day changes.
+    // This prevents the "stale date" bug where next prayer incorrectly shows Fajr because
+    // the prayer time Date objects belong to the previous day.
+    const dayOfMonth = currentTime.getDate();
 
     const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
     const [displayMode, setDisplayMode] = useState<'clock' | 'slide'>('clock');
@@ -49,10 +55,11 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
 
     const sortedPrayerTimes = useMemo(() => {
         if (!prayerTimesToUse) return [];
+        // parseTimeToDate uses `new Date()`, so it must be re-run when the day changes (dayOfMonth).
         return IQAMAH_PRAYERS
             .map(name => ({ name, time: parseTimeToDate(prayerTimesToUse[name]) }))
             .sort((a, b) => a.time.getTime() - b.time.getTime());
-    }, [prayerTimesToUse]);
+    }, [prayerTimesToUse, dayOfMonth]);
 
     const nextPrayer = useMemo(() => {
         if (sortedPrayerTimes.length === 0) return null;
@@ -63,7 +70,11 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
             return futurePrayers[0];
         }
         // If no prayers left today, the next prayer is the first one tomorrow
-        const tomorrowPrayer = { ...sortedPrayerTimes[0] };
+        // FIX: Must clone the object AND the Date object to avoid mutating the original sortedPrayerTimes array
+        const tomorrowPrayer = { 
+            ...sortedPrayerTimes[0],
+            time: new Date(sortedPrayerTimes[0].time) 
+        };
         tomorrowPrayer.time.setDate(tomorrowPrayer.time.getDate() + 1);
         return tomorrowPrayer;
     }, [currentTime, sortedPrayerTimes]);
