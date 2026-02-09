@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import type { Settings } from '../../types';
 import { CollapsibleSection, Input } from './Shared';
@@ -39,6 +40,7 @@ interface GeneralSettingsTabProps {
     handleExportData: () => void;
     handleImportData: (event: React.ChangeEvent<HTMLInputElement>) => void;
     importFileRef: React.RefObject<HTMLInputElement>;
+    onGoToServices: () => void;
 }
 
 export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
@@ -46,7 +48,8 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
     handleInputChange,
     handleExportData,
     handleImportData,
-    importFileRef
+    importFileRef,
+    onGoToServices
 }) => {
     const [assetsStatus, setAssetsStatus] = useState<'checking' | 'ready' | 'missing'>('checking');
     const [downloadProgress, setDownloadProgress] = useState(false);
@@ -57,6 +60,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
     const qrCodeRef = useRef<HTMLDivElement>(null);
     const [isScanning, setIsScanning] = useState(false);
     const scannerRef = useRef<any>(null);
+    const [manualRemoteId, setManualRemoteId] = useState('');
 
     useEffect(() => {
         if (peerId && qrCodeRef.current && isHost) {
@@ -76,7 +80,6 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
     // Handle Scanner Logic
     const startScanner = () => {
         setIsScanning(true);
-        // Small delay to ensure modal DOM is ready
         setTimeout(() => {
             const html5QrCode = new Html5Qrcode("qr-reader");
             scannerRef.current = html5QrCode;
@@ -84,7 +87,6 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
             const config = { fps: 10, qrbox: { width: 250, height: 250 } };
             
             html5QrCode.start({ facingMode: "environment" }, config, (decodedText: string) => {
-                // Success callback
                 if (decodedText.includes('?remote=')) {
                     html5QrCode.stop().then(() => {
                         scannerRef.current = null;
@@ -93,8 +95,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                     });
                 }
             }, (errorMessage: string) => {
-                // Error callback (scanning...)
-                // console.log(errorMessage); 
+                // scanning...
             }).catch((err: any) => {
                 console.error("Error starting scanner", err);
                 setIsScanning(false);
@@ -116,11 +117,16 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
         }
     };
 
+    const handleManualConnect = () => {
+        if (manualRemoteId.trim()) {
+            window.location.href = `?remote=${manualRemoteId.trim()}`;
+        }
+    };
+
     const checkOfflineReadiness = async () => {
         if (!('caches' in window)) return;
         
         try {
-            // Must match the cache name in service-worker.js
             const cacheName = 'waqti-cache-v2';
             const cache = await caches.open(cacheName);
             let allFound = true;
@@ -158,11 +164,8 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
             const cacheName = 'waqti-cache-v2';
             const cache = await caches.open(cacheName);
             
-            // Fetch and cache all assets
             await Promise.all(CRITICAL_ASSETS.map(async (url) => {
                 try {
-                    // Try fetch with no-cors to handle opaque responses if needed
-                    // Use force-cache or similar if possible, but standard fetch handles network
                     const response = await fetch(url, { mode: 'cors' });
                     if (response.ok) {
                         await cache.put(url, response);
@@ -170,7 +173,6 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                         throw new Error(`Failed to fetch ${url}`);
                     }
                 } catch (e) {
-                    // Fallback for CORS issues (opaque response)
                     try {
                         const response = await fetch(url, { mode: 'no-cors' });
                         await cache.put(url, response);
@@ -202,45 +204,79 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                 </div>
             </CollapsibleSection>
             
-            {/* NEW: Remote Control Section */}
-            <CollapsibleSection title="Remote Control">
-                <div className="flex flex-col md:flex-row gap-6 items-center">
-                    <div className="flex-shrink-0 bg-white p-2 rounded-lg">
+            <CollapsibleSection title={t('settings.general.remote.title')}>
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                    <div className="flex-shrink-0 bg-white p-2 rounded-lg mx-auto md:mx-0">
                         <div ref={qrCodeRef} className="w-[128px] h-[128px] bg-gray-200"></div>
                     </div>
-                    <div className="space-y-4 text-center md:text-left flex-grow">
+                    <div className="space-y-4 text-center md:text-left flex-grow w-full">
                         <div>
                             <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
-                                Scan QR Code ini menggunakan HP Anda untuk mengontrol tampilan dari jarak jauh.
+                                {t('settings.general.remote.description')}
                             </p>
                             <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-lg inline-block">
-                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">Kode Pairing / Peer ID</p>
+                                <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t('settings.general.remote.pairingCode')}</p>
                                 <p className="text-2xl font-mono font-bold tracking-widest text-[var(--accent-color)]">{peerId || '...'}</p>
                             </div>
                         </div>
                         
-                        <div className="flex flex-col md:flex-row items-center gap-3">
+                        <div className="flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${connectionStatus === 'connected' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'}`}>
                                 <div className={`w-2 h-2 rounded-full ${connectionStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500'}`}></div>
                                 <span className="text-sm font-medium">
-                                    {connectionStatus === 'connected' ? 'Remote Terhubung' : 'Menunggu Koneksi...'}
+                                    {connectionStatus === 'connected' ? t('settings.general.remote.statusConnected') : t('settings.general.remote.statusWaiting')}
                                 </span>
                             </div>
                             
-                            <div className="h-px w-full md:w-px md:h-8 bg-slate-300 dark:bg-slate-600"></div>
+                            <div className="h-px w-full md:w-px md:h-8 bg-slate-300 dark:bg-slate-600 hidden md:block"></div>
 
                             <button 
                                 onClick={startScanner}
-                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-semibold"
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-semibold whitespace-nowrap"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-                                Scan untuk Hubungkan
+                                {t('settings.general.remote.scanButton')}
                             </button>
+                        </div>
+
+                        {/* Manual Input Section */}
+                        <div className="pt-4 border-t border-slate-200 dark:border-slate-700 mt-2">
+                            <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase">{t('settings.general.remote.manualInputLabel')}</p>
+                            <div className="flex gap-2 max-w-sm mx-auto md:mx-0">
+                                <input 
+                                    type="text" 
+                                    value={manualRemoteId}
+                                    onChange={(e) => setManualRemoteId(e.target.value)}
+                                    placeholder={t('settings.general.remote.manualInputPlaceholder')}
+                                    className="flex-grow bg-slate-100 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-sm text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] uppercase font-mono"
+                                />
+                                <button 
+                                    onClick={handleManualConnect}
+                                    disabled={!manualRemoteId}
+                                    className="px-4 py-2 bg-slate-600 text-white rounded-md hover:bg-slate-700 transition-colors text-sm font-semibold disabled:opacity-50"
+                                >
+                                    {t('settings.general.remote.connectButton')}
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </CollapsibleSection>
             
+            {/* Promo Hook Banner */}
+            <div className="mt-4 p-6 bg-gradient-to-r from-amber-100 to-orange-100 dark:from-amber-900/40 dark:to-orange-900/40 rounded-lg border border-amber-200 dark:border-amber-800 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                    <h3 className="text-lg font-bold text-amber-900 dark:text-amber-100">{t('settings.general.promo.title')}</h3>
+                    <p className="text-sm text-amber-800 dark:text-amber-200 max-w-md">{t('settings.general.promo.description')}</p>
+                </div>
+                <button 
+                    onClick={onGoToServices}
+                    className="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-full font-bold shadow-sm transition-all transform hover:scale-105 whitespace-nowrap"
+                >
+                    {t('settings.general.promo.button')}
+                </button>
+            </div>
+
             <CollapsibleSection title={t('settings.general.dataManagement.title')}>
                  <div className="space-y-4">
                     <p className="text-sm text-slate-600 dark:text-slate-400">

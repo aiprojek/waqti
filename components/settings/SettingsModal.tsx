@@ -1,16 +1,16 @@
 
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
-import type { Settings, Slide, ScheduleSlide, ScheduleItem, FinanceSlide, FinanceInfo } from '../types';
-import { useSettings } from '../contexts/SettingsContext';
-import { getDefaultSettings } from '../constants';
-import { GeneralSettingsTab } from './settings/GeneralSettingsTab';
-import { CalculationSettingsTab } from './settings/CalculationSettingsTab';
-import { DisplaySettingsTab } from './settings/DisplaySettingsTab';
-import { AlarmSettingsTab } from './settings/AlarmSettingsTab';
-import { SlideSettingsTab } from './settings/SlideSettingsTab';
-import { NotificationModal } from './NotificationModal';
-import { t } from '../i18n';
-import { useLanguage } from '../contexts/LanguageContext';
+import type { Settings, Slide, ScheduleSlide, ScheduleItem, FinanceSlide, FinanceInfo } from '../../types';
+import { useSettings } from '../../contexts/SettingsContext';
+import { getDefaultSettings } from '../../constants';
+import { GeneralSettingsTab } from './GeneralSettingsTab';
+import { CalculationSettingsTab } from './CalculationSettingsTab';
+import { DisplaySettingsTab } from './DisplaySettingsTab';
+import { AlarmSettingsTab } from './AlarmSettingsTab';
+import { SlideSettingsTab } from './SlideSettingsTab';
+import { NotificationModal } from '../NotificationModal';
+import { t } from '../../i18n';
+import { useLanguage } from '../../contexts/LanguageContext';
 
 const BackIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -31,15 +31,20 @@ const ChevronDownIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
 );
 
+const CartIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+);
+
 
 const TABS = ['general', 'calculation', 'display', 'alarm', 'slides'];
 type TabNameKey = (typeof TABS)[number];
 
 interface PageProps {
     onBack: () => void;
+    onGoToServices: () => void;
 }
 
-export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
+export const SettingsPage: React.FC<PageProps> = ({ onBack, onGoToServices }) => {
     const { settings, saveSettings } = useSettings();
     const { language } = useLanguage();
     const [localSettings, setLocalSettings] = useState<Settings>(() => JSON.parse(JSON.stringify(settings)));
@@ -443,7 +448,7 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
     };
 
     const TAB_COMPONENTS: Record<TabNameKey, React.ReactNode> = {
-        'general': <GeneralSettingsTab {...{ localSettings, handleInputChange, handleExportData, handleImportData, importFileRef }} />,
+        'general': <GeneralSettingsTab {...{ localSettings, handleInputChange, handleExportData, handleImportData, importFileRef, onGoToServices }} />,
         'calculation': <CalculationSettingsTab {...{ localSettings, handleInputChange, handleNestedChange, citySearch, setCitySearch, handleLocationSearch, isSearching, locationStatus, locationStatusColor }} />,
         'display': <DisplaySettingsTab {...{ localSettings, setLocalSettings, handleInputChange, handleThemeCheckboxChange, handleCustomTextChange, addCustomText, removeCustomText, wallpaperType, setWallpaperType, uploadStatus, fileInputRef, handleFileChange, uploadStatusColor }} />,
         'alarm': <AlarmSettingsTab {...{ localSettings, setLocalSettings, handleInputChange, handleNestedChange, handleDhikrSelectionChange, handleMoveDhikr, handleRemoveDhikr, newDhikrArabic, setNewDhikrArabic, newDhikrLatin, setNewDhikrLatin, handleAddDhikr }} />,
@@ -469,9 +474,9 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
             </header>
             
             <div className="flex flex-col md:flex-row flex-grow overflow-hidden">
-                <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-4 flex-shrink-0">
+                <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-700 p-4 flex-shrink-0 flex flex-col">
                     {/* Mobile Dropdown */}
-                    <div className="md:hidden relative">
+                    <div className="md:hidden relative mb-4">
                         <button
                             onClick={() => setIsMobileNavOpen(!isMobileNavOpen)}
                             className="w-full flex justify-between items-center p-3 rounded-md font-semibold bg-slate-200/50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600"
@@ -507,7 +512,7 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
                     </div>
 
                     {/* Desktop Sidebar */}
-                    <nav className="hidden md:flex flex-col gap-2">
+                    <nav className="hidden md:flex flex-col gap-2 flex-grow">
                         {TABS.map(tabKey => (
                             <button
                                 key={tabKey}
@@ -522,6 +527,17 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
                             </button>
                         ))}
                     </nav>
+
+                    {/* Store Link in Sidebar */}
+                    <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                            onClick={onGoToServices}
+                            className="w-full text-left p-3 rounded-md text-sm font-bold transition-colors bg-gradient-to-r from-amber-200/50 to-yellow-200/50 dark:from-amber-900/30 dark:to-yellow-900/30 text-amber-800 dark:text-amber-200 hover:bg-amber-300/50 dark:hover:bg-amber-800/40 flex items-center gap-2"
+                        >
+                            <CartIcon />
+                            {t('settings.tabs.services')}
+                        </button>
+                    </div>
                 </aside>
 
                 <main className="flex-grow p-6 overflow-y-auto">

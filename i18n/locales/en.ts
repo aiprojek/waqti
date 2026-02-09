@@ -61,7 +61,8 @@ export const en = {
             calculation: 'Calculation',
             display: 'Display',
             alarm: 'Alarm & Dhikr',
-            slides: 'Slides'
+            slides: 'Slides',
+            services: 'Services & Store'
         },
         general: {
             title: 'General Settings',
@@ -86,6 +87,22 @@ export const en = {
                 downloading: 'Downloading...',
                 ready: 'Assets Ready (Offline Mode Available)',
                 success: 'Assets downloaded successfully!'
+            },
+            remote: {
+                title: 'Remote Control',
+                description: 'Scan this QR Code with your phone to control the display remotely.',
+                pairingCode: 'Pairing Code / Peer ID',
+                statusConnected: 'Remote Connected',
+                statusWaiting: 'Waiting for Connection...',
+                scanButton: 'Scan to Connect',
+                manualInputLabel: 'Or Enter Code Manually',
+                manualInputPlaceholder: 'Example: WAQTI-AB123',
+                connectButton: 'Connect'
+            },
+            promo: {
+                title: 'Need Specialized Hardware?',
+                description: 'Get the plug-and-play WaqtiBox (Mini PC). More stable, no installation hassle.',
+                button: 'View Services & Store'
             }
         },
         calculation: {
@@ -319,7 +336,7 @@ export const en = {
             },
             sdcard: {
                 title: 'WaqtiDrive (USB Bootable)',
-                description: 'Bootable Flashdrive containing a lightweight Custom Linux OS + Waqti. Budget-friendly solution to repurpose old x86 Mini PCs or Laptops into a digital mosque clock.',
+                description: 'Bootable SD Card or Flashdrive with OS and Waqti (for Raspberry Pi or old PCs). A budget-friendly solution if you own the hardware.',
                 price: 'Starts from $7'
             },
             setup: {

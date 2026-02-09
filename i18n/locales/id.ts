@@ -61,7 +61,8 @@ export const id = {
             calculation: 'Kalkulasi',
             display: 'Tampilan',
             alarm: 'Alarm & Dzikir',
-            slides: 'Slide'
+            slides: 'Slide',
+            services: 'Layanan & Toko'
         },
         general: {
             title: 'Pengaturan Umum',
@@ -86,6 +87,22 @@ export const id = {
                 downloading: 'Mengunduh...',
                 ready: 'Aset Siap (Mode Offline Tersedia)',
                 success: 'Aset berhasil diunduh!'
+            },
+            remote: {
+                title: 'Remote Control',
+                description: 'Scan QR Code ini menggunakan HP Anda untuk mengontrol tampilan dari jarak jauh.',
+                pairingCode: 'Kode Pairing / Peer ID',
+                statusConnected: 'Remote Terhubung',
+                statusWaiting: 'Menunggu Koneksi...',
+                scanButton: 'Scan untuk Hubungkan',
+                manualInputLabel: 'Atau Masukkan Kode Manual',
+                manualInputPlaceholder: 'Contoh: WAQTI-AB123',
+                connectButton: 'Hubungkan'
+            },
+            promo: {
+                title: 'Butuh Perangkat Khusus?',
+                description: 'Dapatkan WaqtiBox (Mini PC) siap pakai. Lebih stabil, tanpa ribet instalasi.',
+                button: 'Lihat Layanan & Toko'
             }
         },
         calculation: {
@@ -319,8 +336,8 @@ export const id = {
             },
             sdcard: {
                 title: 'WaqtiDrive (USB Bootable)',
-                description: 'Flashdisk berisi Custom OS Linux ringan + Waqti. Solusi hemat untuk menghidupkan kembali Mini PC x86 atau Laptop bekas menjadi mesin jam digital masjid.',
-                price: 'Mulai Rp 100.000'
+                description: 'Bootable Flashdrive containing a lightweight Custom Linux OS + Waqti. Budget-friendly solution to repurpose old x86 Mini PCs or Laptops into a digital mosque clock.',
+                price: 'Starts from $7'
             },
             setup: {
                 title: 'Jasa Setup & Instalasi',

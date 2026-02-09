@@ -575,7 +575,7 @@ const MainViewLayout: React.FC<{
 
 const AppContent = () => {
     const [currentView, setCurrentView] = useState<'main' | 'settings' | 'info'>('main');
-    const [infoDefaultTab, setInfoDefaultTab] = useState<'about' | 'guide' | 'contact'>('about');
+    const [infoDefaultTab, setInfoDefaultTab] = useState<'about' | 'guide' | 'services' | 'contact'>('about');
     const { prayerTimes, stale } = usePrayerTimes();
     const { language } = useLanguage();
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
@@ -617,6 +617,12 @@ const AppContent = () => {
         setCurrentView('info');
     };
 
+    // Callback to switch to Services tab from anywhere (e.g. Settings)
+    const handleGoToServices = () => {
+        setInfoDefaultTab('services');
+        setCurrentView('info');
+    };
+
     // Check for Remote Mode URL param
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
@@ -653,7 +659,7 @@ const AppContent = () => {
             {(() => {
                 switch (currentView) {
                     case 'settings':
-                        return <SettingsPage key={key} onBack={() => setCurrentView('main')} />;
+                        return <SettingsPage key={key} onBack={() => setCurrentView('main')} onGoToServices={handleGoToServices} />;
                     case 'info':
                         return <InfoPage key={key} onBack={() => setCurrentView('main')} defaultTab={infoDefaultTab} />;
                     default:
