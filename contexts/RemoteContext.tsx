@@ -24,6 +24,31 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     
     const peerRef = useRef<any>(null);
     const connRef = useRef<any>(null);
+    const heartbeatInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+    const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Function to clear heartbeat
+    const stopHeartbeat = () => {
+        if (heartbeatInterval.current) {
+            clearInterval(heartbeatInterval.current);
+            heartbeatInterval.current = null;
+        }
+    };
+
+    // Function to start heartbeat (Remote side only)
+    const startHeartbeat = (connection: any) => {
+        stopHeartbeat();
+        // Send a PING every 2 seconds to keep the NAT hole open and prevent mobile throttling
+        heartbeatInterval.current = setInterval(() => {
+            if (connection && connection.open) {
+                try {
+                    connection.send({ type: 'PING', timestamp: Date.now() });
+                } catch (e) {
+                    console.warn("Heartbeat failed", e);
+                }
+            }
+        }, 2000);
+    };
 
     const initializePeer = (isHostMode: boolean, remoteTarget?: string) => {
         if (typeof Peer === 'undefined') {
@@ -40,7 +65,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             // REMOTE MODE (Phone)
             setIsHost(false);
             const peer = new Peer({
-                debug: 2,
+                debug: 1, // Reduced debug level
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
@@ -59,6 +84,11 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             peer.on('error', (err: any) => {
                 console.error("Peer Error:", err);
                 setConnectionStatus('disconnected');
+                // Retry initialization on fatal error after delay
+                if (!isHostMode && remoteTarget) {
+                     clearTimeout(reconnectTimeout.current!);
+                     reconnectTimeout.current = setTimeout(() => initializePeer(false, remoteTarget), 3000);
+                }
             });
             
             peerRef.current = peer;
@@ -70,7 +100,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             const fullId = `waqti-${shortId}`;
             
             const peer = new Peer(fullId, {
-                debug: 2,
+                debug: 1,
                 config: {
                     iceServers: [
                         { urls: 'stun:stun.l.google.com:19302' },
@@ -89,6 +119,9 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 setConnectionStatus('connected');
 
                 conn.on('data', (data: RemoteCommand) => {
+                    // Ignore Heartbeat PINGs
+                    if (data.type === 'PING') return;
+                    
                     console.log("Received command:", data);
                     setLastCommand(data);
                 });
@@ -116,6 +149,8 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         initializePeer(!remoteTarget, remoteTarget || undefined);
 
         return () => {
+            stopHeartbeat();
+            if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
             if (peerRef.current) peerRef.current.destroy();
         };
     }, []);
@@ -134,16 +169,32 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             console.log("Connected to host:", targetFullId);
             setConnectionStatus('connected');
             connRef.current = conn;
+            // Start Pinging the Host
+            startHeartbeat(conn);
         });
 
         conn.on('close', () => {
+            console.log("Connection closed. Retrying...");
             setConnectionStatus('disconnected');
             connRef.current = null;
+            stopHeartbeat();
+            
+            // Auto Reconnect Logic
+            clearTimeout(reconnectTimeout.current!);
+            reconnectTimeout.current = setTimeout(() => {
+                if (peer && !peer.destroyed) {
+                    connectToHost(peer, targetShortId);
+                } else {
+                    // If peer is destroyed, re-init everything
+                    initializePeer(false, targetShortId);
+                }
+            }, 1000); // Try to reconnect quickly
         });
 
         conn.on('error', (err: any) => {
             console.error("Connection error:", err);
-            setConnectionStatus('disconnected');
+            // Don't set status to disconnected here immediately, let the close event handle it
+            // or let the retry logic handle it.
         });
     };
 
@@ -158,7 +209,9 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             connRef.current.send(command);
         } else {
             console.warn("Not connected, cannot send command");
-            setConnectionStatus('disconnected'); // Reset status if send fails
+            // If we try to send and fail, trigger a reset
+            setConnectionStatus('disconnected');
+            resetConnection();
         }
     };
 
@@ -166,8 +219,10 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         const params = new URLSearchParams(window.location.search);
         const remoteTarget = params.get('remote');
         setConnectionStatus('disconnected');
+        stopHeartbeat();
+        
         if (remoteTarget && !isHost) {
-            if (peerRef.current) {
+            if (peerRef.current && !peerRef.current.destroyed) {
                 connectToHost(peerRef.current, remoteTarget);
             } else {
                 initializePeer(false, remoteTarget);

@@ -1,10 +1,49 @@
-import React, { useEffect, useState } from 'react';
+
+import React, { useEffect, useState, useRef } from 'react';
 import { useRemote } from '../contexts/RemoteContext';
 import { t } from '../i18n';
 
 export const RemoteView: React.FC = () => {
     const { connectionStatus, sendCommand, resetConnection } = useRemote();
     const [showRetry, setShowRetry] = useState(false);
+    const wakeLockRef = useRef<any>(null);
+
+    // --- Wake Lock Logic (Keep Screen On) ---
+    useEffect(() => {
+        const requestWakeLock = async () => {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+                    console.log('Wake Lock is active');
+                    
+                    wakeLockRef.current.addEventListener('release', () => {
+                        console.log('Wake Lock released');
+                    });
+                } catch (err: any) {
+                    console.error(`${err.name}, ${err.message}`);
+                }
+            }
+        };
+
+        // Request when component mounts
+        requestWakeLock();
+
+        // Re-request if visibility changes (user switches tabs and comes back)
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === 'visible') {
+                requestWakeLock();
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+            if (wakeLockRef.current) {
+                wakeLockRef.current.release();
+            }
+        };
+    }, []);
 
     // Effect to show retry button if connecting takes too long
     useEffect(() => {
@@ -39,6 +78,8 @@ export const RemoteView: React.FC = () => {
                 </h2>
                 <p className="text-slate-400 mb-6 text-sm">
                     Pastikan HP dan TV terhubung ke jaringan internet/WiFi yang sama.
+                    <br/><br/>
+                    <span className="text-yellow-500 text-xs">Tips: Jika menggunakan Hotspot HP, jangan biarkan layar HP mati.</span>
                 </p>
                 
                 {(showRetry || connectionStatus === 'disconnected') && (

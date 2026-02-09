@@ -1,6 +1,4 @@
 
-// FIX: Populating the content for this file which was a placeholder.
-
 export type PrayerName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 
 export type IqamahPrayerName = Exclude<PrayerName, 'Sunrise'>;
@@ -162,7 +160,7 @@ export enum DisplayState {
 }
 
 // NEW: Remote Control Types
-export type RemoteCommandType = 'NEXT_SLIDE' | 'PREV_SLIDE' | 'STOP_ALARM' | 'REFRESH';
+export type RemoteCommandType = 'NEXT_SLIDE' | 'PREV_SLIDE' | 'STOP_ALARM' | 'REFRESH' | 'PING';
 
 export interface RemoteCommand {
     type: RemoteCommandType;
