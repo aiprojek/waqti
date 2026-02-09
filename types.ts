@@ -160,9 +160,27 @@ export enum DisplayState {
 }
 
 // NEW: Remote Control Types
-export type RemoteCommandType = 'NEXT_SLIDE' | 'PREV_SLIDE' | 'STOP_ALARM' | 'REFRESH' | 'PING';
+export type RemoteCommandType = 
+    | 'NEXT_SLIDE' 
+    | 'PREV_SLIDE' 
+    | 'STOP_ALARM' 
+    | 'REFRESH' 
+    | 'PING'
+    // Navigation Commands
+    | 'OPEN_SETTINGS'
+    | 'CLOSE_SETTINGS'
+    | 'NAV_UP'
+    | 'NAV_DOWN'
+    | 'NAV_LEFT'
+    | 'NAV_RIGHT'
+    | 'NAV_ENTER'
+    | 'SEND_TEXT' // For typing into inputs
+    | 'UPDATE_DATA' // New: For bulk updating settings from phone
+    | 'REQUEST_SETTINGS' // Phone requests settings from TV
+    | 'SETTINGS_SNAPSHOT'; // TV sends settings to Phone
 
 export interface RemoteCommand {
     type: RemoteCommandType;
+    payload?: any; // Changed to any to support complex objects (like settings subset)
     timestamp: number;
 }

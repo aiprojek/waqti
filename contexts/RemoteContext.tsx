@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from 'react';
 import type { RemoteCommand } from '../types';
 
 declare const Peer: any;
@@ -11,7 +11,7 @@ interface RemoteContextType {
     sendCommand: (command: RemoteCommand) => void;
     lastCommand: RemoteCommand | null;
     isHost: boolean;
-    resetConnection: () => void; // New function to force retry
+    resetConnection: () => void;
 }
 
 const RemoteContext = createContext<RemoteContextType | undefined>(undefined);
@@ -22,23 +22,16 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [lastCommand, setLastCommand] = useState<RemoteCommand | null>(null);
     const [isHost, setIsHost] = useState(false);
     
+    // Refs to keep track of instances without triggering re-renders
     const peerRef = useRef<any>(null);
     const connRef = useRef<any>(null);
-    const heartbeatInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+    const isInitialized = useRef(false);
     const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const heartbeatInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    // Function to clear heartbeat
-    const stopHeartbeat = () => {
-        if (heartbeatInterval.current) {
-            clearInterval(heartbeatInterval.current);
-            heartbeatInterval.current = null;
-        }
-    };
-
-    // Function to start heartbeat (Remote side only)
+    // --- Heartbeat Logic ---
     const startHeartbeat = (connection: any) => {
-        stopHeartbeat();
-        // Send a PING every 2 seconds to keep the NAT hole open and prevent mobile throttling
+        if (heartbeatInterval.current) clearInterval(heartbeatInterval.current);
         heartbeatInterval.current = setInterval(() => {
             if (connection && connection.open) {
                 try {
@@ -50,153 +43,179 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         }, 2000);
     };
 
-    const initializePeer = (isHostMode: boolean, remoteTarget?: string) => {
+    const stopHeartbeat = () => {
+        if (heartbeatInterval.current) {
+            clearInterval(heartbeatInterval.current);
+            heartbeatInterval.current = null;
+        }
+    };
+
+    // --- Peer Initialization ---
+    const initializePeer = useCallback((isHostMode: boolean, remoteTarget?: string) => {
         if (typeof Peer === 'undefined') {
             console.error("PeerJS library not loaded");
             return;
         }
 
-        // Clean up existing peer if any
-        if (peerRef.current) {
-            peerRef.current.destroy();
+        // Prevent double initialization in React StrictMode
+        if (peerRef.current && !peerRef.current.destroyed) {
+            console.log("Peer already active, skipping init.");
+            return;
         }
 
-        if (!isHostMode) {
-            // REMOTE MODE (Phone)
-            setIsHost(false);
-            const peer = new Peer({
-                debug: 1, // Reduced debug level
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                }
-            }); 
+        console.log(`Initializing PeerJS... Mode: ${isHostMode ? 'HOST' : 'REMOTE'}`);
+
+        let peer: any;
+        const peerConfig = {
+            debug: 1,
+            config: {
+                iceServers: [
+                    { urls: 'stun:stun.l.google.com:19302' },
+                    { urls: 'stun:stun1.l.google.com:19302' },
+                    { urls: 'stun:stun2.l.google.com:19302' }
+                ]
+            }
+        };
+
+        if (isHostMode) {
+            setIsHost(true);
+            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const fullId = `waqti-${shortId}`;
+            peer = new Peer(fullId, peerConfig);
             
             peer.on('open', (id: string) => {
+                console.log("Host Peer Open:", id);
+                // Extract short ID just in case PeerJS adds suffix
+                const finalShortId = id.replace('waqti-', '').split('-')[0]; 
+                setPeerId(finalShortId);
+            });
+        } else {
+            setIsHost(false);
+            peer = new Peer(peerConfig); // Let server assign ID for remote
+            
+            peer.on('open', (id: string) => {
+                console.log("Remote Peer Open:", id);
                 setPeerId(id);
                 if (remoteTarget) {
                     connectToHost(peer, remoteTarget);
                 }
             });
+        }
 
-            peer.on('error', (err: any) => {
-                console.error("Peer Error:", err);
-                setConnectionStatus('disconnected');
-                // Retry initialization on fatal error after delay
-                if (!isHostMode && remoteTarget) {
-                     clearTimeout(reconnectTimeout.current!);
-                     reconnectTimeout.current = setTimeout(() => initializePeer(false, remoteTarget), 3000);
-                }
-            });
+        // --- Event Handlers ---
+        peer.on('connection', (conn: any) => {
+            console.log("Incoming connection from", conn.peer);
             
-            peerRef.current = peer;
-
-        } else {
-            // HOST MODE (TV/Display)
-            setIsHost(true);
-            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const fullId = `waqti-${shortId}`;
-            
-            const peer = new Peer(fullId, {
-                debug: 1,
-                config: {
-                    iceServers: [
-                        { urls: 'stun:stun.l.google.com:19302' },
-                        { urls: 'stun:stun1.l.google.com:19302' }
-                    ]
-                }
-            });
-
-            peer.on('open', () => {
-                setPeerId(shortId); 
-            });
-
-            peer.on('connection', (conn: any) => {
-                console.log("Incoming connection from", conn.peer);
+            conn.on('open', () => {
+                console.log("Connection Established!");
                 connRef.current = conn;
                 setConnectionStatus('connected');
-
-                conn.on('data', (data: RemoteCommand) => {
-                    // Ignore Heartbeat PINGs
-                    if (data.type === 'PING') return;
-                    
-                    console.log("Received command:", data);
-                    setLastCommand(data);
-                });
-
-                conn.on('close', () => setConnectionStatus('disconnected'));
-                conn.on('error', (err: any) => console.error("Conn error:", err));
             });
 
-            peer.on('error', (err: any) => {
-                console.error("Peer Error:", err);
-                // Retry generation if ID taken (rare)
-                if (err.type === 'unavailable-id') {
-                    setTimeout(() => initializePeer(true), 1000);
+            conn.on('data', (data: RemoteCommand) => {
+                if (data.type === 'PING') return;
+                console.log("Received command:", data);
+                setLastCommand(data);
+            });
+
+            conn.on('close', () => {
+                console.log("Connection closed remotely");
+                setConnectionStatus('disconnected');
+                connRef.current = null;
+            });
+            
+            conn.on('error', (err: any) => console.error("Conn error:", err));
+        });
+
+        peer.on('error', (err: any) => {
+            console.error("Peer Error:", err.type, err);
+            
+            if (err.type === 'unavailable-id') {
+                // If Host ID taken, retry with new ID
+                if (isHostMode) {
+                    peer.destroy();
+                    setTimeout(() => initializePeer(true), 500);
                 }
-            });
+            } else if (err.type === 'peer-unavailable') {
+                // Host not found
+                setConnectionStatus('disconnected');
+            } else if (err.type === 'disconnected' || err.type === 'network') {
+                setConnectionStatus('disconnected');
+                // Try to reconnect to signaling server
+                if (!peer.destroyed) {
+                    peer.reconnect();
+                }
+            }
+        });
 
-            peerRef.current = peer;
-        }
-    };
-
-    // Initial Setup
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        const remoteTarget = params.get('remote');
-        initializePeer(!remoteTarget, remoteTarget || undefined);
-
-        return () => {
-            stopHeartbeat();
-            if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
-            if (peerRef.current) peerRef.current.destroy();
-        };
+        peerRef.current = peer;
     }, []);
 
+    // --- Connect Logic (Remote Side) ---
     const connectToHost = (peer: any, targetShortId: string) => {
+        if (!peer || peer.destroyed) return;
+
         setConnectionStatus('connecting');
         const targetFullId = `waqti-${targetShortId.toUpperCase()}`;
-        
-        // Add reliable: true to ensure delivery and better connection handling
+        console.log("Attempting to connect to:", targetFullId);
+
         const conn = peer.connect(targetFullId, {
             reliable: true,
             serialization: 'json'
         });
 
+        // Set a timeout to fail if connection takes too long
+        const connectionTimeout = setTimeout(() => {
+            if (conn && !conn.open) {
+                console.warn("Connection timed out. Retrying...");
+                conn.close();
+                // Retry logic handled by 'close' listener below or manual retry
+            }
+        }, 5000);
+
         conn.on('open', () => {
-            console.log("Connected to host:", targetFullId);
+            clearTimeout(connectionTimeout);
+            console.log("Connected to host successfully!");
             setConnectionStatus('connected');
             connRef.current = conn;
-            // Start Pinging the Host
             startHeartbeat(conn);
         });
 
         conn.on('close', () => {
-            console.log("Connection closed. Retrying...");
+            console.log("Connection closed.");
             setConnectionStatus('disconnected');
             connRef.current = null;
             stopHeartbeat();
-            
-            // Auto Reconnect Logic
-            clearTimeout(reconnectTimeout.current!);
-            reconnectTimeout.current = setTimeout(() => {
-                if (peer && !peer.destroyed) {
-                    connectToHost(peer, targetShortId);
-                } else {
-                    // If peer is destroyed, re-init everything
-                    initializePeer(false, targetShortId);
-                }
-            }, 1000); // Try to reconnect quickly
+            clearTimeout(connectionTimeout);
         });
 
         conn.on('error', (err: any) => {
-            console.error("Connection error:", err);
-            // Don't set status to disconnected here immediately, let the close event handle it
-            // or let the retry logic handle it.
+            console.error("Connection Error:", err);
+            setConnectionStatus('disconnected');
+            clearTimeout(connectionTimeout);
         });
     };
+
+    // --- Main Effect ---
+    useEffect(() => {
+        if (isInitialized.current) return; // Guard against React StrictMode
+        isInitialized.current = true;
+
+        const params = new URLSearchParams(window.location.search);
+        const remoteTarget = params.get('remote');
+        
+        initializePeer(!remoteTarget, remoteTarget || undefined);
+
+        return () => {
+            stopHeartbeat();
+            if (reconnectTimeout.current) clearTimeout(reconnectTimeout.current);
+            if (peerRef.current) {
+                peerRef.current.destroy();
+                peerRef.current = null;
+            }
+            isInitialized.current = false;
+        };
+    }, [initializePeer]);
 
     const connectToPeer = (remoteId: string) => {
         if (peerRef.current && !isHost) {
@@ -205,26 +224,40 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     const sendCommand = (command: RemoteCommand) => {
-        if (connRef.current && connectionStatus === 'connected') {
-            connRef.current.send(command);
+        if (connRef.current && connRef.current.open) {
+            try {
+                connRef.current.send(command);
+            } catch (e) {
+                console.error("Send failed:", e);
+                setConnectionStatus('disconnected');
+            }
         } else {
-            console.warn("Not connected, cannot send command");
-            // If we try to send and fail, trigger a reset
+            console.warn("Cannot send, not connected.");
             setConnectionStatus('disconnected');
-            resetConnection();
         }
     };
 
     const resetConnection = () => {
+        console.log("Resetting connection...");
         const params = new URLSearchParams(window.location.search);
         const remoteTarget = params.get('remote');
+        
         setConnectionStatus('disconnected');
         stopHeartbeat();
         
+        if (connRef.current) {
+            connRef.current.close();
+            connRef.current = null;
+        }
+
         if (remoteTarget && !isHost) {
             if (peerRef.current && !peerRef.current.destroyed) {
+                // If peer is alive, just try to connect again
                 connectToHost(peerRef.current, remoteTarget);
             } else {
+                // If peer is dead, restart everything
+                if (peerRef.current) peerRef.current.destroy();
+                peerRef.current = null;
                 initializePeer(false, remoteTarget);
             }
         }

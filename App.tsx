@@ -22,16 +22,11 @@ import { db } from './lib/db';
 import { useBlobUrl } from './hooks/useBlobUrl';
 
 // This component isolates all the logic that needs to update every second.
-// By doing this, the parent component (AppContent) and its other children (Header, Footer)
-// do not re-render every second, which fixes the running text animation glitch.
 const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: boolean }> = ({ prayerTimes, stale }) => {
     const { settings } = useSettings();
     const { currentTime } = useClock();
     const { lastCommand } = useRemote();
     
-    // FIX: Get current day of month to force sortedPrayerTimes recalculation when day changes.
-    // This prevents the "stale date" bug where next prayer incorrectly shows Fajr because
-    // the prayer time Date objects belong to the previous day.
     const dayOfMonth = currentTime.getDate();
 
     const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
@@ -46,7 +41,7 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
     
     const isFriday = useMemo(() => currentTime.getDay() === 5, [currentTime]);
 
-    // Handle Remote Commands
+    // Handle Playback Remote Commands
     useEffect(() => {
         if (!lastCommand) return;
 
@@ -76,18 +71,12 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
                     alarmAudioRef.current.pause();
                     alarmAudioRef.current.currentTime = 0;
                 }
-                // Also skip countdown or prayer progress if desired, 
-                // but usually stop alarm just silences it.
-                // Optionally force back to clock if stuck
-                if (displayState === DisplayState.IqamahCountdown || displayState === DisplayState.PrayerTime) {
-                    // Logic to skip could go here, for now just silence.
-                }
                 break;
             case 'REFRESH':
                 window.location.reload();
                 break;
         }
-    }, [lastCommand, displayMode, settings.slides, displayState]);
+    }, [lastCommand, displayMode, settings.slides]);
 
     const prayerTimesToUse = useMemo(() => {
         if (!prayerTimes) return null;
@@ -102,7 +91,6 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
 
     const sortedPrayerTimes = useMemo(() => {
         if (!prayerTimesToUse) return [];
-        // parseTimeToDate uses `new Date()`, so it must be re-run when the day changes (dayOfMonth).
         return IQAMAH_PRAYERS
             .map(name => ({ name, time: parseTimeToDate(prayerTimesToUse[name]) }))
             .sort((a, b) => a.time.getTime() - b.time.getTime());
@@ -116,8 +104,6 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
         if (futurePrayers.length > 0) {
             return futurePrayers[0];
         }
-        // If no prayers left today, the next prayer is the first one tomorrow
-        // FIX: Must clone the object AND the Date object to avoid mutating the original sortedPrayerTimes array
         const tomorrowPrayer = { 
             ...sortedPrayerTimes[0],
             time: new Date(sortedPrayerTimes[0].time) 
@@ -139,7 +125,7 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
         return `${String(minutes).padStart(2, '0')}:${String(Math.floor(totalSeconds % 60)).padStart(2, '0')}`;
     },[currentTime, nextPrayer]);
     
-    // NEW: Effect for Dynamic Page Title
+    // Dynamic Page Title Effect
     useEffect(() => {
         const originalTitle = "Waqti";
         const isJumatPrayer = isFriday && settings.enableFridayMode && activePrayer === 'Dhuhr';
@@ -161,23 +147,6 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
                     document.title = `${t('main.prayerTime')} ${prayerName.toUpperCase()}`;
                 }
                 break;
-            case DisplayState.IqamahCountdown:
-                const minutes = String(Math.floor(countdown / 60)).padStart(2, '0');
-                const seconds = String(countdown % 60).padStart(2, '0');
-                document.title = `${t('main.iqamahIn')} ${minutes}:${seconds}`;
-                break;
-            case DisplayState.KhutbahInProgress:
-                document.title = settings.khutbahMessageTitle || t('defaults.khutbah.title');
-                break;
-            case DisplayState.PrayerInProgress:
-                document.title = t('main.prayerInProgress');
-                break;
-            case DisplayState.DimScreen:
-                document.title = t('main.prayerInProgress');
-                break;
-            case DisplayState.Dhikr:
-                document.title = t('main.dhikr');
-                break;
             default:
                 document.title = originalTitle;
         }
@@ -186,7 +155,7 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
             document.title = originalTitle;
         }
 
-    }, [displayState, timeToNextPrayer, nextPrayer, activePrayer, countdown, isFriday, settings]);
+    }, [displayState, timeToNextPrayer, nextPrayer, activePrayer, isFriday, settings]);
 
 
     const playAlarm = (soundSrc: string) => {
@@ -195,7 +164,7 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
         audio.play().catch(error => console.error("Audio playback failed:", error));
     };
 
-    // BUG FIX #1: More efficient prayer time trigger using setTimeout
+    // Prayer Time Trigger
     useEffect(() => {
         let prayerTimer: ReturnType<typeof setTimeout>;
 
@@ -234,7 +203,7 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
                     setCountdown(iqamahOffset);
                     setDisplayState(DisplayState.IqamahCountdown);
                 }
-            }, 10000); // 10 seconds timer
+            }, 10000); 
             return () => clearTimeout(timer);
         } else if (displayState === DisplayState.IqamahCountdown && activePrayer) {
             if (countdown > 0) {
@@ -255,13 +224,11 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
             return () => clearTimeout(timer);
         } else if (displayState === DisplayState.PrayerInProgress && activePrayer) {
             if (settings.enableDimScreen && !isJumatPrayer) {
-                // Show "Prayer in Progress" message for 10s, then switch to DimScreen
                 const timer = setTimeout(() => {
                     setDisplayState(DisplayState.DimScreen);
                 }, 10000);
                 return () => clearTimeout(timer);
             } else {
-                // Original behavior if dim screen is disabled or it's Jum'ah
                 const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
                 const prayerDurationMs = durationForCurrentPrayer * 60 * 1000;
                 const timer = setTimeout(() => {
@@ -276,7 +243,6 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
             }
         } else if (displayState === DisplayState.DimScreen && activePrayer) {
             const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
-            // Duration is total prayer duration MINUS the 10 seconds for the message
             const dimDurationMs = (durationForCurrentPrayer * 60 * 1000) - 10000;
             const timer = setTimeout(() => {
                 if (!settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
@@ -321,10 +287,8 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
 
         let durationSeconds: number;
         if (displayMode === 'clock') {
-            // Duration for the clock is determined by the *next* slide to be shown.
             durationSeconds = enabledSlides[validIndex].duration;
         } else {
-            // Duration for the slide is determined by the *current* slide being shown.
             durationSeconds = enabledSlides[validIndex].duration;
         }
 
@@ -339,8 +303,8 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
                     setDisplayMode('clock');
                 }
                 setIsTransitioning(false);
-            }, 500); // Fade transition time
-        }, (durationSeconds || 15) * 1000); // Use 15s as a fallback
+            }, 500); 
+        }, (durationSeconds || 15) * 1000); 
 
         return () => clearTimeout(timer);
 
@@ -367,13 +331,9 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
     );
 };
 
-// This component centralizes the logic for applying global theme settings (dark/light mode, accent color)
-// to the documentElement. It ensures that the theme is applied consistently across all views,
-// including modals and separate pages like Settings, fixing visual inconsistencies.
 const GlobalThemeApplicator: React.FC = () => {
     const { settings } = useSettings();
 
-    // Utility to convert hex to rgba for the glow effect, handles 3- and 6-digit hex.
     const hexToRgba = (hex: string, alpha: number) => {
         let c: any;
         if (/^#([A-Fa-f0-9]{3}){1,2}$/.test(hex)) {
@@ -384,7 +344,7 @@ const GlobalThemeApplicator: React.FC = () => {
             c = '0x' + c.join('');
             return `rgba(${[(c >> 16) & 255, (c >> 8) & 255, c & 255].join(',')},${alpha})`;
         }
-        return `rgba(139, 92, 246, ${alpha})`; // Return default purple if invalid
+        return `rgba(139, 92, 246, ${alpha})`;
     };
 
     useEffect(() => {
@@ -399,11 +359,10 @@ const GlobalThemeApplicator: React.FC = () => {
             root.style.setProperty('--accent-color', settings.accentColor);
             root.style.setProperty('--accent-glow-color', hexToRgba(settings.accentColor, 0.5));
         } else {
-             root.style.setProperty('--accent-color', '#8B5CF6'); // Default purple
+             root.style.setProperty('--accent-color', '#8B5CF6'); 
              root.style.setProperty('--accent-glow-color', 'rgba(139, 92, 246, 0.5)');
         }
 
-        // Apply Font Style
         if (settings.fontStyle === 'serif') {
             document.body.style.fontFamily = 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif';
         } else {
@@ -412,10 +371,9 @@ const GlobalThemeApplicator: React.FC = () => {
 
     }, [settings.theme, settings.accentColor, settings.fontStyle]);
 
-    return null; // This component does not render anything itself
+    return null; 
 };
 
-// Component to handle Sleep Mode logic
 const SleepOverlay: React.FC = () => {
     const { settings } = useSettings();
     const { currentTime } = useClock();
@@ -436,13 +394,10 @@ const SleepOverlay: React.FC = () => {
         const [endHour, endMinute] = settings.sleepEndTime.split(':').map(Number);
         const endMinutes = endHour * 60 + endMinute;
 
-        // Logic to check if current time is within range
         let shouldSleep = false;
         if (startMinutes < endMinutes) {
-            // Same day range (e.g. 13:00 to 15:00)
             shouldSleep = currentMinutes >= startMinutes && currentMinutes < endMinutes;
         } else {
-            // Overnight range (e.g. 22:00 to 04:00)
             shouldSleep = currentMinutes >= startMinutes || currentMinutes < endMinutes;
         }
 
@@ -456,8 +411,6 @@ const SleepOverlay: React.FC = () => {
     );
 };
 
-// This component handles the per-second background update.
-// It accepts children which it will not re-render unless they change.
 const DynamicBackgroundView: React.FC<{ 
     children: React.ReactNode; 
     prayerTimes: PrayerTimes | null;
@@ -470,38 +423,32 @@ const DynamicBackgroundView: React.FC<{
             return settings.wallpaper;
         }
 
-        // Get today's prayer times as Date objects
         const todayPrayerMoments = IQAMAH_PRAYERS.map(name => ({
             name,
             date: parseTimeToDate(prayerTimes[name])
         }));
 
-        // Get yesterday's Isha time to correctly handle the period after midnight
         const ishaTimeStr = prayerTimes['Isha'];
-        if (!ishaTimeStr) return settings.wallpaper; // Safety check
+        if (!ishaTimeStr) return settings.wallpaper; 
 
         const yesterdayIsha = parseTimeToDate(ishaTimeStr);
         yesterdayIsha.setDate(yesterdayIsha.getDate() - 1);
 
-        // Combine yesterday's Isha with today's prayers
         const allMoments = [
             { name: 'Isha' as PrayerName, date: yesterdayIsha },
             ...todayPrayerMoments
         ].sort((a, b) => a.date.getTime() - b.date.getTime());
 
-        // Find all prayer times that have passed relative to the current time
         const pastOrCurrentMoments = allMoments.filter(p => p.date.getTime() <= currentTime.getTime());
 
-        let currentPrayerPeriod: PrayerName = 'Isha'; // Default to Isha
+        let currentPrayerPeriod: PrayerName = 'Isha'; 
         if (pastOrCurrentMoments.length > 0) {
-            // The last prayer in the sorted list of past prayers determines the current period
             currentPrayerPeriod = pastOrCurrentMoments[pastOrCurrentMoments.length - 1].name;
         }
 
         return settings.contextualWallpapers[currentPrayerPeriod as keyof typeof settings.contextualWallpapers] || settings.wallpaper;
     }, [currentTime, prayerTimes, settings]);
 
-    // Use hook to resolve potential DB reference
     const resolvedWallpaper = useBlobUrl(activeWallpaperSetting);
 
     const backgroundStyle: React.CSSProperties = {};
@@ -525,7 +472,6 @@ const DynamicBackgroundView: React.FC<{
                 transition-colors duration-500 w-full relative overflow-hidden
             `}
         >
-            {/* Layer 1: Background Image or Color */}
             <div 
                 style={backgroundStyle} 
                 className={`
@@ -537,7 +483,6 @@ const DynamicBackgroundView: React.FC<{
                 `}
             ></div>
 
-            {/* Layer 2: Unified semi-transparent overlay for darkening, gradients, and aurora animation */}
             <div className={`
                 absolute inset-0 transition-opacity duration-500
                 bg-black/20
@@ -545,7 +490,6 @@ const DynamicBackgroundView: React.FC<{
                 ${settings.theme === 'dark' && settings.enableBackgroundAnimation ? 'animate-aurora' : ''}
             `}></div>
             
-            {/* Layer 3: Content */}
             <div className="relative z-10 h-full w-full">
                  {children}
             </div>
@@ -553,8 +497,6 @@ const DynamicBackgroundView: React.FC<{
     );
 };
 
-// This component holds the static layout parts of the main view.
-// It is wrapped in React.memo to prevent re-renders when its parent (DynamicBackgroundView) updates.
 const MainViewLayout: React.FC<{ 
     prayerTimes: PrayerTimes | null;
     stale: boolean;
@@ -578,8 +520,172 @@ const AppContent = () => {
     const [infoDefaultTab, setInfoDefaultTab] = useState<'about' | 'guide' | 'services' | 'contact'>('about');
     const { prayerTimes, stale } = usePrayerTimes();
     const { language } = useLanguage();
+    const { settings, saveSettings } = useSettings(); // Need access to saveSettings
     const [showWelcomeModal, setShowWelcomeModal] = useState(false);
     const [loading, setLoading] = useState(true);
+    const { lastCommand, sendCommand } = useRemote();
+
+    // --- Remote Navigation & Control Logic ---
+    useEffect(() => {
+        if (!lastCommand) return;
+
+        // Navigation Helper function
+        const navigateFocus = (direction: 'next' | 'prev') => {
+            // Include inputs, buttons, and anything with tabIndex
+            const focusableElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            const focusableArray = Array.from(focusableElements) as HTMLElement[];
+            
+            if (focusableArray.length === 0) return;
+
+            const currentIndex = focusableArray.indexOf(document.activeElement as HTMLElement);
+            let nextIndex = 0;
+
+            if (direction === 'next') {
+                nextIndex = currentIndex + 1 >= focusableArray.length ? 0 : currentIndex + 1;
+            } else {
+                nextIndex = currentIndex - 1 < 0 ? focusableArray.length - 1 : currentIndex - 1;
+            }
+
+            focusableArray[nextIndex].focus();
+        };
+
+        const enterFocus = () => {
+            const active = document.activeElement as HTMLElement;
+            if (active) {
+                active.click();
+            }
+        };
+
+        const handleInputText = (text: string) => {
+            const active = document.activeElement as HTMLInputElement | HTMLTextAreaElement;
+            if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
+                // Programmatically set value and dispatch events for React to pick it up
+                const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+                    window.HTMLInputElement.prototype, 
+                    "value"
+                )?.set;
+                
+                if (nativeInputValueSetter) {
+                    nativeInputValueSetter.call(active, text);
+                    const event = new Event('input', { bubbles: true });
+                    active.dispatchEvent(event);
+                } else {
+                    // Fallback
+                    active.value = text;
+                    const event = new Event('input', { bubbles: true });
+                    active.dispatchEvent(event);
+                }
+            }
+        };
+
+        // NEW: Handle update commands from remote
+        const handleUpdateData = async (payload: any) => {
+            if (!payload) return;
+            
+            let newSettings = { ...settings };
+            
+            // Merge simple properties
+            if (payload.mosqueName) newSettings.mosqueName = payload.mosqueName;
+            if (payload.city) newSettings.city = payload.city;
+            if (payload.theme) newSettings.theme = payload.theme;
+            if (payload.displayMode) newSettings.displayMode = payload.displayMode;
+            if (payload.calculationMethod) newSettings.calculationMethod = Number(payload.calculationMethod);
+            if (payload.madhab) newSettings.madhab = Number(payload.madhab);
+            if (payload.manualFridayTime) newSettings.manualFridayTime = payload.manualFridayTime;
+            if (payload.khutbahMessageTitle) newSettings.khutbahMessageTitle = payload.khutbahMessageTitle;
+            
+            // Merge nested objects (Corrections/Offsets)
+            if (payload.adjustments) {
+                newSettings.adjustments = { ...newSettings.adjustments, ...payload.adjustments };
+            }
+            if (payload.iqamahOffsets) {
+                newSettings.iqamahOffsets = { ...newSettings.iqamahOffsets, ...payload.iqamahOffsets };
+            }
+
+            // Running Text Logic
+            if (payload.runningText) {
+                // Update first custom text item or create one
+                const currentCustoms = [...(newSettings.customTexts || [])];
+                if (currentCustoms.length > 0) {
+                    currentCustoms[0] = { ...currentCustoms[0], content: payload.runningText };
+                } else {
+                    currentCustoms.push({ id: `remote-${Date.now()}`, content: payload.runningText });
+                }
+                newSettings.customTexts = currentCustoms;
+                newSettings.enableRunningText = true;
+                newSettings.runningTextMode = 'custom';
+            }
+            
+            // Wallpaper logic (same as before)
+            if (payload.wallpaper) {
+                if (payload.wallpaper.startsWith('data:image')) {
+                    try {
+                        const res = await fetch(payload.wallpaper);
+                        const blob = await res.blob();
+                        const id = await db.assets.add({
+                            blob: blob,
+                            type: blob.type,
+                            created: Date.now()
+                        });
+                        newSettings.wallpaper = `local-asset:${id}`;
+                    } catch (e) {
+                        console.error("Failed to save remote wallpaper", e);
+                    }
+                } else if (payload.wallpaper.startsWith('#') || payload.wallpaper.startsWith('http')) {
+                     newSettings.wallpaper = payload.wallpaper;
+                }
+            }
+
+            saveSettings(newSettings);
+        };
+
+        switch (lastCommand.type) {
+            case 'OPEN_SETTINGS':
+                setCurrentView('settings');
+                break;
+            case 'CLOSE_SETTINGS':
+                setCurrentView('main');
+                break;
+            case 'NAV_DOWN':
+            case 'NAV_RIGHT':
+                navigateFocus('next');
+                break;
+            case 'NAV_UP':
+            case 'NAV_LEFT':
+                navigateFocus('prev');
+                break;
+            case 'NAV_ENTER':
+                enterFocus();
+                break;
+            case 'SEND_TEXT':
+                if (lastCommand.payload) {
+                    handleInputText(lastCommand.payload);
+                }
+                break;
+            case 'UPDATE_DATA':
+                handleUpdateData(lastCommand.payload);
+                break;
+            case 'REQUEST_SETTINGS':
+                // Send current settings back to remote (sanitize images if needed to save bandwidth)
+                // For now sending full object but we might want to strip 'slides' images if too heavy
+                // To keep it simple, we send most things.
+                const snapshot = {
+                    mosqueName: settings.mosqueName,
+                    city: settings.city,
+                    runningText: settings.customTexts?.[0]?.content || '',
+                    theme: settings.theme,
+                    displayMode: settings.displayMode,
+                    calculationMethod: settings.calculationMethod,
+                    madhab: settings.madhab,
+                    adjustments: settings.adjustments,
+                    iqamahOffsets: settings.iqamahOffsets,
+                    manualFridayTime: settings.manualFridayTime,
+                    khutbahMessageTitle: settings.khutbahMessageTitle
+                };
+                sendCommand({ type: 'SETTINGS_SNAPSHOT', payload: snapshot, timestamp: Date.now() });
+                break;
+        }
+    }, [lastCommand, settings, saveSettings, sendCommand]);
 
     useEffect(() => {
         const checkWelcomeStatus = async () => {
@@ -607,38 +713,26 @@ const AppContent = () => {
     };
 
     const handleGoToGuide = () => {
-        handleCloseWelcome(); // Also marks as seen
+        handleCloseWelcome(); 
         setInfoDefaultTab('guide');
         setCurrentView('info');
     };
 
     const handleInfoClick = () => {
-        setInfoDefaultTab('about'); // Default to about tab when clicking from header
+        setInfoDefaultTab('about'); 
         setCurrentView('info');
     };
 
-    // Callback to switch to Services tab from anywhere (e.g. Settings)
     const handleGoToServices = () => {
         setInfoDefaultTab('services');
         setCurrentView('info');
     };
-
-    // Check for Remote Mode URL param
-    useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
-        if (params.get('remote')) {
-            // We are in remote mode, but we still need to initialize context
-            // RemoteView will be rendered below
-        }
-    }, []);
 
     const isRemoteMode = useMemo(() => {
         const params = new URLSearchParams(window.location.search);
         return !!params.get('remote');
     }, []);
 
-    // This key forces a re-render of child components when language changes,
-    // ensuring all text is updated correctly.
     const key = useMemo(() => language, [language]);
 
     if (loading) {
