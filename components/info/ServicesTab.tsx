@@ -30,7 +30,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ title, description, price, ic
         <div className="mt-auto">
             <p className="font-semibold text-[var(--accent-color)] mb-4">{price}</p>
             <a 
-                href={`https://wa.me/6281234567890?text=${encodeURIComponent(`Halo AI Projek, saya tertarik dengan ${title} untuk masjid kami.`)}`} // Ganti nomor ini
+                href={`https://wa.me/6281225879494?text=${encodeURIComponent(`Halo AI Projek, saya tertarik dengan ${title} untuk masjid kami.`)}`}
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="w-full flex items-center justify-center gap-2 py-2 px-4 bg-slate-900 dark:bg-slate-700 text-white rounded-lg hover:bg-slate-800 dark:hover:bg-slate-600 transition-colors font-medium text-sm"
