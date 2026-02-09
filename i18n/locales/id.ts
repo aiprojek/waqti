@@ -1,3 +1,4 @@
+
 export const id = {
     general: {
         online: 'Online',
@@ -77,6 +78,14 @@ export const id = {
                 description: 'Simpan pengaturan Anda ke sebuah file untuk cadangan atau pindahkan ke perangkat lain.',
                 export: 'Ekspor Pengaturan',
                 import: 'Impor Pengaturan'
+            },
+            offlineAssets: {
+                title: 'Aset Offline',
+                description: 'Unduh perpustakaan yang diperlukan, serta gambar dan suara bawaan agar aplikasi dapat bekerja sepenuhnya tanpa internet (Mode Offline).',
+                download: 'Unduh Aset',
+                downloading: 'Mengunduh...',
+                ready: 'Aset Siap (Mode Offline Tersedia)',
+                success: 'Aset berhasil diunduh!'
             }
         },
         calculation: {
@@ -87,6 +96,25 @@ export const id = {
             fajrAngle: 'Sudut Subuh',
             ishaAngle: 'Sudut Isya',
             customNote: 'Sudut hanya dapat diubah jika Metode Kalkulasi diatur ke Kustom.',
+            source: {
+                title: 'Sumber Data & Lokasi',
+                source: 'Sumber Perhitungan',
+                api: 'Online (API)',
+                calculated: 'Offline (Kalkulasi)',
+                latitude: 'Lintang (Latitude)',
+                longitude: 'Bujur (Longitude)',
+                detect: 'Deteksi Lokasi',
+                detecting: 'Mendeteksi...',
+                detectError: 'Gagal mendeteksi lokasi. Pastikan izin lokasi aktif.',
+                searchCityPlaceholder: 'Cari koordinat berdasarkan nama kota...',
+                searchCity: 'Cari Koordinat',
+                searchSuccess: 'Ditemukan koordinat untuk: {{city}}',
+                searchNotFound: 'Koordinat kota tidak ditemukan.',
+                manualHelp: 'Anda dapat mengetik Angka Lintang dan Bujur secara manual di atas.',
+                currentCoordinates: 'Koordinat Saat Ini',
+                modeHelp: "Pilih 'Online' untuk hasil yang divalidasi server, atau 'Offline' untuk perhitungan internal (Adhan.js) tanpa internet."
+            },
+            methodHelp: 'Pengaturan di bawah ini berlaku untuk kedua metode (Online API & Offline Adhan.js).',
             corrections: {
                 title: 'Koreksi Manual',
                 useManual: 'Gunakan Waktu Shalat Manual',
@@ -106,6 +134,10 @@ export const id = {
             layoutFocus: 'Fokus Jam',
             layoutDashboard: 'Dasbor Informasi',
             layoutMinimalist: 'Minimalis',
+            minimalist: {
+                enableSwap: 'Tampilkan Jadwal Lengkap Secara Berkala',
+                swapInterval: 'Interval (menit)'
+            },
             bgAnimation: 'Aktifkan Animasi Latar Belakang',
             dimScreen: {
                 enable: 'Aktifkan Layar Redup saat Shalat',
@@ -213,7 +245,12 @@ export const id = {
                 income: 'Pemasukan',
                 expense: 'Pengeluaran',
                 finalBalance: 'Saldo Akhir',
-                donationTarget: 'Target Donasi (Opsional)'
+                donationTarget: 'Target Donasi (Opsional)',
+                chartTitle: 'Pemasukan vs Pengeluaran',
+                summary: 'Ringkasan',
+                collected: 'Terkumpul',
+                remaining: 'Sisa',
+                remainingNeeded: 'Dana yang masih dibutuhkan:'
             },
             empty: 'Belum ada slide. Silakan tambahkan.',
             type: {
@@ -233,14 +270,14 @@ export const id = {
         },
         about: {
             appName: "Waqti",
-            description_part1: "Aplikasi waktu shalat yang modern dan personal untuk menemani Waktu Anda bersama Sang Pencipta. Dilengkapi kustomisasi, tema, dan konten dinamis untuk penggunaan pribadi dan tampilan jam digital masjid. Terinspirasi dari ",
+            description_part1: "Aplikasi waktu shalat modern dan personal untuk menemani waktu Anda dengan Sang Pencipta. Dilengkapi kustomisasi, tema, dan konten dinamis untuk penggunaan pribadi dan tampilan jam digital masjid. Terinspirasi dari ",
             mawaqit_link_text: "Mawaqit",
-            description_part2: " dengan penyederhanaan penggunaan yaitu tanpa perlu akun dan backoffice untuk menggunakan. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan yang personal dengan waktu shalat.",
+            description_part2: " dengan penggunaan yang lebih sederhana—tanpa akun atau backoffice. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan personal dengan waktu shalat.",
             featuresTitle: 'Fitur Utama',
-            features: "Waktu Shalat Otomatis:Menghitung waktu shalat berdasarkan kota dan metode pilihan.|Kalkulasi Kustom:Sesuaikan metode, madhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan hitung mundur dari adzan ke iqamah.|Mode Jum'at:Mode tampilan khusus untuk shalat Jum'at.|Layout Tampilan:Pilih dari mode Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal kajian, dan laporan keuangan.|Kustomisasi Tema:Ubah warna aksen dan gambar latar belakang.|Teks Berjalan:Tampilkan pesan kustom atau konten bertema.|Tampilan Dzikir:Menampilkan rangkaian dzikir setelah shalat.|Layar Redup:Fitur opsional untuk membuat layar menjadi hitam saat shalat, meminimalkan gangguan.|Dukungan Offline:Tetap berfungsi meski tanpa koneksi internet.|Dukungan PWA:Dapat diinstal di perangkat Anda untuk akses cepat dan pengalaman seperti aplikasi asli.|Mode Orientasi:Mendukung tampilan landscape (lebar) dan portrait (tinggi) yang responsif.|Cadangkan & Pulihkan Data:Ekspor dan impor semua pengaturan Anda dengan mudah.",
+            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema & Visual:Sesuaikan warna aksen dan wallpaper.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
             supportTitle: 'Pengembang',
             coffee: 'Traktir Kopi',
-            discussion: 'Diskusi',
+            discussion: 'Gabung Diskusi',
             github: 'GitHub'
         },
         guide: {
@@ -249,67 +286,72 @@ export const id = {
             general: {
                 title: 'Pengaturan Umum',
                 content: `<ul>
-<li><strong>Nama Masjid:</strong> Nama yang akan ditampilkan di layar utama.</li>
+<li><strong>Nama Masjid:</strong> Nama yang ditampilkan di layar utama.</li>
 <li><strong>Bahasa:</strong> Mengubah bahasa antarmuka aplikasi.</li>
-<li><strong>Kota:</strong> Menentukan perhitungan waktu shalat. Aplikasi akan mengambil data dari internet berdasarkan kota ini.</li>
-<li><strong>Manajemen Data:</strong> Anda dapat mengekspor semua pengaturan saat ini ke dalam sebuah file <code>.json</code> sebagai cadangan atau untuk dipindahkan ke perangkat lain. Gunakan impor untuk memulihkan dari file tersebut.</li>
+<li><strong>Kota:</strong> Menentukan perhitungan waktu shalat (Mode Online). Aplikasi akan mengambil data dari internet berdasarkan kota ini.</li>
+<li><strong>Remote Control:</strong> Pindai kode QR untuk menyambungkan HP Anda dan menggunakannya sebagai pengendali jarak jauh.</li>
+<li><strong>Aset Offline:</strong> Unduh file yang diperlukan agar aplikasi berfungsi sempurna tanpa koneksi internet.</li>
+<li><strong>Manajemen Data:</strong> Anda dapat mengekspor semua pengaturan saat ini menjadi file <code>.json</code> sebagai cadangan atau untuk memindahkannya ke perangkat lain. Gunakan impor untuk memulihkan dari file tersebut.</li>
 </ul>`
             },
             calculation: {
                 title: 'Pengaturan Kalkulasi',
                 content: `<ul>
-<li><strong>Metode Kalkulasi:</strong> Pilih lembaga acuan perhitungan waktu shalat (misal: Kemenag RI). Pilih 'Kustom' untuk mengatur sudut Subuh dan Isya sendiri.</li>
-<li><strong>Madhab:</strong> Mempengaruhi perhitungan waktu shalat Ashar. 'Standar' untuk Syafi'i, Maliki, Hanbali, sementara 'Hanafi' memiliki waktu yang lebih lambat.</li>
-<li><strong>Koreksi Waktu:</strong> Tambah atau kurangi menit secara manual untuk setiap waktu shalat jika Anda menemukan selisih dengan jadwal masjid lokal.</li>
-<li><strong>Jeda Iqamah:</strong> Mengatur durasi hitung mundur dari adzan ke iqamah untuk setiap shalat.</li>
+<li><strong>Sumber:</strong> Pilih 'Online (API)' untuk mengambil waktu berdasarkan nama kota, atau 'Offline (Kalkulasi)' untuk menghitung secara internal menggunakan koordinat.</li>
+<li><strong>Koordinat:</strong> Lintang (Latitude) dan Bujur (Longitude) diperlukan untuk perhitungan offline. Anda bisa mendeteksinya secara otomatis.</li>
+<li><strong>Metode Kalkulasi:</strong> Pilih lembaga perhitungan waktu shalat (misal: Kemenag RI). Pilih 'Kustom' untuk mengatur sudut Subuh dan Isya sendiri.</li>
+<li><strong>Madhab:</strong> Mempengaruhi perhitungan waktu Asar. 'Standar' untuk Syafi'i, Maliki, Hambali, sedangkan 'Hanafi' waktunya lebih lambat.</li>
+<li><strong>Koreksi Waktu:</strong> Tambah atau kurangi menit secara manual untuk setiap waktu shalat jika ada selisih dengan masjid setempat.</li>
+<li><strong>Jeda Iqamah:</strong> Mengatur durasi hitung mundur dari azan menuju iqamah untuk setiap shalat.</li>
 </ul>`
             },
             display: {
                 title: 'Pengaturan Tampilan',
                 content: `<ul>
 <li><strong>Tema:</strong> Pilih antara tampilan gelap atau terang.</li>
-<li><strong>Mode Orientasi:</strong> 'Landscape' cocok untuk layar lebar (monitor), 'Portrait' untuk layar tinggi. Ini akan mempengaruhi tata letak.</li>
-<li><strong>Template Layout:</strong> Pilih penampilan layar utama. 'Fokus Jam' berukuran besar dan jelas, 'Dasbor Informasi' menampilkan berbagai info, dan 'Minimalis' tampil sederhana.</li>
-<li><strong>Aktifkan Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
+<li><strong>Mode Orientasi:</strong> 'Landscape' cocok untuk layar lebar (monitor/TV), 'Portrait' untuk layar tinggi. Ini mempengaruhi tata letak.</li>
+<li><strong>Template Layout:</strong> Pilih tampilan layar utama. 'Fokus Jam' besar dan jelas, 'Dasbor Informasi' menampilkan beragam info, dan 'Minimalis' lebih sederhana.</li>
+<li><strong>Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat berlangsung (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
-<li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Anda bisa menggunakan gambar via URL, mengunggah gambar sendiri, atau memilih 'Warna Polos' untuk menggunakan warna matte sederhana.</li>
-<li><strong>Wallpaper Kontekstual:</strong> Jika aktif, wallpaper akan berubah otomatis mengikuti periode waktu shalat saat ini (misal: gambar berbeda untuk Subuh, Zuhur, dst).</li>
-<li><strong>Teks Berjalan:</strong> Tampilkan tulisan bergerak di bagian bawah layar. Mode 'Kustom' menggunakan teks yang Anda tulis, mode 'Tema' memilih acak dari ayat Al-Qur'an atau hadits.</li>
+<li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Bisa menggunakan gambar dari URL, unggah gambar sendiri, atau pilih 'Warna Polos' untuk warna matte sederhana.</li>
+<li><strong>Wallpaper Kontekstual:</strong> Jika diaktifkan, wallpaper akan berubah otomatis berdasarkan periode waktu shalat saat ini (misal: gambar berbeda untuk Subuh, Zuhur, dll).</li>
+<li><strong>Teks Berjalan:</strong> Menampilkan teks bergerak di bagian bawah layar. Mode 'Kustom' menggunakan teks buatan Anda, mode 'Tema' memilih acak dari ayat Al-Qur'an atau hadits.</li>
 </ul>`
             },
             mosqueMode: {
                 title: 'Penggunaan Sebagai Jam Digital Masjid',
-                content: `<p>Aplikasi ini dirancang agar dapat berfungsi sebagai jam digital layar penuh di masjid. Berikut adalah langkah-langkah praktis untuk mengaturnya:</p>
+                content: `<p>Aplikasi ini dirancang agar bisa berfungsi sebagai jam digital layar penuh di masjid. Berikut langkah praktis pengaturannya:</p>
 <ol>
-<li><strong>Perangkat & Koneksi:</strong> Sambungkan perangkat komputer (seperti Mini PC, Intel NUC, atau Raspberry Pi) ke layar TV besar atau proyektor di masjid Anda menggunakan kabel HDMI.</li>
-<li><strong>Buka di Browser:</strong> Buka aplikasi Waqti di browser web pada perangkat tersebut (misalnya, Google Chrome atau Firefox).</li>
-<li><strong>Mode Layar Penuh (Fullscreen):</strong> Tekan tombol <code>F11</code> pada keyboard untuk membuat browser tampil dalam mode layar penuh tanpa bar alamat atau tab. Tekan <code>F11</code> lagi untuk keluar.</li>
-<li><strong>Pilih Layout Terbaik:</strong> Di menu Pengaturan &gt; Tampilan, pilih 'Template Layout' yang paling sesuai. <strong>'Fokus Jam'</strong> sangat direkomendasikan untuk keterbacaan maksimal, atau <strong>'Dasbor Informasi'</strong> jika ingin menampilkan info tambahan.</li>
-<li><strong>Instal sebagai Aplikasi (PWA):</strong> Untuk kemudahan akses dan keandalan offline, instal aplikasi ini ke perangkat. Cari ikon 'Instal' di bilah alamat browser atau di menu browser. Ini akan membuat pintasan di Desktop.</li>
-<li><strong>Transfer Pengaturan:</strong> Atur semua konfigurasi di komputer pribadi Anda, lalu gunakan fitur <strong>Ekspor Data</strong>. Pindahkan file tersebut ke komputer masjid dan gunakan fitur <strong>Impor Data</strong> untuk menerapkan semua konfigurasi secara instan.</li>
+<li><strong>Perangkat & Koneksi:</strong> Sambungkan perangkat komputer (seperti Mini PC, Intel NUC, atau Raspberry Pi) ke layar TV besar atau proyektor di masjid menggunakan kabel HDMI.</li>
+<li><strong>Buka di Browser:</strong> Buka aplikasi Waqti di browser web pada perangkat tersebut (misalnya Google Chrome atau Firefox).</li>
+<li><strong>Mode Layar Penuh:</strong> Tekan tombol <code>F11</code> pada keyboard agar browser masuk ke mode layar penuh (fullscreen) tanpa bilah alamat. Tekan <code>F11</code> lagi untuk keluar.</li>
+<li><strong>Pilih Layout Terbaik:</strong> Di menu Pengaturan > Tampilan, pilih 'Template Layout' yang paling sesuai untuk dilihat dari jauh. <strong>'Fokus Jam'</strong> sangat disarankan untuk keterbacaan maksimal, atau <strong>'Dasbor Informasi'</strong> jika ingin menampilkan jadwal dan info keuangan.</li>
+<li><strong>Instal Aplikasi (PWA) & Unduh Aset:</strong> Agar lebih mudah diakses dan andal secara offline, instal aplikasi ini ke perangkat. Juga, buka Pengaturan > Umum dan klik "Unduh Aset" untuk menyimpan gambar dan suara secara lokal.</li>
+<li><strong>Remote Control:</strong> Gunakan HP Anda untuk memindai kode QR di Pengaturan > Remote Control untuk mengatur slide atau mematikan alarm tanpa menyentuh TV.</li>
+<li><strong>Transfer Pengaturan:</strong> Atur semua pengaturan di komputer pribadi Anda terlebih dahulu. Lalu gunakan fitur <strong>Ekspor Data</strong> untuk menyimpan pengaturan. Pindahkan file tersebut ke komputer masjid dan gunakan fitur <strong>Impor Data</strong> untuk menerapkan semua konfigurasi secara instan.</li>
 </ol>`
             },
             alarm: {
                 title: 'Pengaturan Alarm & Dzikir',
                 content: `<ul>
-<li><strong>Alarm:</strong> Aktifkan alarm yang akan berbunyi saat waktu Adzan dan Iqamah. Anda bisa menggunakan suara bawaan, URL, atau mengunggah file audio sendiri.</li>
-<li><strong>Mode Jum'at:</strong> Pengaturan khusus untuk hari Jum'at. 'Durasi Tampilan Khutbah' akan menggantikan hitung mundur iqamah pada hari Jum'at.</li>
-<li><strong>Durasi Tampilan:</strong> Atur berapa lama layar 'Shalat Didirikan' ditampilkan untuk tiap shalat dan total durasi untuk seluruh rangkaian dzikir.</li>
-<li><strong>Daftar Dzikir:</strong> Aktifkan, non-aktifkan, tambah, hapus, dan urutkan daftar dzikir yang muncul setelah shalat selesai.</li>
+<li><strong>Alarm:</strong> Aktifkan alarm yang akan berbunyi saat waktu Azan dan Iqamah tiba. Bisa menggunakan suara bawaan, URL, atau unggah file audio sendiri.</li>
+<li><strong>Mode Jum'at:</strong> Pengaturan khusus hari Jum'at. Bisa mengikuti waktu Zuhur atau waktu manual. 'Durasi Tampilan Khutbah' menggantikan hitung mundur iqamah pada hari Jum'at.</li>
+<li><strong>Durasi Tampilan:</strong> Mengatur berapa lama layar 'Shalat Didirikan' ditampilkan untuk setiap shalat dan total durasi untuk seluruh rangkaian dzikir.</li>
+<li><strong>Daftar Dzikir:</strong> Aktifkan, nonaktifkan, tambah, hapus, dan urutkan daftar dzikir yang muncul setelah shalat selesai.</li>
 </ul>`
             },
             slides: {
                 title: 'Pengaturan Slide',
-                content: `<p>Fitur ini memungkinkan Anda menampilkan berbagai slide informatif yang akan tampil bergantian dengan jam utama.</p>
+                content: `<p>Fitur ini memungkinkan Anda menampilkan berbagai slide informasi yang akan bergantian dengan tampilan jam utama.</p>
 <ul>
-<li><strong>Tambah Slide:</strong> Klik tombol untuk menambah slide jenis Teks, Gambar, Jadwal, atau Keuangan.</li>
-<li><strong>Pengaturan Slide:</strong> Untuk setiap slide, Anda bisa mengaktifkan/menonaktifkan, mengatur durasi tampilnya, dan memilih apakah slide hanya tampil di hari Jum'at.</li>
+<li><strong>Tambah Slide:</strong> Klik tombol untuk menambah jenis slide: Teks, Gambar, Jadwal, atau Keuangan.</li>
+<li><strong>Pengaturan Slide:</strong> Untuk setiap slide, Anda bisa mengaktifkan/mematikan, mengatur durasi tampil, dan memilih apakah hanya muncul di hari Jum'at.</li>
 <li><strong>Jenis Konten:</strong>
 <ul>
 <li>- <strong>Teks:</strong> Menampilkan judul dan konten dengan format sederhana.</li>
-<li>- <strong>Gambar:</strong> Menampilkan gambar dari URL atau file yang diunggah.</li>
-<li>- <strong>Jadwal:</strong> Menampilkan daftar jadwal kegiatan/kajian masjid.</li>
-<li>- <strong>Keuangan:</strong> Menampilkan ringkasan laporan keuangan, mencakup pemasukan, pengeluaran, dan saldo akhir, lengkap dengan grafik.</li>
+<li>- <strong>Gambar:</strong> Menampilkan gambar dari URL atau file yang diunggah. Mendukung file besar dengan pemuatan cepat.</li>
+<li>- <strong>Jadwal:</strong> Menampilkan daftar jadwal kajian atau kegiatan masjid.</li>
+<li>- <strong>Keuangan:</strong> Menampilkan ringkasan laporan keuangan kas masjid, termasuk pemasukan, pengeluaran, dan saldo akhir, lengkap dengan grafik.</li>
 </ul>
 </li>
 </ul>`
@@ -317,7 +359,7 @@ export const id = {
         },
         contact: {
             title: 'Hubungi Kami',
-            description: 'Punya pertanyaan, masukan, atau saran? Silakan isi formulir di bawah ini untuk mengirimkan email kepada kami. Kami sangat menghargai masukan Anda!',
+            description: 'Punya pertanyaan, kritik, atau saran? Silakan isi formulir di bawah ini untuk mengirim email kepada kami. Masukan Anda sangat berharga!',
             name: 'Nama',
             email: 'Email (Opsional)',
             subject: 'Subjek',

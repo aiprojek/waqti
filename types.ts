@@ -1,3 +1,4 @@
+
 // FIX: Populating the content for this file which was a placeholder.
 
 export type PrayerName = 'Fajr' | 'Sunrise' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
@@ -72,9 +73,16 @@ export interface Dhikr {
 // NEW: Define Layout Template types
 export type LayoutTemplate = 'focus-jam' | 'dashboard-info' | 'minimalis';
 
+export type CalculationSource = 'api' | 'calculated';
+
 export interface Settings {
     mosqueName: string;
     city: string;
+    // NEW: Offline Calculation Support
+    calculationSource: CalculationSource;
+    latitude: number;
+    longitude: number;
+    
     calculationMethod: number;
     madhab: number; // 0 for Standard (Shafii, Maliki, Hanbali), 1 for Hanafi
     highLatitudeRule: string; // e.g., 'auto', 'middleofthenight', 'oneseventh', 'anglebased'
@@ -98,6 +106,8 @@ export interface Settings {
     displayMode: 'landscape' | 'portrait';
     // NEW: Layout Template setting
     layoutTemplate: LayoutTemplate;
+    enableMinimalistSwap: boolean; // NEW: Minimalist specific setting
+    minimalistSwapInterval: number; // NEW: Interval in minutes
     enableBackgroundAnimation: boolean;
     enableDimScreen: boolean;
     customTexts: Array<{ id: string; content: string; }>; // Replaces runningText
@@ -129,4 +139,12 @@ export enum DisplayState {
     DimScreen,
     Dhikr,
     KhutbahInProgress, // NEW: For Friday prayer
+}
+
+// NEW: Remote Control Types
+export type RemoteCommandType = 'NEXT_SLIDE' | 'PREV_SLIDE' | 'STOP_ALARM' | 'REFRESH';
+
+export interface RemoteCommand {
+    type: RemoteCommandType;
+    timestamp: number;
 }

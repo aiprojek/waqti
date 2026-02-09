@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import useClock from '../../hooks/useClock';
 import { useSettings } from '../../contexts/SettingsContext';
+import { PRAYER_NAMES } from '../../constants';
 import type { PrayerName, PrayerTimes } from '../../types';
-// FIX: PRAYER_NAMES_ID is deprecated, using i18n's t() function instead.
 import { t } from '../../i18n';
 
 interface LayoutProps {
@@ -23,6 +24,62 @@ const AnimatedDigit: React.FC<{ value: string }> = ({ value }) => {
     );
 };
 
+// Komponen Kartu yang Diekstrak agar stabil (tidak re-mount setiap detik)
+const MinimalistInfoCard: React.FC<{
+    showSchedule: boolean;
+    setShowSchedule: (show: boolean) => void;
+    prayerTimes: PrayerTimes | null;
+    nextPrayer: { name: PrayerName; time: Date; } | null;
+    timeToNextPrayer: string;
+    isFriday: boolean;
+}> = ({ showSchedule, setShowSchedule, prayerTimes, nextPrayer, timeToNextPrayer, isFriday }) => {
+    const { settings } = useSettings();
+    const nextPrayerName = nextPrayer ? (isFriday && settings.enableFridayMode && nextPrayer.name === 'Dhuhr' ? t('general.jummah') : t(`prayerNames.${nextPrayer.name}`)) : '';
+
+    return (
+        <div 
+            className="text-center bg-black/20 backdrop-blur-md border-2 border-[var(--accent-color)] rounded-3xl p-6 animate-pulse-glow w-full max-w-sm transition-all duration-500 overflow-hidden relative cursor-pointer"
+            style={{ minHeight: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
+            onClick={() => setShowSchedule(!showSchedule)}
+        >
+            {showSchedule ? (
+                // Tampilan Jadwal Lengkap
+                <div className="w-full animate-fade-in space-y-2">
+                    <p className="text-sm uppercase tracking-widest text-white/80 font-bold mb-3 border-b border-white/20 pb-2">
+                        {t('main.otherPrayerTimes')}
+                    </p>
+                    <div className="flex flex-col gap-1 w-full">
+                        {PRAYER_NAMES.filter(n => n !== 'Sunrise').map(name => {
+                            const isNext = name === nextPrayer?.name;
+                            const displayName = isFriday && settings.enableFridayMode && name === 'Dhuhr' ? t('general.jummah') : t(`prayerNames.${name}`);
+                            return (
+                                <div key={name} className={`flex justify-between items-center px-2 py-1 rounded ${isNext ? 'bg-[var(--accent-color)]/40 font-bold' : 'text-white/80'}`}>
+                                    <span className="text-sm">{displayName}</span>
+                                    <span className="font-mono text-base">{prayerTimes ? prayerTimes[name] : '--:--'}</span>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            ) : (
+                // Tampilan Next Prayer (Default)
+                <div className="animate-fade-in w-full">
+                    {nextPrayer && (
+                        <>
+                            <p className="text-base uppercase tracking-widest text-white font-bold" style={{ textShadow: '0 0 8px var(--accent-color), 0 0 4px rgba(0,0,0,0.6)' }}>
+                                {t('main.upNext')}
+                            </p>
+                            <h2 className="text-[clamp(2rem,8vw,3.5rem)] font-bold my-1">{nextPrayerName}</h2>
+                            <p className="font-mono font-bold text-[clamp(2.5rem,10vw,5rem)] leading-none my-2">{prayerTimes ? prayerTimes[nextPrayer.name] : '--:--'}</p>
+                            <p className="font-mono text-lg opacity-80">{t('main.in')} {timeToNextPrayer}</p>
+                        </>
+                    )}
+                </div>
+            )}
+        </div>
+    );
+};
+
 export const MinimalistLayout: React.FC<LayoutProps> = ({
     prayerTimes,
     nextPrayer,
@@ -33,7 +90,11 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
     const { settings } = useSettings();
     const [isShowingHijri, setIsShowingHijri] = useState(false);
     const [dateOpacity, setDateOpacity] = useState(1);
+    
+    // State untuk mengontrol tampilan jadwal vs next prayer
+    const [showSchedule, setShowSchedule] = useState(false);
 
+    // Efek untuk tanggal Hijriah/Masehi
     useEffect(() => {
         const interval = setInterval(() => {
             setDateOpacity(0);
@@ -45,9 +106,27 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
         return () => clearInterval(interval);
     }, []);
 
+    // Efek untuk merotasi kartu Next Prayer ke Jadwal Shalat berdasarkan interval di pengaturan
+    useEffect(() => {
+        if (!settings.enableMinimalistSwap) {
+            setShowSchedule(false);
+            return;
+        }
+
+        const intervalMs = Math.max(1, settings.minimalistSwapInterval) * 60 * 1000;
+
+        const scheduleInterval = setInterval(() => {
+            setShowSchedule(true);
+            // Tampilkan jadwal selama 20 detik, lalu kembali ke next prayer
+            setTimeout(() => {
+                setShowSchedule(false);
+            }, 20000); 
+        }, intervalMs);
+
+        return () => clearInterval(scheduleInterval);
+    }, [settings.enableMinimalistSwap, settings.minimalistSwapInterval]);
+
     const dateToShow = isShowingHijri ? formattedHijriDate : formattedFullDate;
-    // FIX: Replaced PRAYER_NAMES_ID with t() function for localization.
-    const nextPrayerName = nextPrayer ? (isFriday && settings.enableFridayMode && nextPrayer.name === 'Dhuhr' ? t('general.jummah') : t(`prayerNames.${nextPrayer.name}`)) : '';
 
     // --- Portrait Layout ---
     if (settings.displayMode === 'portrait') {
@@ -70,17 +149,14 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
                     </p>
                 </div>
 
-                {/* Next Prayer Highlight */}
-                {nextPrayer && (
-                    <div className="text-center bg-black/20 backdrop-blur-md border-2 border-[var(--accent-color)] rounded-3xl p-6 animate-pulse-glow w-full max-w-sm">
-                        <p className="text-base uppercase tracking-widest text-white font-bold" style={{ textShadow: '0 0 8px var(--accent-color), 0 0 4px rgba(0,0,0,0.6)' }}>
-                            {t('main.upNext')}
-                        </p>
-                        <h2 className="text-[clamp(2rem,8vw,3.5rem)] font-bold my-1">{nextPrayerName}</h2>
-                        <p className="font-mono font-bold text-[clamp(2.5rem,10vw,5rem)] leading-none my-2">{prayerTimes ? prayerTimes[nextPrayer.name] : '--:--'}</p>
-                        <p className="font-mono text-lg opacity-80">{t('main.in')} {timeToNextPrayer}</p>
-                    </div>
-                )}
+                <MinimalistInfoCard 
+                    showSchedule={showSchedule}
+                    setShowSchedule={setShowSchedule}
+                    prayerTimes={prayerTimes}
+                    nextPrayer={nextPrayer}
+                    timeToNextPrayer={timeToNextPrayer}
+                    isFriday={isFriday}
+                />
             </div>
         );
     }
@@ -105,17 +181,14 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
                 </p>
             </div>
 
-            {/* Next Prayer Highlight */}
-            {nextPrayer && (
-                <div className="text-center bg-black/20 backdrop-blur-md border-2 border-[var(--accent-color)] rounded-3xl p-6 md:p-8 animate-pulse-glow w-full max-w-sm md:w-auto">
-                    <p className="text-base md:text-lg uppercase tracking-widest text-white font-bold" style={{ textShadow: '0 0 8px var(--accent-color), 0 0 4px rgba(0,0,0,0.6)' }}>
-                        {t('main.upNext')}
-                    </p>
-                    <h2 className="text-[clamp(2rem,8vw,3.5rem)] font-bold my-1">{nextPrayerName}</h2>
-                    <p className="font-mono font-bold text-[clamp(2.5rem,10vw,5rem)] leading-none my-2">{prayerTimes ? prayerTimes[nextPrayer.name] : '--:--'}</p>
-                    <p className="font-mono text-lg md:text-xl opacity-80">{t('main.in')} {timeToNextPrayer}</p>
-                </div>
-            )}
+            <MinimalistInfoCard 
+                showSchedule={showSchedule}
+                setShowSchedule={setShowSchedule}
+                prayerTimes={prayerTimes}
+                nextPrayer={nextPrayer}
+                timeToNextPrayer={timeToNextPrayer}
+                isFriday={isFriday}
+            />
         </div>
     );
 };

@@ -2,6 +2,14 @@ import React from 'react';
 import type { Settings, Slide, ImageSlide, ScheduleSlide, ScheduleItem, FinanceInfo, FinanceSlide } from '../../types';
 import { CollapsibleSection, Input, QuillEditor, QRCodeManager, Checkbox } from './Shared';
 import { t } from '../../i18n';
+import { db } from '../../lib/db';
+import { useBlobUrl } from '../../hooks/useBlobUrl';
+
+// Helper component to resolve and display the image within the settings
+const SlideImagePreview: React.FC<{ url: string, alt: string }> = ({ url, alt }) => {
+    const resolvedUrl = useBlobUrl(url);
+    return <img src={resolvedUrl || url} alt={alt} className="w-full h-full object-cover" />;
+};
 
 interface SlideSettingsTabProps {
     localSettings: Settings;
@@ -15,7 +23,7 @@ interface SlideSettingsTabProps {
     slideImageTypes: Record<string, 'url' | 'upload'>;
     handleSlideImageTypeChange: (index: number, type: 'url' | 'upload') => void;
     slideFileInputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
-    handleSlideImageChange: (event: React.ChangeEvent<HTMLInputElement>, index: number) => void;
+    // handleSlideImageChange replaced by internal logic for DB save
 }
 
 export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
@@ -30,7 +38,6 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
     slideImageTypes,
     handleSlideImageTypeChange,
     slideFileInputRefs,
-    handleSlideImageChange
 }) => {
     
     const getSlideTitle = (slide: Slide): string => {
@@ -42,6 +49,32 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
             default: return t('settings.slides.slide');
         }
     }
+
+    const handleSlideImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert(t('settings.display.wallpaper.maxSize'));
+            return;
+        }
+        if (!file.type.startsWith('image/')) {
+            alert('Unsupported file format');
+            return;
+        }
+
+        try {
+            const id = await db.assets.add({
+                blob: file,
+                type: file.type,
+                created: Date.now()
+            });
+            handleSlideChange(index, 'imageUrl', `local-asset:${id}`);
+        } catch (error) {
+            console.error(error);
+            alert('Failed to save image.');
+        }
+    };
 
     return (
         <CollapsibleSection title={t('settings.slides.title')} defaultOpen={true}>
@@ -143,7 +176,7 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
                                     </div>
 
                                     {(slideImageTypes[slide.id] || 'url') === 'url' ? (
-                                        <Input label={t('settings.slides.imageUrl')} value={slide.imageUrl?.startsWith('data:image') ? '' : slide.imageUrl || ''} onChange={e => handleSlideChange(index, 'imageUrl', e.target.value)} placeholder="https://..." />
+                                        <Input label={t('settings.slides.imageUrl')} value={slide.imageUrl?.startsWith('local-asset:') || slide.imageUrl?.startsWith('data:image') ? '' : slide.imageUrl || ''} onChange={e => handleSlideChange(index, 'imageUrl', e.target.value)} placeholder="https://..." />
                                     ) : (
                                         <div>
                                             <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 block">{t('settings.slides.image')}</label>
@@ -152,7 +185,7 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
                                                 accept="image/*"
                                                 className="hidden"
                                                 ref={el => { slideFileInputRefs.current[index] = el; }}
-                                                onChange={e => handleSlideImageChange(e, index)}
+                                                onChange={e => handleSlideImageUpload(e, index)}
                                             />
                                             <button
                                                 type="button"
@@ -167,7 +200,7 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
 
                                     {slide.imageUrl && (
                                         <div className="relative group w-24 h-16 rounded-md overflow-hidden border border-slate-300 dark:border-slate-600 flex-shrink-0">
-                                            <img src={slide.imageUrl} alt={`Slide ${index + 1} preview`} className="w-full h-full object-cover" />
+                                            <SlideImagePreview url={slide.imageUrl} alt={`Slide ${index + 1} preview`} />
                                             <button 
                                                 onClick={() => handleSlideChange(index, 'imageUrl', '')}
                                                 className="absolute inset-0 w-full h-full bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold"

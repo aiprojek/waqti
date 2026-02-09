@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PrayerTimesDisplay } from './components/PrayerTimesDisplay';
 import { MainClock } from './components/MainClock';
@@ -6,9 +5,11 @@ import { AppHeader } from './components/AppHeader';
 import { Footer } from './components/Footer';
 import { SettingsProvider, useSettings } from './contexts/SettingsContext';
 import { LanguageProvider, useLanguage } from './contexts/LanguageContext';
+import { RemoteProvider, useRemote } from './contexts/RemoteContext';
 import { SettingsPage } from './components/SettingsModal';
 import { InfoPage } from './components/InfoModal';
 import { SlideDisplay } from './components/SlideDisplay';
+import { RemoteView } from './components/RemoteView';
 import useClock from './hooks/useClock';
 import usePrayerTimes from './hooks/usePrayerTimes';
 import { DisplayState, PrayerName, PrayerTimes } from './types';
@@ -17,6 +18,7 @@ import { parseTimeToDate } from './utils';
 import { t } from './i18n';
 import { WelcomeModal } from './components/WelcomeModal';
 import { db } from './lib/db';
+import { useBlobUrl } from './hooks/useBlobUrl';
 
 // This component isolates all the logic that needs to update every second.
 // By doing this, the parent component (AppContent) and its other children (Header, Footer)
@@ -24,6 +26,7 @@ import { db } from './lib/db';
 const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: boolean }> = ({ prayerTimes, stale }) => {
     const { settings } = useSettings();
     const { currentTime } = useClock();
+    const { lastCommand } = useRemote();
     
     // FIX: Get current day of month to force sortedPrayerTimes recalculation when day changes.
     // This prevents the "stale date" bug where next prayer incorrectly shows Fajr because
@@ -41,6 +44,49 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
     const alarmAudioRef = useRef(new Audio());
     
     const isFriday = useMemo(() => currentTime.getDay() === 5, [currentTime]);
+
+    // Handle Remote Commands
+    useEffect(() => {
+        if (!lastCommand) return;
+
+        switch (lastCommand.type) {
+            case 'NEXT_SLIDE':
+                if (displayMode !== 'slide') {
+                    setDisplayMode('slide');
+                } else {
+                    const enabledSlides = settings.slides.filter(s => s.enabled);
+                    if (enabledSlides.length > 0) {
+                        setCurrentSlideIndex(prev => (prev + 1) % enabledSlides.length);
+                    }
+                }
+                break;
+            case 'PREV_SLIDE':
+                if (displayMode !== 'slide') {
+                    setDisplayMode('slide');
+                } else {
+                    const enabledSlides = settings.slides.filter(s => s.enabled);
+                    if (enabledSlides.length > 0) {
+                        setCurrentSlideIndex(prev => (prev - 1 + enabledSlides.length) % enabledSlides.length);
+                    }
+                }
+                break;
+            case 'STOP_ALARM':
+                if (alarmAudioRef.current) {
+                    alarmAudioRef.current.pause();
+                    alarmAudioRef.current.currentTime = 0;
+                }
+                // Also skip countdown or prayer progress if desired, 
+                // but usually stop alarm just silences it.
+                // Optionally force back to clock if stuck
+                if (displayState === DisplayState.IqamahCountdown || displayState === DisplayState.PrayerTime) {
+                    // Logic to skip could go here, for now just silence.
+                }
+                break;
+            case 'REFRESH':
+                window.location.reload();
+                break;
+        }
+    }, [lastCommand, displayMode, settings.slides, displayState]);
 
     const prayerTimesToUse = useMemo(() => {
         if (!prayerTimes) return null;
@@ -369,7 +415,7 @@ const DynamicBackgroundView: React.FC<{
     const { settings } = useSettings();
     const { currentTime } = useClock();
 
-    const activeWallpaper = useMemo(() => {
+    const activeWallpaperSetting = useMemo(() => {
         if (!settings.enableContextualWallpapers || !prayerTimes) {
             return settings.wallpaper;
         }
@@ -405,13 +451,17 @@ const DynamicBackgroundView: React.FC<{
         return settings.contextualWallpapers[currentPrayerPeriod as keyof typeof settings.contextualWallpapers] || settings.wallpaper;
     }, [currentTime, prayerTimes, settings]);
 
+    // Use hook to resolve potential DB reference
+    const resolvedWallpaper = useBlobUrl(activeWallpaperSetting);
 
     const backgroundStyle: React.CSSProperties = {};
-    if (activeWallpaper) {
-        if (activeWallpaper.startsWith('#')) {
-            backgroundStyle.backgroundColor = activeWallpaper;
+    const finalWallpaper = resolvedWallpaper || activeWallpaperSetting;
+
+    if (finalWallpaper) {
+        if (finalWallpaper.startsWith('#')) {
+            backgroundStyle.backgroundColor = finalWallpaper;
         } else {
-            backgroundStyle.backgroundImage = `url(${activeWallpaper})`;
+            backgroundStyle.backgroundImage = `url(${finalWallpaper})`;
             backgroundStyle.backgroundSize = 'cover';
             backgroundStyle.backgroundPosition = 'center';
         }
@@ -430,7 +480,7 @@ const DynamicBackgroundView: React.FC<{
                 style={backgroundStyle} 
                 className={`
                     absolute inset-0 transition-all duration-1000
-                    ${settings.enableBackgroundAnimation && !activeWallpaper?.startsWith('#')
+                    ${settings.enableBackgroundAnimation && !finalWallpaper?.startsWith('#')
                         ? 'animate-subtle-pan-zoom' 
                         : 'transform scale-110'
                     }
@@ -517,6 +567,20 @@ const AppContent = () => {
         setCurrentView('info');
     };
 
+    // Check for Remote Mode URL param
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('remote')) {
+            // We are in remote mode, but we still need to initialize context
+            // RemoteView will be rendered below
+        }
+    }, []);
+
+    const isRemoteMode = useMemo(() => {
+        const params = new URLSearchParams(window.location.search);
+        return !!params.get('remote');
+    }, []);
+
     // This key forces a re-render of child components when language changes,
     // ensuring all text is updated correctly.
     const key = useMemo(() => language, [language]);
@@ -525,8 +589,12 @@ const AppContent = () => {
         return <div className="min-h-screen w-full flex items-center justify-center bg-gray-900 text-white">Initializing...</div>;
     }
 
-    if (showWelcomeModal) {
+    if (showWelcomeModal && !isRemoteMode) {
         return <WelcomeModal onClose={handleCloseWelcome} onGoToGuide={handleGoToGuide} />;
+    }
+
+    if (isRemoteMode) {
+        return <RemoteView />;
     }
 
     return (
@@ -555,8 +623,10 @@ const AppContent = () => {
 const App = () => (
     <LanguageProvider>
         <SettingsProvider>
-            <GlobalThemeApplicator />
-            <AppContent />
+            <RemoteProvider>
+                <GlobalThemeApplicator />
+                <AppContent />
+            </RemoteProvider>
         </SettingsProvider>
     </LanguageProvider>
 );

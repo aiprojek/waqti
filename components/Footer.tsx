@@ -3,6 +3,8 @@ import { useSettings } from '../contexts/SettingsContext';
 import { QURAN_THEMES_CONTENT, HADITH_THEMES_CONTENT } from '../constants';
 import { t } from '../i18n';
 
+declare const DOMPurify: any;
+
 const FooterComponent: React.FC = () => {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
     const { settings } = useSettings();
@@ -76,7 +78,10 @@ const FooterComponent: React.FC = () => {
         setCurrentIndex(0); // Reset index when content changes
     }, [settings.runningTextMode, settings.runningTextThemes, settings.customTexts, settings.enableRunningText]);
 
-    const currentText = useMemo(() => contentList[currentIndex] || '', [contentList, currentIndex]);
+    const currentText = useMemo(() => {
+        const rawText = contentList[currentIndex] || '';
+        return typeof DOMPurify !== 'undefined' ? DOMPurify.sanitize(rawText) : rawText;
+    }, [contentList, currentIndex]);
     
     // 2. Function to advance to the next text
     const advanceToNextText = useCallback(() => {

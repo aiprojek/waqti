@@ -1,3 +1,4 @@
+
 import type { PrayerTimes, PrayerName, Settings, Dhikr, Slide } from './types';
 import { getRawLocale, Language } from './i18n';
 
@@ -85,6 +86,9 @@ export const getDefaultSettings = (lang: Language): Settings => {
     return {
         mosqueName: "Waqti",
         city: "Jakarta",
+        calculationSource: 'api', // Default to API
+        latitude: -6.2088, // Default Jakarta coordinates
+        longitude: 106.8456, // Default Jakarta coordinates
         calculationMethod: 17, // Kementerian Agama Republik Indonesia
         madhab: 0,
         highLatitudeRule: 'auto',
@@ -133,6 +137,8 @@ export const getDefaultSettings = (lang: Language): Settings => {
         },
         displayMode: 'landscape',
         layoutTemplate: 'focus-jam',
+        enableMinimalistSwap: true,
+        minimalistSwapInterval: 3, // minutes
         enableBackgroundAnimation: true,
         enableDimScreen: false,
         customTexts: [{ 

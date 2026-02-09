@@ -1,3 +1,4 @@
+
 export const en = {
     general: {
         online: 'Online',
@@ -29,7 +30,7 @@ export const en = {
         Sunrise: 'Sunrise',
         Dhuhr: 'Dhuhr',
         Asr: 'Asr',
-        Maghrib: 'Maghrib',
+        Maghrib: 'Magrib',
         Isha: 'Isha',
     },
     main: {
@@ -77,6 +78,14 @@ export const en = {
                 description: 'Save your settings to a file for backup or to move them to another device.',
                 export: 'Export Settings',
                 import: 'Import Settings'
+            },
+            offlineAssets: {
+                title: 'Offline Assets',
+                description: 'Download required libraries, default images, and sounds to ensure the app works fully without internet (Offline Mode).',
+                download: 'Download Assets',
+                downloading: 'Downloading...',
+                ready: 'Assets Ready (Offline Mode Available)',
+                success: 'Assets downloaded successfully!'
             }
         },
         calculation: {
@@ -87,6 +96,25 @@ export const en = {
             fajrAngle: 'Fajr Angle',
             ishaAngle: 'Isha Angle',
             customNote: 'Angles can only be changed if the Calculation Method is set to Custom.',
+            source: {
+                title: 'Data Source & Location',
+                source: 'Calculation Source',
+                api: 'Online (API)',
+                calculated: 'Offline (Calculated)',
+                latitude: 'Latitude',
+                longitude: 'Longitude',
+                detect: 'Detect Location',
+                detecting: 'Detecting...',
+                detectError: 'Could not detect location. Please ensure location services are enabled.',
+                searchCityPlaceholder: 'Search coordinates by city name...',
+                searchCity: 'Search Coordinates',
+                searchSuccess: 'Found coordinates for: {{city}}',
+                searchNotFound: 'City coordinates not found.',
+                manualHelp: 'You can type the Latitude and Longitude manually above.',
+                currentCoordinates: 'Current Coordinates',
+                modeHelp: "Choose 'Online' for server-validated results, or 'Offline' for internal calculation (Adhan.js) without internet."
+            },
+            methodHelp: 'The settings below apply to both methods (Online API & Offline Adhan.js).',
             corrections: {
                 title: 'Manual Adjustments',
                 useManual: 'Use Manual Prayer Times',
@@ -106,6 +134,10 @@ export const en = {
             layoutFocus: 'Focus Clock',
             layoutDashboard: 'Information Dashboard',
             layoutMinimalist: 'Minimalist',
+            minimalist: {
+                enableSwap: 'Show Full Schedule Periodically',
+                swapInterval: 'Interval (minutes)'
+            },
             bgAnimation: 'Enable Background Animation',
             dimScreen: {
                 enable: 'Enable Dim Screen during Prayer',
@@ -213,7 +245,12 @@ export const en = {
                 income: 'Income',
                 expense: 'Expense',
                 finalBalance: 'Final Balance',
-                donationTarget: 'Donation Target (Optional)'
+                donationTarget: 'Donation Target (Optional)',
+                chartTitle: 'Income vs Expense',
+                summary: 'Summary',
+                collected: 'Collected',
+                remaining: 'Remaining',
+                remainingNeeded: 'Remaining Amount Needed:'
             },
             empty: 'No slides yet. Please add one.',
             type: {
@@ -237,7 +274,7 @@ export const en = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " with simplified usage—no account or backoffice needed. The name Waqti (وقتي) means 'My Time', emphasizing a personal connection to prayer times.",
             featuresTitle: 'Key Features',
-            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer, minimizing distractions.|Offline Support:Continues to function even without an internet connection.|PWA Support:Can be installed on your device for quick access and a native app-like experience.|Orientation Modes:Responsive support for both landscape (wide) and portrait (tall) displays.|Backup & Restore Data:Easily export and import all your settings.",
+            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
             supportTitle: 'Developer',
             coffee: 'Buy Me a Coffee',
             discussion: 'Join Discussion',
@@ -251,13 +288,17 @@ export const en = {
                 content: `<ul>
 <li><strong>Mosque Name:</strong> The name displayed on the main screen.</li>
 <li><strong>Language:</strong> Changes the application's interface language.</li>
-<li><strong>City:</strong> Determines the prayer time calculations. The app will fetch data from the internet based on this city.</li>
+<li><strong>City:</strong> Determines the prayer time calculations (Online Mode). The app will fetch data from the internet based on this city.</li>
+<li><strong>Remote Control:</strong> Scan the QR code to pair your smartphone and use it as a remote control for the display.</li>
+<li><strong>Offline Assets:</strong> Download necessary files to ensure the app works perfectly without an internet connection.</li>
 <li><strong>Data Management:</strong> You can export all current settings into a <code>.json</code> file as a backup or to move them to another device. Use import to restore from that file.</li>
 </ul>`
             },
             calculation: {
                 title: 'Calculation Settings',
                 content: `<ul>
+<li><strong>Source:</strong> Choose 'Online (API)' to fetch times using the city name, or 'Offline (Calculated)' to calculate internally using coordinates.</li>
+<li><strong>Coordinates:</strong> Latitude and Longitude are required for offline calculation. You can detect them automatically.</li>
 <li><strong>Calculation Method:</strong> Choose the institution for prayer time calculation (e.g., Ministry of Religious Affairs of Indonesia). Select 'Custom' to set your own Fajr and Isha angles.</li>
 <li><strong>Madhab:</strong> Affects the Asr prayer time calculation. 'Standard' is for Shafii, Maliki, Hanbali, while 'Hanafi' has a later time.</li>
 <li><strong>Time Corrections:</strong> Manually add or subtract minutes for each prayer time if you find a discrepancy with your local mosque.</li>
@@ -285,8 +326,8 @@ export const en = {
 <li><strong>Open in Browser:</strong> Open the Waqti application in a web browser on that device (e.g., Google Chrome or Firefox).</li>
 <li><strong>Fullscreen Mode:</strong> Press the <code>F11</code> key on your keyboard to make the browser enter fullscreen mode, hiding the address bar and tabs. Press <code>F11</code> again to exit.</li>
 <li><strong>Choose the Best Layout:</strong> In the Settings > Display menu, select the 'Layout Template' that is most suitable for remote viewing. <strong>'Focus Clock'</strong> is highly recommended for maximum readability, or <strong>'Information Dashboard'</strong> if you want to display schedules and financial info.</li>
-<li><strong>Install as an App (PWA):</strong> For easy access and offline reliability, install this application onto the device. Look for the 'Install' icon in the browser's address bar or menu. This will create a shortcut on the Desktop.</li>
-<li><strong>Transfer Settings:</strong> Configure all settings on your personal computer first. Then, use the <strong>Export Data</strong> feature to save the settings. Transfer that file to the mosque's computer and use the <strong>Import Data</strong> feature to apply all configurations instantly.</li>
+<li><strong>Install as an App (PWA) & Download Assets:</strong> For easy access and offline reliability, install this application onto the device. Also, go to Settings > General and click "Download Assets" to ensure all images and sounds are saved locally.</li>
+<li><strong>Remote Control:</strong> Use your phone to scan the QR code in Settings > Remote Control to manage slides or stop alarms without touching the TV.</li>
 </ol>`
             },
             alarm: {
@@ -307,7 +348,7 @@ export const en = {
 <li><strong>Content Types:</strong>
 <ul>
 <li>- <strong>Text:</strong> Display a title and content with simple formatting.</li>
-<li>- <strong>Image:</strong> Display an image from a URL or an uploaded file.</li>
+<li>- <strong>Image:</strong> Display an image from a URL or an uploaded file. Supports large files with optimized loading.</li>
 <li>- <strong>Schedule:</strong> Display a list of mosque activities/studies.</li>
 <li>- <strong>Finance:</strong> Display a financial report summary, including income, expenses, and final balance, complete with a chart.</li>
 </ul>

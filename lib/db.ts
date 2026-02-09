@@ -9,6 +9,7 @@ declare var Dexie: any;
 interface DexieTable<T, TKey> {
     get(key: TKey): Promise<T | undefined>;
     put(item: T, key?: TKey): Promise<TKey>;
+    add(item: T, key?: TKey): Promise<TKey>;
     clear(): Promise<void>;
     toCollection(): { first(): Promise<T | undefined> };
 }
@@ -27,21 +28,32 @@ interface AppState {
     value: any;
 }
 
+// NEW: Interface for storing assets (images/sounds) as Blobs
+export interface StoredAsset {
+    id?: number;
+    blob: Blob;
+    type: string; // 'image/png', 'audio/mp3', etc.
+    created: number;
+}
+
 class WaqtiDB extends Dexie {
     settings: DexieTable<StoredSettings, number>;
     prayerTimesCache: DexieTable<PrayerTimesCache, string>;
     appState: DexieTable<AppState, string>;
+    assets: DexieTable<StoredAsset, number>; // New Table
 
     constructor() {
         super('waqtiDB');
-        this.version(1).stores({
-            settings: 'id', // Primary key 'id', always will be 1
-            prayerTimesCache: 'key', // Primary key, e.g., 'Jakarta-2023-10'
-            appState: 'key' // Primary key, e.g., 'hasSeenWelcome'
+        this.version(2).stores({ // Upgraded to version 2
+            settings: 'id',
+            prayerTimesCache: 'key',
+            appState: 'key',
+            assets: '++id, type, created' // Auto-incrementing ID
         });
         this.settings = this.table('settings');
         this.prayerTimesCache = this.table('prayerTimesCache');
         this.appState = this.table('appState');
+        this.assets = this.table('assets');
     }
 }
 

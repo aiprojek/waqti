@@ -19,7 +19,6 @@ const BackIcon = () => (
 );
 
 const SaveIcon = () => (
-    // FIX: Corrected typo in viewBox attribute. Was `viewBox="0 0 24" 24"`, now `viewBox="0 0 24 24"`.
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
         <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -110,19 +109,57 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
         });
     }, []);
 
-    // --- General Tab ---
+    // --- General Tab (Modified for Dual Mode Support) ---
     const handleLocationSearch = useCallback(async () => {
+        const searchTerm = citySearch.trim();
+        if (searchTerm.length <= 2) {
+             setLocationStatus({ message: t('settings.general.cityTooShort'), type: 'error' });
+             return;
+        }
+
         setIsSearching(true);
         setLocationStatus({ message: t('settings.general.searching'), type: 'info' });
-        await new Promise(res => setTimeout(res, 500));
         
-        if (citySearch.trim().length > 2) {
-             setLocalSettings(p => ({...p, city: citySearch.trim(), useManualTimes: false}));
-             setLocationStatus({ message: t('settings.general.citySetTo', { city: citySearch.trim() }), type: 'success' });
-        } else {
-             setLocationStatus({ message: t('settings.general.cityTooShort'), type: 'error' });
+        try {
+            // Geocoding: Fetch coordinates from the city name
+            const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchTerm)}&limit=1`);
+            const data = await response.json();
+
+            if (data && data.length > 0) {
+                const { lat, lon, display_name } = data[0];
+                
+                // Extract a simpler city name from display_name if possible, otherwise use search term
+                const simpleCityName = display_name.split(',')[0];
+
+                setLocalSettings(p => ({
+                    ...p, 
+                    city: simpleCityName, // Update Name
+                    latitude: parseFloat(lat), // Update Coord
+                    longitude: parseFloat(lon), // Update Coord
+                    useManualTimes: false
+                }));
+                
+                // Update the search box to match the found name
+                setCitySearch(simpleCityName);
+
+                setLocationStatus({ 
+                    message: t('settings.calculation.source.searchSuccess', { city: simpleCityName }), 
+                    type: 'success' 
+                });
+            } else {
+                // Fallback: If coordinates not found, just save the name (Online mode might still work roughly)
+                // but warn the user.
+                setLocalSettings(p => ({...p, city: searchTerm, useManualTimes: false}));
+                setLocationStatus({ message: t('settings.calculation.source.searchNotFound') + " (Offline mode unavailable)", type: 'error' });
+            }
+        } catch (error) {
+            console.error("Geocoding failed:", error);
+            // Fallback for offline/error
+            setLocalSettings(p => ({...p, city: searchTerm, useManualTimes: false}));
+            setLocationStatus({ message: t('main.error'), type: 'error' });
+        } finally {
+            setIsSearching(false);
         }
-        setIsSearching(false);
     }, [citySearch]);
 
     const handleExportData = () => {
@@ -402,8 +439,8 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
     };
 
     const TAB_COMPONENTS: Record<TabNameKey, React.ReactNode> = {
-        'general': <GeneralSettingsTab {...{ localSettings, handleInputChange, citySearch, setCitySearch, handleLocationSearch, isSearching, locationStatus, locationStatusColor, handleExportData, handleImportData, importFileRef }} />,
-        'calculation': <CalculationSettingsTab {...{ localSettings, handleInputChange, handleNestedChange }} />,
+        'general': <GeneralSettingsTab {...{ localSettings, handleInputChange, handleExportData, handleImportData, importFileRef }} />,
+        'calculation': <CalculationSettingsTab {...{ localSettings, handleInputChange, handleNestedChange, citySearch, setCitySearch, handleLocationSearch, isSearching, locationStatus, locationStatusColor }} />,
         'display': <DisplaySettingsTab {...{ localSettings, setLocalSettings, handleInputChange, handleThemeCheckboxChange, handleCustomTextChange, addCustomText, removeCustomText, wallpaperType, setWallpaperType, uploadStatus, fileInputRef, handleFileChange, uploadStatusColor }} />,
         'alarm': <AlarmSettingsTab {...{ localSettings, setLocalSettings, handleInputChange, handleNestedChange, handleDhikrSelectionChange, handleMoveDhikr, handleRemoveDhikr, newDhikrArabic, setNewDhikrArabic, newDhikrLatin, setNewDhikrLatin, handleAddDhikr }} />,
         'slides': <SlideSettingsTab {...{ localSettings, addSlide, removeSlide, handleSlideChange, handleScheduleItemChange, addScheduleItem, removeScheduleItem, handleFinanceInfoChange, slideImageTypes, handleSlideImageTypeChange, slideFileInputRefs, handleSlideImageChange }} />,
