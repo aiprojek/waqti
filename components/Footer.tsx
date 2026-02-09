@@ -17,6 +17,52 @@ const FooterComponent: React.FC = () => {
     const [textWidth, setTextWidth] = useState(0);
     const [containerWidth, setContainerWidth] = useState(0);
 
+    // --- Network Status Logic (Improved with Active Ping) ---
+    useEffect(() => {
+        const checkConnectivity = async () => {
+            // 1. Cek status dasar browser. Jika browser bilang offline, pasti offline.
+            if (!navigator.onLine) {
+                setIsOnline(false);
+                return;
+            }
+
+            // 2. Jika browser bilang online, verifikasi dengan ping ke internet (Google)
+            try {
+                // Fetch ke resource kecil dan publik dengan no-cors (opaque response)
+                // Cache: no-store agar tidak mengambil dari disk cache
+                // Random time query param untuk menghindari caching
+                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
+                    mode: 'no-cors',
+                    cache: 'no-store',
+                    method: 'HEAD'
+                });
+                setIsOnline(true);
+            } catch (error) {
+                // Jika fetch gagal (network error), berarti tidak ada internet
+                setIsOnline(false);
+            }
+        };
+
+        // Cek saat komponen dimuat
+        checkConnectivity();
+
+        // Event listener browser
+        const handleOnline = () => checkConnectivity(); // Verifikasi ulang saat browser mendeteksi koneksi
+        const handleOffline = () => setIsOnline(false);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        // Polling setiap 10 detik untuk menangani kasus "Wifi Connect tapi No Internet"
+        const intervalId = setInterval(checkConnectivity, 10000);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+            clearInterval(intervalId);
+        };
+    }, []);
+
     // 1. Build the list of texts to display based on settings
     useEffect(() => {
         if (!settings.enableRunningText) {
@@ -126,18 +172,6 @@ const FooterComponent: React.FC = () => {
         }
     }, [isAnimating, currentText, advanceToNextText, settings.runningTextSpeed, contentList.length]);
     
-    // Network status listener
-    useEffect(() => {
-        const handleOnline = () => setIsOnline(true);
-        const handleOffline = () => setIsOnline(false);
-        window.addEventListener('online', handleOnline);
-        window.addEventListener('offline', handleOffline);
-        return () => {
-            window.removeEventListener('online', handleOnline);
-            window.removeEventListener('offline', handleOffline);
-        };
-    }, []);
-
     const marqueeStyle: React.CSSProperties = {
         animationName: 'marquee-run-once',
         animationDuration: `${settings.runningTextSpeed || 30}s`,
