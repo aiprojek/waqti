@@ -119,11 +119,23 @@ export const id = {
                 title: 'Koreksi Manual',
                 useManual: 'Gunakan Waktu Shalat Manual',
                 correction: 'Koreksi Waktu (menit)',
-                iqamah: 'Jeda Menuju Iqamah (menit)'
+                iqamah: 'Jeda Menuju Iqamah (menit)',
+                hijri: 'Penyesuaian Tanggal Hijriah (Hari)',
+                hijriHelp: 'Atur +/- 1 atau 2 hari jika tanggal Hijriah berbeda dengan ketetapan pemerintah (Rukyat).'
             }
         },
         display: {
             title: 'Pengaturan Tampilan & Visual',
+            presets: {
+                title: 'Tema Siap Pakai',
+                description: 'Terapkan gaya tampilan (warna, wallpaper, font) dengan satu kali klik.',
+                apply: 'Terapkan'
+            },
+            fontStyle: {
+                title: 'Gaya Font',
+                sans: 'Modern (Sans-Serif)',
+                serif: 'Klasik (Serif)'
+            },
             theme: 'Tema',
             dark: 'Gelap',
             light: 'Terang',
@@ -142,6 +154,13 @@ export const id = {
             dimScreen: {
                 enable: 'Aktifkan Layar Redup saat Shalat',
                 help: 'Layar akan menjadi hitam selama periode "Shalat Didirikan" untuk mensimulasikan layar mati.'
+            },
+            sleepMode: {
+                title: 'Hemat Daya (Auto Sleep/Wake)',
+                enable: 'Aktifkan Mode Tidur',
+                startTime: 'Waktu Mulai (Tidur)',
+                endTime: 'Waktu Selesai (Bangun)',
+                help: 'Layar akan mati total (hitam pekat) pada jam-jam ini untuk menghemat listrik dan mencegah burn-in.'
             },
             accentColor: 'Warna Aksen',
             wallpaper: {
@@ -218,7 +237,8 @@ export const id = {
                 text: 'Tambah Teks',
                 image: 'Tambah Gambar',
                 schedule: 'Tambah Jadwal',
-                finance: 'Tambah Keuangan'
+                finance: 'Tambah Keuangan',
+                fridayOfficer: 'Tambah Petugas'
             },
             slide: 'Slide',
             enable: 'Aktifkan Slide',
@@ -252,12 +272,20 @@ export const id = {
                 remaining: 'Sisa',
                 remainingNeeded: 'Dana yang masih dibutuhkan:'
             },
+            officer: {
+                title: 'Petugas Jum\'at',
+                khotib: 'Khatib',
+                imam: 'Imam',
+                muadzin: 'Muadzin',
+                bilal: 'Bilal'
+            },
             empty: 'Belum ada slide. Silakan tambahkan.',
             type: {
                 text: 'Slide Teks',
                 image: 'Slide Gambar',
                 schedule: 'Slide Jadwal',
-                finance: 'Slide Keuangan'
+                finance: 'Slide Keuangan',
+                'friday-officer': 'Slide Petugas'
             }
         }
     },
@@ -274,7 +302,7 @@ export const id = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " dengan penggunaan yang lebih sederhana—tanpa akun atau backoffice. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan personal dengan waktu shalat.",
             featuresTitle: 'Fitur Utama',
-            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema & Visual:Sesuaikan warna aksen dan wallpaper.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
+            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
             supportTitle: 'Pengembang',
             coffee: 'Traktir Kopi',
             discussion: 'Gabung Diskusi',
@@ -303,14 +331,17 @@ export const id = {
 <li><strong>Madhab:</strong> Mempengaruhi perhitungan waktu Asar. 'Standar' untuk Syafi'i, Maliki, Hambali, sedangkan 'Hanafi' waktunya lebih lambat.</li>
 <li><strong>Koreksi Waktu:</strong> Tambah atau kurangi menit secara manual untuk setiap waktu shalat jika ada selisih dengan masjid setempat.</li>
 <li><strong>Jeda Iqamah:</strong> Mengatur durasi hitung mundur dari azan menuju iqamah untuk setiap shalat.</li>
+<li><strong>Penyesuaian Hijriah:</strong> Tambah atau kurangi hari untuk tanggal Hijriah secara manual agar sesuai dengan hasil rukyat setempat.</li>
 </ul>`
             },
             display: {
                 title: 'Pengaturan Tampilan',
                 content: `<ul>
+<li><strong>Tema Siap Pakai:</strong> Pilih preset gaya tampilan instan (warna, wallpaper, font).</li>
 <li><strong>Tema:</strong> Pilih antara tampilan gelap atau terang.</li>
 <li><strong>Mode Orientasi:</strong> 'Landscape' cocok untuk layar lebar (monitor/TV), 'Portrait' untuk layar tinggi. Ini mempengaruhi tata letak.</li>
 <li><strong>Template Layout:</strong> Pilih tampilan layar utama. 'Fokus Jam' besar dan jelas, 'Dasbor Informasi' menampilkan beragam info, dan 'Minimalis' lebih sederhana.</li>
+<li><strong>Hemat Daya (Sleep Mode):</strong> Secara otomatis membuat layar menjadi hitam pekat pada jam-jam tertentu (misal: 22.00 - 03.00) untuk menghemat listrik dan mencegah kerusakan layar.</li>
 <li><strong>Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat berlangsung (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
 <li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Bisa menggunakan gambar dari URL, unggah gambar sendiri, atau pilih 'Warna Polos' untuk warna matte sederhana.</li>
@@ -344,7 +375,7 @@ export const id = {
                 title: 'Pengaturan Slide',
                 content: `<p>Fitur ini memungkinkan Anda menampilkan berbagai slide informasi yang akan bergantian dengan tampilan jam utama.</p>
 <ul>
-<li><strong>Tambah Slide:</strong> Klik tombol untuk menambah jenis slide: Teks, Gambar, Jadwal, atau Keuangan.</li>
+<li><strong>Tambah Slide:</strong> Klik tombol untuk menambah jenis slide: Teks, Gambar, Jadwal, Keuangan, atau Petugas.</li>
 <li><strong>Pengaturan Slide:</strong> Untuk setiap slide, Anda bisa mengaktifkan/mematikan, mengatur durasi tampil, dan memilih apakah hanya muncul di hari Jum'at.</li>
 <li><strong>Jenis Konten:</strong>
 <ul>
@@ -352,6 +383,7 @@ export const id = {
 <li>- <strong>Gambar:</strong> Menampilkan gambar dari URL atau file yang diunggah. Mendukung file besar dengan pemuatan cepat.</li>
 <li>- <strong>Jadwal:</strong> Menampilkan daftar jadwal kajian atau kegiatan masjid.</li>
 <li>- <strong>Keuangan:</strong> Menampilkan ringkasan laporan keuangan kas masjid, termasuk pemasukan, pengeluaran, dan saldo akhir, lengkap dengan grafik.</li>
+<li>- <strong>Petugas:</strong> Menampilkan nama-nama petugas Khotib, Imam, dan Muadzin untuk shalat Jum'at.</li>
 </ul>
 </li>
 </ul>`

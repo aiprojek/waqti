@@ -1,5 +1,6 @@
+
 import React from 'react';
-import type { Settings, Slide, ImageSlide, ScheduleSlide, ScheduleItem, FinanceInfo, FinanceSlide } from '../../types';
+import type { Settings, Slide, ImageSlide, ScheduleSlide, ScheduleItem, FinanceInfo, FinanceSlide, FridayOfficerSlide } from '../../types';
 import { CollapsibleSection, Input, QuillEditor, QRCodeManager, Checkbox } from './Shared';
 import { t } from '../../i18n';
 import { db } from '../../lib/db';
@@ -13,7 +14,7 @@ const SlideImagePreview: React.FC<{ url: string, alt: string }> = ({ url, alt })
 
 interface SlideSettingsTabProps {
     localSettings: Settings;
-    addSlide: (type: 'text' | 'image' | 'schedule' | 'finance') => void;
+    addSlide: (type: 'text' | 'image' | 'schedule' | 'finance' | 'friday-officer') => void;
     removeSlide: (index: number) => void;
     handleSlideChange: (index: number, field: string, value: any) => void;
     handleScheduleItemChange: (slideIndex: number, itemIndex: number, field: keyof ScheduleItem, value: string) => void;
@@ -46,6 +47,7 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
             case 'image': return t('settings.slides.type.image');
             case 'schedule': return slide.title || t('settings.slides.type.schedule');
             case 'finance': return slide.financeInfo.title || t('settings.slides.type.finance');
+            case 'friday-officer': return slide.title || t('settings.slides.type.friday-officer');
             default: return t('settings.slides.slide');
         }
     }
@@ -75,6 +77,14 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
             alert('Failed to save image.');
         }
     };
+    
+    const handleOfficerChange = (slideIndex: number, field: keyof FridayOfficerSlide['officers'], value: string) => {
+        const slide = localSettings.slides[slideIndex] as FridayOfficerSlide;
+        // Safety check: ensure officers object exists
+        const currentOfficers = slide.officers || { khotib: '', imam: '', muadzin: '', bilal: '' };
+        const newOfficers = { ...currentOfficers, [field]: value };
+        handleSlideChange(slideIndex, 'officers', newOfficers);
+    };
 
     return (
         <CollapsibleSection title={t('settings.slides.title')} defaultOpen={true}>
@@ -92,6 +102,9 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
                     </button>
                     <button onClick={() => addSlide('finance')} className="px-3 py-1 bg-emerald-600 text-white rounded-md hover:opacity-90 transition-colors text-sm font-semibold">
                         {t('settings.slides.add.finance')}
+                    </button>
+                    <button onClick={() => addSlide('friday-officer')} className="px-3 py-1 bg-rose-600 text-white rounded-md hover:opacity-90 transition-colors text-sm font-semibold">
+                        {t('settings.slides.add.fridayOfficer')}
                     </button>
                 </div>
             </div>
@@ -240,6 +253,17 @@ export const SlideSettingsTab: React.FC<SlideSettingsTabProps> = ({
                                         </div>
                                     </div>
                                     <Input label={t('settings.slides.finance.donationTarget')} type="number" value={slide.financeInfo.donationTarget ?? ''} onChange={e => handleFinanceInfoChange(index, 'donationTarget', e.target.value)} />
+                                </div>
+                            )}
+                            {slide.type === 'friday-officer' && (
+                                <div className="space-y-4">
+                                    <Input label={t('settings.slides.titleInput')} value={slide.title} onChange={e => handleSlideChange(index, 'title', e.target.value)} />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <Input label={t('settings.slides.officer.khotib')} value={slide.officers?.khotib || ''} onChange={e => handleOfficerChange(index, 'khotib', e.target.value)} />
+                                        <Input label={t('settings.slides.officer.imam')} value={slide.officers?.imam || ''} onChange={e => handleOfficerChange(index, 'imam', e.target.value)} />
+                                        <Input label={t('settings.slides.officer.muadzin')} value={slide.officers?.muadzin || ''} onChange={e => handleOfficerChange(index, 'muadzin', e.target.value)} />
+                                        <Input label={t('settings.slides.officer.bilal')} value={slide.officers?.bilal || ''} onChange={e => handleOfficerChange(index, 'bilal', e.target.value)} />
+                                    </div>
                                 </div>
                             )}
                         </div>

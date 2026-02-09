@@ -1,3 +1,4 @@
+
 import React from 'react';
 import type { Slide } from '../types';
 import { QRCodeDisplay } from './slides/QRCodeDisplay';
@@ -5,6 +6,7 @@ import { FinanceSlideDisplay } from './slides/FinanceSlide';
 import { ScheduleSlideDisplay } from './slides/ScheduleSlide';
 import { ImageSlideDisplay } from './slides/ImageSlide';
 import { TextSlideDisplay } from './slides/TextSlide';
+import { FridayOfficerSlideDisplay } from './slides/FridayOfficerSlide';
 
 interface SlideDisplayProps {
     slide: Slide;
@@ -21,6 +23,8 @@ export const SlideDisplay: React.FC<SlideDisplayProps> = ({ slide }) => {
                 return <ScheduleSlideDisplay slide={slide} />;
             case 'image':
                 return <ImageSlideDisplay slide={slide} />;
+            case 'friday-officer':
+                return <FridayOfficerSlideDisplay slide={slide} />;
             case 'text':
             default:
                 return <TextSlideDisplay slide={slide} />;

@@ -10,6 +10,55 @@ export const IQAMAH_PRAYERS: PrayerName[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 
 
 // DEPRECATED: PRAYER_NAMES_ID is now handled by i18n: t('prayerNames.Fajr')
 
+// --- Theme Presets ---
+export const THEME_PRESETS = [
+    {
+        id: 'haram',
+        name: 'Masjidil Haram',
+        accentColor: '#D4AF37', // Gold
+        wallpaper: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg', // Marble/Architecture vibe
+        theme: 'dark' as const,
+        fontStyle: 'serif' as const,
+        contextualWallpapers: {
+            Fajr: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
+            Dhuhr: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
+            Asr: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
+            Maghrib: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
+            Isha: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
+        }
+    },
+    {
+        id: 'minimalist',
+        name: 'Modern Minimalist',
+        accentColor: '#94a3b8', // Slate-400
+        wallpaper: '#0f172a', // Slate-900 (Solid)
+        theme: 'dark' as const,
+        fontStyle: 'sans' as const,
+        contextualWallpapers: {
+            Fajr: '#0f172a',
+            Dhuhr: '#0f172a',
+            Asr: '#0f172a',
+            Maghrib: '#0f172a',
+            Isha: '#0f172a',
+        }
+    },
+    {
+        id: 'nusantara',
+        name: 'Nusantara',
+        accentColor: '#d97706', // Amber-600
+        wallpaper: 'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg', // Masjid Texture
+        theme: 'dark' as const,
+        fontStyle: 'serif' as const,
+        contextualWallpapers: {
+            Fajr: 'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg',
+            Dhuhr: 'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg',
+            Asr: 'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg',
+            Maghrib: 'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg',
+            Isha: 'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg',
+        }
+    }
+];
+
 // --- Kumpulan Dzikir Setelah Shalat (Updated Default List) ---
 export const DHIKR_LIST: Dhikr[] = [
     { id: 'dhikr-1', arabic: "أَسْتَغْفِرُ اللَّهَ الْعَظِيمَ (٣×)", latin: "Astaghfirullahal 'adziim (3x)" },
@@ -135,12 +184,17 @@ export const getDefaultSettings = (lang: Language): Settings => {
             Maghrib: 'https://cdn.pixabay.com/photo/2013/05/08/14/07/mecca-109852_960_720.jpg',
             Isha: 'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
         },
+        fontStyle: 'sans',
         displayMode: 'landscape',
         layoutTemplate: 'focus-jam',
         enableMinimalistSwap: true,
         minimalistSwapInterval: 3, // minutes
         enableBackgroundAnimation: true,
         enableDimScreen: false,
+        hijriDateOffset: 0,
+        enableSleepMode: false,
+        sleepStartTime: '22:00',
+        sleepEndTime: '03:00',
         customTexts: [{ 
             id: 'default-1', 
             content: `"${locale.footer.runningText.text}" <span class="opacity-80 italic text-xs">(${locale.footer.runningText.source})</span>`

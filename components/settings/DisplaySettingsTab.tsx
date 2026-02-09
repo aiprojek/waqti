@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Settings } from '../../types';
 import { CollapsibleSection, Input, Select, Checkbox, QuillEditor } from './Shared';
-import { IQAMAH_PRAYERS, getDefaultSettings } from '../../constants';
+import { IQAMAH_PRAYERS, getDefaultSettings, THEME_PRESETS } from '../../constants';
 import { t, getLocale } from '../../i18n';
 import { db } from '../../lib/db';
 import { useBlobUrl } from '../../hooks/useBlobUrl';
@@ -10,9 +10,10 @@ import { useBlobUrl } from '../../hooks/useBlobUrl';
 const VIBRANT_COLORS = [
     '#F87171', '#FB923C', '#FBBF24', '#A3E635',
     '#38BDF8', '#818CF8', '#8B5CF6',
+    '#D4AF37', '#8B4513', '#94a3b8', // Add Preset colors to palette
 ];
 
-const MATTE_COLORS = ['#334155', '#4b5563', '#52525b', '#57534e', '#4338ca', '#065f46', '#854d0e'];
+const MATTE_COLORS = ['#334155', '#4b5563', '#52525b', '#57534e', '#4338ca', '#065f46', '#854d0e', '#0f172a'];
 
 
 interface WallpaperPickerProps {
@@ -170,8 +171,53 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
     // To minimize large refactors, I will replace the manual main wallpaper section 
     // with the reusable WallpaperPicker component.
     
+    const applyPreset = (presetId: string) => {
+        const preset = THEME_PRESETS.find(p => p.id === presetId);
+        if (preset) {
+            setLocalSettings(prev => ({
+                ...prev,
+                accentColor: preset.accentColor,
+                wallpaper: preset.wallpaper,
+                theme: preset.theme,
+                fontStyle: preset.fontStyle,
+                enableContextualWallpapers: true,
+                contextualWallpapers: preset.contextualWallpapers
+            }));
+        }
+    };
+
     return (
         <>
+            <CollapsibleSection title={t('settings.display.presets.title')} defaultOpen={true}>
+                <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{t('settings.display.presets.description')}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {THEME_PRESETS.map(preset => (
+                        <div key={preset.id} className="border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden flex flex-col">
+                            <div className="h-24 relative bg-slate-200 dark:bg-slate-700">
+                                {preset.wallpaper.startsWith('#') ? (
+                                    <div className="w-full h-full" style={{backgroundColor: preset.wallpaper}}></div>
+                                ) : (
+                                    <img src={preset.wallpaper} alt={preset.name} className="w-full h-full object-cover" />
+                                )}
+                                <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2 border-white shadow-md" style={{backgroundColor: preset.accentColor}}></div>
+                            </div>
+                            <div className="p-3 bg-white dark:bg-slate-800 flex-grow flex flex-col justify-between">
+                                <div>
+                                    <h4 className="font-bold text-slate-800 dark:text-white">{preset.name}</h4>
+                                    <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{preset.fontStyle} Font</p>
+                                </div>
+                                <button 
+                                    onClick={() => applyPreset(preset.id)}
+                                    className="mt-3 w-full py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded text-sm font-semibold transition-colors"
+                                >
+                                    {t('settings.display.presets.apply')}
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </CollapsibleSection>
+
             <CollapsibleSection title={t('settings.display.title')} defaultOpen={true}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
                     <Select label={t('settings.display.theme')} name="theme" value={localSettings.theme} onChange={handleInputChange}>
@@ -181,6 +227,10 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                     <Select label={t('settings.display.orientation')} name="displayMode" value={localSettings.displayMode} onChange={handleInputChange}>
                         <option value="landscape">{t('settings.display.landscape')}</option>
                         <option value="portrait">{t('settings.display.portrait')}</option>
+                    </Select>
+                    <Select label={t('settings.display.fontStyle.title')} name="fontStyle" value={localSettings.fontStyle || 'sans'} onChange={handleInputChange}>
+                        <option value="sans">{t('settings.display.fontStyle.sans')}</option>
+                        <option value="serif">{t('settings.display.fontStyle.serif')}</option>
                     </Select>
                      <div className="md:col-span-2">
                         <Select label={t('settings.display.layout')} name="layoutTemplate" value={localSettings.layoutTemplate} onChange={handleInputChange}>
@@ -230,6 +280,40 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                             onChange={handleInputChange}
                         />
                     </div>
+                    
+                    {/* NEW: Sleep Mode Settings */}
+                    <div className="md:col-span-2 p-4 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg border border-slate-300 dark:border-slate-600 space-y-4">
+                        <div className="flex flex-col">
+                            <Checkbox
+                                label={t('settings.display.sleepMode.enable')}
+                                name="enableSleepMode"
+                                checked={localSettings.enableSleepMode}
+                                onChange={handleInputChange}
+                            />
+                            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 pl-7">
+                                {t('settings.display.sleepMode.help')}
+                            </p>
+                        </div>
+                        {localSettings.enableSleepMode && (
+                            <div className="grid grid-cols-2 gap-4 pl-7">
+                                <Input 
+                                    label={t('settings.display.sleepMode.startTime')}
+                                    name="sleepStartTime"
+                                    type="time"
+                                    value={localSettings.sleepStartTime}
+                                    onChange={handleInputChange}
+                                />
+                                <Input 
+                                    label={t('settings.display.sleepMode.endTime')}
+                                    name="sleepEndTime"
+                                    type="time"
+                                    value={localSettings.sleepEndTime}
+                                    onChange={handleInputChange}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <div className="md:col-span-2">
                         <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 block">{t('settings.display.accentColor')}</label>
                         <div className="flex items-center gap-2 mt-2">

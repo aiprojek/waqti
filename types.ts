@@ -60,7 +60,18 @@ export interface FinanceSlide extends BaseSlide {
     financeInfo: FinanceInfo;
 }
 
-export type Slide = TextSlide | ImageSlide | ScheduleSlide | FinanceSlide;
+export interface FridayOfficerSlide extends BaseSlide {
+    type: 'friday-officer';
+    title?: string;
+    officers: {
+        khotib: string;
+        imam: string;
+        muadzin: string;
+        bilal: string;
+    };
+}
+
+export type Slide = TextSlide | ImageSlide | ScheduleSlide | FinanceSlide | FridayOfficerSlide;
 
 
 // New: Interface for a single Dhikr item
@@ -100,6 +111,8 @@ export interface Settings {
     theme: 'light' | 'dark';
     accentColor: string;
     wallpaper: string;
+    // NEW: Theme & Font Settings
+    fontStyle: 'sans' | 'serif';
     // NEW: Contextual Wallpaper settings
     enableContextualWallpapers: boolean;
     contextualWallpapers: Record<IqamahPrayerName, string>;
@@ -110,6 +123,13 @@ export interface Settings {
     minimalistSwapInterval: number; // NEW: Interval in minutes
     enableBackgroundAnimation: boolean;
     enableDimScreen: boolean;
+    // NEW: Hijri Date Adjustment
+    hijriDateOffset: number;
+    // NEW: Sleep Mode (Power Saving)
+    enableSleepMode: boolean;
+    sleepStartTime: string; // HH:mm
+    sleepEndTime: string; // HH:mm
+    
     customTexts: Array<{ id: string; content: string; }>; // Replaces runningText
     enableRunningText: boolean; // NEW: On/Off switch for the running text feature
     runningTextMode: 'custom' | 'themed'; // Renamed 'static' to 'custom'

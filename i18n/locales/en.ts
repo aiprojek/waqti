@@ -119,11 +119,23 @@ export const en = {
                 title: 'Manual Adjustments',
                 useManual: 'Use Manual Prayer Times',
                 correction: 'Time Adjustments (minutes)',
-                iqamah: 'Delay to Iqamah (minutes)'
+                iqamah: 'Delay to Iqamah (minutes)',
+                hijri: 'Hijri Date Adjustment (Days)',
+                hijriHelp: 'Adjust the Hijri date by +/- 1 or 2 days if it differs from the local sighting (Rukyat).'
             }
         },
         display: {
             title: 'Display & Visual Settings',
+            presets: {
+                title: 'Theme Presets (One-Click Style)',
+                description: 'Quickly apply a curated set of colors, wallpapers, and fonts.',
+                apply: 'Apply'
+            },
+            fontStyle: {
+                title: 'Font Style',
+                sans: 'Modern (Sans-Serif)',
+                serif: 'Classic (Serif)'
+            },
             theme: 'Theme',
             dark: 'Dark',
             light: 'Light',
@@ -142,6 +154,13 @@ export const en = {
             dimScreen: {
                 enable: 'Enable Dim Screen during Prayer',
                 help: 'The screen will turn black during the "Prayer in Progress" period to simulate being off.'
+            },
+            sleepMode: {
+                title: 'Power Saving (Auto Sleep/Wake)',
+                enable: 'Enable Sleep Mode',
+                startTime: 'Start Time (Sleep)',
+                endTime: 'End Time (Wake)',
+                help: 'The screen will turn completely black during these hours to save power and prevent burn-in.'
             },
             accentColor: 'Accent Color',
             wallpaper: {
@@ -218,7 +237,8 @@ export const en = {
                 text: 'Add Text',
                 image: 'Add Image',
                 schedule: 'Add Schedule',
-                finance: 'Add Finance'
+                finance: 'Add Finance',
+                fridayOfficer: 'Add Officer'
             },
             slide: 'Slide',
             enable: 'Enable Slide',
@@ -252,12 +272,20 @@ export const en = {
                 remaining: 'Remaining',
                 remainingNeeded: 'Remaining Amount Needed:'
             },
+            officer: {
+                title: 'Jum\'ah Officers',
+                khotib: 'Khatib',
+                imam: 'Imam',
+                muadzin: 'Muadzin',
+                bilal: 'Bilal'
+            },
             empty: 'No slides yet. Please add one.',
             type: {
                 text: 'Text Slide',
                 image: 'Image Slide',
                 schedule: 'Schedule Slide',
-                finance: 'Finance Slide'
+                finance: 'Finance Slide',
+                'friday-officer': 'Officers Slide'
             }
         }
     },
@@ -274,7 +302,7 @@ export const en = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " with simplified usage—no account or backoffice needed. The name Waqti (وقتي) means 'My Time', emphasizing a personal connection to prayer times.",
             featuresTitle: 'Key Features',
-            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
+            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theme Presets:One-click style application (e.g., Masjidil Haram, Modern Minimalist).|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Power Saving:Auto Sleep/Wake feature to turn off the screen rendering at night.|Jum'ah Officers:Dedicated slide to display Imam, Khatib, and Muadzin.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
             supportTitle: 'Developer',
             coffee: 'Buy Me a Coffee',
             discussion: 'Join Discussion',
@@ -303,14 +331,17 @@ export const en = {
 <li><strong>Madhab:</strong> Affects the Asr prayer time calculation. 'Standard' is for Shafii, Maliki, Hanbali, while 'Hanafi' has a later time.</li>
 <li><strong>Time Corrections:</strong> Manually add or subtract minutes for each prayer time if you find a discrepancy with your local mosque.</li>
 <li><strong>Iqamah Delay:</strong> Sets the countdown duration from the adhan to the iqamah for each prayer.</li>
+<li><strong>Hijri Date Adjustment:</strong> Manually add or subtract days to the Hijri date to match local moon sighting.</li>
 </ul>`
             },
             display: {
                 title: 'Display Settings',
                 content: `<ul>
+<li><strong>Theme Presets:</strong> Quickly apply a pre-configured look (colors, wallpaper, font).</li>
 <li><strong>Theme:</strong> Choose between a dark or light appearance.</li>
 <li><strong>Orientation Mode:</strong> 'Landscape' is suitable for wide screens (monitors), 'Portrait' is for tall screens. This affects the layout.</li>
 <li><strong>Display Layout Template:</strong> Select the main screen appearance. 'Focus Clock' is large and clear, 'Information Dashboard' shows various info, and 'Minimalist' is simple.</li>
+<li><strong>Power Saving (Sleep Mode):</strong> Automatically turns the screen black during specified hours (e.g., 10 PM to 3 AM) to save electricity and prevent burn-in.</li>
 <li><strong>Enable Dim Screen:</strong> If enabled, the screen will go black during the prayer time (after the initial 'Establish the Prayer' message) to reduce distractions.</li>
 <li><strong>Accent Color:</strong> The primary color used for highlights, buttons, and the next prayer time marker.</li>
 <li><strong>Wallpaper:</strong> Set the background for the main screen. You can use an image via URL, upload your own image, or choose 'Solid Color' to select a simple matte color.</li>
@@ -326,7 +357,7 @@ export const en = {
 <li><strong>Open in Browser:</strong> Open the Waqti application in a web browser on that device (e.g., Google Chrome or Firefox).</li>
 <li><strong>Fullscreen Mode:</strong> Press the <code>F11</code> key on your keyboard to make the browser enter fullscreen mode, hiding the address bar and tabs. Press <code>F11</code> again to exit.</li>
 <li><strong>Choose the Best Layout:</strong> In the Settings > Display menu, select the 'Layout Template' that is most suitable for remote viewing. <strong>'Focus Clock'</strong> is highly recommended for maximum readability, or <strong>'Information Dashboard'</strong> if you want to display schedules and financial info.</li>
-<li><strong>Install as an App (PWA) & Download Assets:</strong> For easy access and offline reliability, install this application onto the device. Also, go to Settings > General and click "Download Assets" to ensure all images and sounds are saved locally.</li>
+<li><strong>Instal Aplikasi (PWA) & Download Assets:</strong> For easy access and offline reliability, install this application onto the device. Also, go to Settings > General and click "Download Assets" to ensure all images and sounds are saved locally.</li>
 <li><strong>Remote Control:</strong> Use your phone to scan the QR code in Settings > Remote Control to manage slides or stop alarms without touching the TV.</li>
 </ol>`
             },
@@ -343,7 +374,7 @@ export const en = {
                 title: 'Slide Settings',
                 content: `<p>This feature allows you to display various informational slides that will alternate with the main clock display.</p>
 <ul>
-<li><strong>Add Slides:</strong> Click the buttons to add different types of slides: Text, Image, Schedule, or Finance.</li>
+<li><strong>Add Slides:</strong> Click the buttons to add different types of slides: Text, Image, Schedule, Finance, or Officer.</li>
 <li><strong>Slide Settings:</strong> For each slide, you can enable/disable it, set its display duration, and choose if it should only appear on Fridays.</li>
 <li><strong>Content Types:</strong>
 <ul>
@@ -351,6 +382,7 @@ export const en = {
 <li>- <strong>Image:</strong> Display an image from a URL or an uploaded file. Supports large files with optimized loading.</li>
 <li>- <strong>Schedule:</strong> Display a list of mosque activities/studies.</li>
 <li>- <strong>Finance:</strong> Display a financial report summary, including income, expenses, and final balance, complete with a chart.</li>
+<li>- <strong>Officers:</strong> Display the names of the Khotib, Imam, and Muadzin for Jum'ah prayers.</li>
 </ul>
 </li>
 </ul>`

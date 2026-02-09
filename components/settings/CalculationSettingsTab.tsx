@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import type { Settings, PrayerName } from '../../types';
 import { CollapsibleSection, Input, Select, Checkbox } from './Shared';
@@ -214,6 +215,7 @@ export const CalculationSettingsTab: React.FC<CalculationSettingsTabProps> = ({
                         ))}
                     </div>
                 )}
+                
                 <h4 className="font-semibold mt-6 mb-2">{t('settings.calculation.corrections.correction')}</h4>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                     {PRAYER_NAMES.map(name => (
@@ -226,17 +228,33 @@ export const CalculationSettingsTab: React.FC<CalculationSettingsTabProps> = ({
                         />
                     ))}
                 </div>
-                <h4 className="font-semibold mt-6 mb-2">{t('settings.calculation.corrections.iqamah')}</h4>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {IQAMAH_PRAYERS.map(name => (
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <h4 className="font-semibold mb-2">{t('settings.calculation.corrections.iqamah')}</h4>
+                        <div className="grid grid-cols-2 gap-4">
+                            {IQAMAH_PRAYERS.map(name => (
+                                <Input 
+                                    key={name}
+                                    label={t(`prayerNames.${name}`)}
+                                    type="number"
+                                    value={localSettings.iqamahOffsets[name]}
+                                    onChange={(e) => handleNestedChange('iqamahOffsets', name, Number(e.target.value))}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                    <div>
+                        <h4 className="font-semibold mb-2">{t('settings.calculation.corrections.hijri')}</h4>
                         <Input 
-                            key={name}
-                            label={t(`prayerNames.${name}`)}
+                            label={t('settings.calculation.corrections.hijri')}
+                            name="hijriDateOffset"
                             type="number"
-                            value={localSettings.iqamahOffsets[name]}
-                            onChange={(e) => handleNestedChange('iqamahOffsets', name, Number(e.target.value))}
+                            value={localSettings.hijriDateOffset}
+                            onChange={handleInputChange}
+                            help={t('settings.calculation.corrections.hijriHelp')}
                         />
-                    ))}
+                    </div>
                 </div>
             </CollapsibleSection>
         </>

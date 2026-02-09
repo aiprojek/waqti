@@ -1,3 +1,4 @@
+
 const CACHE_NAME = 'waqti-cache-v2';
 const URLS_TO_CACHE = [
     '/',
@@ -21,7 +22,9 @@ const URLS_TO_CACHE = [
     'https://cdn.pixabay.com/photo/2019/11/27/21/06/jerusalem-4657867_960_720.jpg', // Dhuhr
     'https://images.pexels.com/photos/2291789/pexels-photo-2291789.jpeg', // Asr
     'https://cdn.pixabay.com/photo/2013/05/08/14/07/mecca-109852_960_720.jpg', // Maghrib
-    'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg' // Isha
+    'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg', // Isha & Masjidil Haram Theme
+    // Preset Theme Wallpapers
+    'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg'  // Nusantara
 ];
 
 self.addEventListener('install', event => {

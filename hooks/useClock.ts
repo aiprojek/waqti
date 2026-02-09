@@ -1,6 +1,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useSettings } from '../contexts/SettingsContext';
 
 const HIJRI_MONTHS_LATIN = [
     "Muharram", "Safar", "Rabi' al-Awwal", "Rabi' al-Thani",
@@ -11,6 +12,7 @@ const HIJRI_MONTHS_LATIN = [
 const useClock = () => {
     const [time, setTime] = useState(new Date());
     const { language } = useLanguage();
+    const { settings } = useSettings();
     const locale = language === 'id' ? 'id-ID' : 'en-US';
 
     // Optimize: Memoize the formatters to avoid recreating them every second
@@ -63,11 +65,16 @@ const useClock = () => {
     };
     
     const formatHijriDate = (date: Date) => {
+         // Apply offset
+         const offset = settings.hijriDateOffset || 0;
+         const adjustedDate = new Date(date);
+         adjustedDate.setDate(adjustedDate.getDate() + offset);
+
          try {
             if (!hijriFormatter) throw new Error("Intl not supported");
 
             // formatToParts is more robust for extracting specific date components
-            const parts = hijriFormatter.formatToParts(date);
+            const parts = hijriFormatter.formatToParts(adjustedDate);
             const day = parts.find(p => p.type === 'day')?.value;
             const monthIndex = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10) - 1;
             const year = parts.find(p => p.type === 'year')?.value?.split(' ')[0]; // Removes "AH" suffix
@@ -83,12 +90,12 @@ const useClock = () => {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric'
-            }).format(date).replace(/ AH$/, '').trim();
+            }).format(adjustedDate).replace(/ AH$/, '').trim();
 
         } catch (e) {
             // Fallback for older browsers or environments without full Intl support
             console.error("Hijri date formatting failed:", e);
-            const year = date.getFullYear();
+            const year = adjustedDate.getFullYear();
             if (year < 622) return "Before Hijri";
             return "Hijri date unavailable";
         }

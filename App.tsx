@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { PrayerTimesDisplay } from './components/PrayerTimesDisplay';
 import { MainClock } from './components/MainClock';
@@ -401,9 +402,58 @@ const GlobalThemeApplicator: React.FC = () => {
              root.style.setProperty('--accent-color', '#8B5CF6'); // Default purple
              root.style.setProperty('--accent-glow-color', 'rgba(139, 92, 246, 0.5)');
         }
-    }, [settings.theme, settings.accentColor]);
+
+        // Apply Font Style
+        if (settings.fontStyle === 'serif') {
+            document.body.style.fontFamily = 'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif';
+        } else {
+            document.body.style.fontFamily = 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif';
+        }
+
+    }, [settings.theme, settings.accentColor, settings.fontStyle]);
 
     return null; // This component does not render anything itself
+};
+
+// Component to handle Sleep Mode logic
+const SleepOverlay: React.FC = () => {
+    const { settings } = useSettings();
+    const { currentTime } = useClock();
+    const [isSleeping, setIsSleeping] = useState(false);
+
+    useEffect(() => {
+        if (!settings.enableSleepMode || !settings.sleepStartTime || !settings.sleepEndTime) {
+            setIsSleeping(false);
+            return;
+        }
+
+        const now = currentTime;
+        const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+        const [startHour, startMinute] = settings.sleepStartTime.split(':').map(Number);
+        const startMinutes = startHour * 60 + startMinute;
+
+        const [endHour, endMinute] = settings.sleepEndTime.split(':').map(Number);
+        const endMinutes = endHour * 60 + endMinute;
+
+        // Logic to check if current time is within range
+        let shouldSleep = false;
+        if (startMinutes < endMinutes) {
+            // Same day range (e.g. 13:00 to 15:00)
+            shouldSleep = currentMinutes >= startMinutes && currentMinutes < endMinutes;
+        } else {
+            // Overnight range (e.g. 22:00 to 04:00)
+            shouldSleep = currentMinutes >= startMinutes || currentMinutes < endMinutes;
+        }
+
+        setIsSleeping(shouldSleep);
+    }, [currentTime, settings.enableSleepMode, settings.sleepStartTime, settings.sleepEndTime]);
+
+    if (!isSleeping) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] bg-black cursor-none"></div>
+    );
 };
 
 // This component handles the per-second background update.
@@ -599,6 +649,7 @@ const AppContent = () => {
 
     return (
         <DynamicBackgroundView prayerTimes={prayerTimes}>
+            <SleepOverlay />
             {(() => {
                 switch (currentView) {
                     case 'settings':
