@@ -290,10 +290,11 @@ export const id = {
         }
     },
     info: {
-        title: 'Tentang & Panduan',
+        title: 'Tentang & Layanan',
         tabs: {
             about: 'Tentang Aplikasi',
             guide: 'Panduan Pengguna',
+            services: 'Layanan & Toko',
             contact: 'Kontak'
         },
         about: {
@@ -307,6 +308,31 @@ export const id = {
             coffee: 'Traktir Kopi',
             discussion: 'Gabung Diskusi',
             github: 'GitHub'
+        },
+        services: {
+            title: 'Layanan & Perangkat Keras',
+            intro: 'Dukung pengembangan Waqti dan permudah operasional masjid Anda dengan solusi premium berikut. Seluruh keuntungan digunakan untuk pemeliharaan dan pengembangan fitur baru.',
+            waqtibox: {
+                title: 'WaqtiBox (Mini PC Plug & Play)',
+                description: 'Perangkat Mini PC hemat daya yang sudah di-install Waqti. Tinggal colok ke TV masjid, sambungkan WiFi, dan siap digunakan. Solusi paling stabil dan mudah dikonfigurasi.',
+                price: 'Mulai Rp 500.000 (Harga menyesuaikan perangkat)'
+            },
+            sdcard: {
+                title: 'WaqtiDrive (USB Bootable)',
+                description: 'Flashdisk berisi Custom OS Linux ringan + Waqti. Solusi hemat untuk menghidupkan kembali Mini PC x86 atau Laptop bekas menjadi mesin jam digital masjid.',
+                price: 'Mulai Rp 100.000'
+            },
+            setup: {
+                title: 'Jasa Setup & Instalasi',
+                description: 'Tim kami siap datang ke lokasi masjid Anda (Area Pulau Jawa) untuk instalasi, setting TV, dan pelatihan. Biaya transportasi ditanggung pemesan.',
+                price: 'Hubungi Kami'
+            },
+            whitelabel: {
+                title: 'Custom Branding / White Label',
+                description: 'Versi khusus Waqti dengan Logo Masjid/Yayasan Anda yang permanen, warna korporat, dan fitur khusus sesuai permintaan donatur.',
+                price: 'Hubungi Kami'
+            },
+            contact_button: 'Pesan via WhatsApp'
         },
         guide: {
             title: 'Panduan Pengaturan',
@@ -450,7 +476,7 @@ export const id = {
             { id: 'quran-fikih', name: 'Fikih', category: 'quran' },
             { id: 'quran-random', name: 'Random', category: 'quran' },
             { id: 'hadith-tauhid', name: 'Tauhid & Aqidah', category: 'hadith' },
-            { id: 'hadith-akhlaq', name: 'Akhlak', category: 'hadith' },
+            { id: 'hadith-akhlaq', name: 'Akhlaq', category: 'hadith' },
             { id: 'hadith-fikih', name: 'Fikih', category: 'hadith' },
             { id: 'hadith-random', name: 'Random', category: 'hadith' },
         ],

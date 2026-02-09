@@ -1,9 +1,11 @@
+
 import React, { useState, useMemo } from 'react';
 import { useSettings } from '../contexts/SettingsContext';
 import { t } from '../i18n';
 import { AboutTab } from './info/AboutTab';
 import { GuideTab } from './info/GuideTab';
 import { ContactTab } from './info/ContactTab';
+import { ServicesTab } from './info/ServicesTab';
 
 const BackIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -16,7 +18,7 @@ const ChevronDownIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
 );
 
-const TABS = ['about', 'guide', 'contact'];
+const TABS = ['about', 'guide', 'services', 'contact'];
 type TabNameKey = (typeof TABS)[number];
 
 interface PageProps {
@@ -31,6 +33,7 @@ export const InfoPage: React.FC<PageProps> = ({ onBack, defaultTab = 'about' }) 
     const TAB_COMPONENTS: Record<TabNameKey, React.ReactNode> = {
         'about': <AboutTab />,
         'guide': <GuideTab />,
+        'services': <ServicesTab />,
         'contact': <ContactTab />,
     };
 

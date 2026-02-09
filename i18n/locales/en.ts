@@ -294,6 +294,7 @@ export const en = {
         tabs: {
             about: 'About App',
             guide: 'User Guide',
+            services: 'Services & Store',
             contact: 'Contact'
         },
         about: {
@@ -307,6 +308,31 @@ export const en = {
             coffee: 'Buy Me a Coffee',
             discussion: 'Join Discussion',
             github: 'GitHub'
+        },
+        services: {
+            title: 'Services & Hardware',
+            intro: 'Support Waqti development and simplify your mosque operations with these premium solutions. Proceeds go towards maintenance and new features.',
+            waqtibox: {
+                title: 'WaqtiBox (Mini PC Plug & Play)',
+                description: 'Mini PC device pre-installed with Waqti. Just plug into your mosque TV, connect WiFi, and you are good to go. The most stable and easy-to-configure solution.',
+                price: 'Starts from $35 (Depends on device)'
+            },
+            sdcard: {
+                title: 'WaqtiDrive (USB Bootable)',
+                description: 'Bootable Flashdrive containing a lightweight Custom Linux OS + Waqti. Budget-friendly solution to repurpose old x86 Mini PCs or Laptops into a digital mosque clock.',
+                price: 'Starts from $7'
+            },
+            setup: {
+                title: 'On-Site Setup Service',
+                description: 'Our team is ready to visit your mosque (Java Island Area) for installation, TV setup, and training. Transport costs are covered by the client.',
+                price: 'Contact Us'
+            },
+            whitelabel: {
+                title: 'Custom Branding / White Label',
+                description: 'A special version of Waqti with your Mosque/Foundation Logo permanently embedded, corporate colors, and specific features upon request.',
+                price: 'Contact Us'
+            },
+            contact_button: 'Order via WhatsApp'
         },
         guide: {
             title: 'Settings Guide',
@@ -407,7 +433,7 @@ export const en = {
             tagline: "The Jum'ah Khutbah is in progress"
         },
         fridaySlides: [
-            { title: "Sunnah: Read Surah Al-Kahf", content: `<p class="ql-align-center"><em style="color: rgb(255, 255, 255);">"Whoever reads Surah Al-Kahf on the day of Jum’ah, will have a light that will shine from him from one Friday to the next."</em></p><p class="ql-align-center"><strong style="color: rgb(255, 255, 255);">(Narrated by al-Haakim and al-Bayhaqi)</strong></p>` },
+            { title: "Sunnah: Read Surah Al-Kahf", content: `<p class="ql-align-center"><em style="color: rgb(255, 255, 255);">"Whoever reads Surah Al-Kahf on the day of Jum’at, will have a light that will shine from him from one Friday to the next."</em></p><p class="ql-align-center"><strong style="color: rgb(255, 255, 255);">(Narrated by al-Haakim and al-Bayhaqi)</strong></p>` },
             { title: "Sunnah: Prepare Yourself", content: `<p class="ql-align-center"><strong style="color: rgb(255, 255, 255);">Bathe, Wear Your Best Clothes, & Use Perfume</strong></p><p class="ql-align-center"><em style="color: rgb(255, 255, 255);">"Whoever takes a bath on Friday, purifies himself as much as he can... his sins between that Friday and the next will be forgiven."</em></p><p class="ql-align-center"><strong style="color: rgb(255, 255, 255);">(Narrated by Bukhari)</strong></p>` },
             { title: "Virtue: Hasten to the Mosque", content: `<p class="ql-align-center"><em style="color: rgb(255, 255, 255);">Coming in the first hour is like sacrificing a camel, the second hour like a cow, the third like a ram, the fourth like a chicken, and the fifth like an egg.</em></p><p class="ql-align-center"><strong style="color: rgb(255, 255, 255);">(Agreed upon)</strong></p>` },
             { title: "Virtue: Increase Salawat", content: `<p class="ql-align-center"><em style="color: rgb(255, 255, 255);">"Increase your prayers upon me on Friday. Whoever sends one prayer upon me, Allah will send ten prayers upon him."</em></p><p class="ql-align-center"><strong style="color: rgb(255, 255, 255);">(Narrated by Al-Bayhaqi)</strong></p>` },
