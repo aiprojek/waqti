@@ -1,14 +1,22 @@
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useRemote } from '../contexts/RemoteContext';
-import { PRAYER_NAMES, IQAMAH_PRAYERS } from '../constants';
+import { Settings, ScheduleItem, FinanceInfo, Slide, FridayOfficerSlide } from '../types';
+import { getDefaultSettings } from '../constants';
+import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../i18n';
+
+// Import actual settings tabs to mirror the main app experience
+import { GeneralSettingsTab } from './settings/GeneralSettingsTab';
+import { CalculationSettingsTab } from './settings/CalculationSettingsTab';
+import { DisplaySettingsTab } from './settings/DisplaySettingsTab';
+import { AlarmSettingsTab } from './settings/AlarmSettingsTab';
+import { SlideSettingsTab } from './settings/SlideSettingsTab';
 
 // Simple Icons
 const PlaybackIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>);
 const MenuIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
 const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
-const InputIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>);
 const ArrowUp = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>);
 const ArrowDown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>);
 const ArrowLeft = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>);
@@ -16,118 +24,67 @@ const ArrowRight = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" hei
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 const SendIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
 const DownloadIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>);
-const ChevronDown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>);
+
+const TABS = ['general', 'calculation', 'display', 'alarm', 'slides'];
+type TabNameKey = (typeof TABS)[number];
 
 export const RemoteView: React.FC = () => {
     const { connectionStatus, sendCommand, resetConnection, lastCommand } = useRemote();
+    const { language } = useLanguage();
     const [showRetry, setShowRetry] = useState(false);
     const wakeLockRef = useRef<any>(null);
-    const [activeTab, setActiveTab] = useState<'playback' | 'nav' | 'input'>('playback');
+    const [activeTab, setActiveTab] = useState<'playback' | 'nav' | 'settings'>('playback');
     const [inputText, setInputText] = useState('');
 
-    // --- Expanded Settings State ---
-    const [settingsState, setSettingsState] = useState({
-        mosqueName: '',
-        city: '',
-        runningText: '',
-        theme: 'dark', // 'dark' | 'light'
-        displayMode: 'landscape', // 'landscape' | 'portrait'
-        calculationMethod: 17,
-        madhab: 0,
-        manualFridayTime: '12:00',
-        khutbahMessageTitle: '',
-        adjustments: { Fajr: 0, Sunrise: 0, Dhuhr: 0, Asr: 0, Maghrib: 0, Isha: 0 } as Record<string, number>,
-        iqamahOffsets: { Fajr: 10, Dhuhr: 10, Asr: 10, Maghrib: 10, Isha: 10 } as Record<string, number>,
-        wallpaper: ''
-    });
-    
-    // Collapse States
-    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-        info: true,
-        display: false,
-        schedule: false,
-        friday: false
-    });
-
-    const toggleSection = (key: string) => {
-        setOpenSections(prev => ({ ...prev, [key]: !prev[key] }));
-    };
-
+    // --- Settings State Management (Mirroring SettingsContext) ---
+    const [localSettings, setLocalSettings] = useState<Settings>(() => getDefaultSettings(language));
+    const [settingsTab, setSettingsTab] = useState<TabNameKey>('general');
     const [isSending, setIsSending] = useState(false);
+
+    // --- Helpers for Display Tab ---
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [uploadStatus, setUploadStatus] = useState<{ message: string; type: 'success' | 'error' | 'info' }>({ message: '', type: 'info' });
+    const [wallpaperType, setWallpaperType] = useState<'url' | 'upload'>('url');
+    const uploadStatusColor = useMemo(() => ({
+        success: 'text-green-500',
+        error: 'text-red-500',
+        info: 'text-slate-500'
+    }[uploadStatus.type]), [uploadStatus.type]);
+
+    // --- Helpers for Calculation Tab ---
+    const [citySearch, setCitySearch] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+    const [locationStatus, setLocationStatus] = useState<{ message: string; type: 'success' | 'error' | 'info' }>({ message: '', type: 'info' });
+    const locationStatusColor = useMemo(() => ({
+        success: 'text-green-500',
+        error: 'text-red-500',
+        info: 'text-slate-500'
+    }[locationStatus.type]), [locationStatus.type]);
+
+    // --- Helpers for Alarm Tab ---
+    const [newDhikrArabic, setNewDhikrArabic] = useState('');
+    const [newDhikrLatin, setNewDhikrLatin] = useState('');
+
+    // --- Helpers for Slide Tab ---
+    const slideFileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
+    const [slideImageTypes, setSlideImageTypes] = useState<Record<string, 'url' | 'upload'>>({});
+
+    // --- General Tab Dummy Refs ---
+    const importFileRef = useRef<HTMLInputElement>(null);
 
     // --- Listen for Data from TV ---
     useEffect(() => {
         if (lastCommand && lastCommand.type === 'SETTINGS_SNAPSHOT' && lastCommand.payload) {
-            const data = lastCommand.payload;
-            setSettingsState(prev => ({
+            // Merge received snapshot with default settings structure to ensure type safety
+            setLocalSettings(prev => ({
                 ...prev,
-                mosqueName: data.mosqueName || '',
-                city: data.city || '',
-                runningText: data.runningText || '',
-                theme: data.theme || 'dark',
-                displayMode: data.displayMode || 'landscape',
-                calculationMethod: data.calculationMethod || 17,
-                madhab: data.madhab || 0,
-                adjustments: data.adjustments || prev.adjustments,
-                iqamahOffsets: data.iqamahOffsets || prev.iqamahOffsets,
-                manualFridayTime: data.manualFridayTime || '12:00',
-                khutbahMessageTitle: data.khutbahMessageTitle || ''
+                ...lastCommand.payload
             }));
-            alert('Data berhasil dimuat dari TV!');
+            alert('Data berhasil disinkronkan dari TV!');
         }
     }, [lastCommand]);
 
-    // --- Wake Lock ---
-    useEffect(() => {
-        const requestWakeLock = async () => {
-            if ('wakeLock' in navigator) {
-                try {
-                    wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
-                    wakeLockRef.current.addEventListener('release', () => {});
-                } catch (err: any) {
-                    console.error(`${err.name}, ${err.message}`);
-                }
-            }
-        };
-        requestWakeLock();
-        const handleVisibilityChange = () => {
-            if (document.visibilityState === 'visible') requestWakeLock();
-        };
-        document.addEventListener('visibilitychange', handleVisibilityChange);
-        return () => {
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            if (wakeLockRef.current) wakeLockRef.current.release();
-        };
-    }, []);
-
-    useEffect(() => {
-        let timer: ReturnType<typeof setTimeout>;
-        if (connectionStatus === 'connecting') {
-            setShowRetry(false);
-            timer = setTimeout(() => setShowRetry(true), 5000);
-        } else {
-            setShowRetry(false);
-        }
-        return () => clearTimeout(timer);
-    }, [connectionStatus]);
-
-    const handleCommand = (type: any, payload?: any) => {
-        if (navigator.vibrate) navigator.vibrate(50);
-        sendCommand({ type, payload, timestamp: Date.now() });
-    };
-
-    const handleSendText = (e: React.FormEvent) => {
-        e.preventDefault();
-        handleCommand('SEND_TEXT', inputText);
-        setInputText('');
-    };
-
-    const requestSettings = () => {
-        handleCommand('REQUEST_SETTINGS');
-    };
-
-    // Helper to resize image
+    // --- Image Compression Helper ---
     const compressImage = (file: File): Promise<string> => {
         return new Promise((resolve, reject) => {
             const reader = new FileReader();
@@ -137,7 +94,7 @@ export const RemoteView: React.FC = () => {
                 img.src = event.target?.result as string;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // Cukup untuk wallpaper TV jika dilihat dari jauh
+                    const MAX_WIDTH = 800; 
                     const scaleSize = MAX_WIDTH / img.width;
                     canvas.width = MAX_WIDTH;
                     canvas.height = img.height * scaleSize;
@@ -154,66 +111,250 @@ export const RemoteView: React.FC = () => {
         });
     };
 
-    const handleFormSubmit = async () => {
-        setIsSending(true);
-        const payload: any = {
-            mosqueName: settingsState.mosqueName,
-            city: settingsState.city,
-            runningText: settingsState.runningText,
-            theme: settingsState.theme,
-            displayMode: settingsState.displayMode,
-            calculationMethod: settingsState.calculationMethod,
-            madhab: settingsState.madhab,
-            adjustments: settingsState.adjustments,
-            iqamahOffsets: settingsState.iqamahOffsets,
-            manualFridayTime: settingsState.manualFridayTime,
-            khutbahMessageTitle: settingsState.khutbahMessageTitle
-        };
+    // --- Event Handlers (Mirrored from SettingsModal) ---
+    const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, type } = e.target;
+        let processedValue: string | number | boolean = value;
+        if (type === 'checkbox') processedValue = (e.target as HTMLInputElement).checked;
+        else if (type === 'number') processedValue = value === '' ? '' : Number(value);
 
-        // Handle Image
-        const file = fileInputRef.current?.files?.[0];
-        if (file) {
-            try {
-                const compressedBase64 = await compressImage(file);
-                payload.wallpaper = compressedBase64;
-            } catch (e) {
-                console.error("Gagal kompres gambar", e);
-                alert("Gagal memproses gambar");
+        setLocalSettings(prev => ({ ...prev, [name]: processedValue }));
+    }, []);
+
+    const handleNestedChange = useCallback((category: keyof Settings, key: string, value: string | number) => {
+        setLocalSettings(prev => {
+            const categoryObject = prev[category];
+            if (typeof categoryObject === 'object' && !Array.isArray(categoryObject) && categoryObject !== null) {
+                return { ...prev, [category]: { ...(categoryObject as object), [key]: value } };
             }
+            return prev;
+        });
+    }, []);
+
+    // --- Display Tab Logic ---
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        setUploadStatus({ message: 'Compressing & Saving...', type: 'info' });
+        try {
+            const compressedBase64 = await compressImage(file);
+            setLocalSettings(prev => ({...prev, wallpaper: compressedBase64}));
+            setUploadStatus({ message: 'Ready to send.', type: 'success' });
+        } catch (e) {
+            setUploadStatus({ message: 'Failed to process image.', type: 'error' });
         }
-
-        handleCommand('UPDATE_DATA', payload);
-        alert('Data dikirim ke TV!');
-        if (fileInputRef.current) fileInputRef.current.value = '';
-        setIsSending(false);
     };
 
-    const handleChange = (field: string, value: any) => {
-        setSettingsState(prev => ({ ...prev, [field]: value }));
+    const handleThemeCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { value, checked } = e.target;
+        setLocalSettings(p => {
+            const currentThemes = p.runningTextThemes || [];
+            return checked 
+                ? {...p, runningTextThemes: [...currentThemes, value]} 
+                : {...p, runningTextThemes: currentThemes.filter(t => t !== value)};
+        });
     };
 
-    const handleNestedChange = (category: 'adjustments' | 'iqamahOffsets', key: string, value: any) => {
-        setSettingsState(prev => ({
-            ...prev,
-            [category]: {
-                ...prev[category],
-                [key]: Number(value)
-            }
+    const handleCustomTextChange = (index: number, html: string) => {
+        setLocalSettings(p => {
+            const newCustomTexts = [...(p.customTexts || [])];
+            newCustomTexts[index] = {...newCustomTexts[index], content: html};
+            return {...p, customTexts: newCustomTexts};
+        });
+    };
+
+    const addCustomText = () => {
+        setLocalSettings(p => ({
+            ...p, customTexts: [...(p.customTexts || []), { id: `custom-${Date.now()}`, content: '' }]
         }));
     };
+
+    const removeCustomText = (index: number) => {
+         setLocalSettings(p => ({
+            ...p, customTexts: (p.customTexts || []).filter((_, i) => i !== index)
+        }));
+    };
+
+    // --- Alarm Tab Logic ---
+    const handleDhikrSelectionChange = (dhikrId: string, isChecked: boolean) => {
+        setLocalSettings(prev => {
+            const selected = new Set(prev.selectedDhikr || []);
+            if (isChecked) selected.add(dhikrId); else selected.delete(dhikrId);
+            return { ...prev, selectedDhikr: Array.from(selected) };
+        });
+    };
+
+    const handleMoveDhikr = (index: number, direction: 'up' | 'down') => {
+        const list = [...(localSettings.dhikrList || [])];
+        const newIndex = direction === 'up' ? index - 1 : index + 1;
+        if (newIndex < 0 || newIndex >= list.length) return;
+        [list[index], list[newIndex]] = [list[newIndex], list[index]];
+        setLocalSettings(prev => ({ ...prev, dhikrList: list }));
+    };
+
+    const handleRemoveDhikr = (idToRemove: string) => {
+        setLocalSettings(prev => ({
+            ...prev,
+            dhikrList: (prev.dhikrList || []).filter(d => d.id !== idToRemove),
+            selectedDhikr: (prev.selectedDhikr || []).filter(id => id !== idToRemove),
+        }));
+    };
+
+    const handleAddDhikr = () => {
+        if (!newDhikrArabic.trim() || !newDhikrLatin.trim()) return;
+        const newDhikr = { id: `dhikr-${Date.now()}`, arabic: newDhikrArabic.trim(), latin: newDhikrLatin.trim() };
+        setLocalSettings(prev => ({
+            ...prev,
+            dhikrList: [...(prev.dhikrList || []), newDhikr],
+            selectedDhikr: [...(prev.selectedDhikr || []), newDhikr.id]
+        }));
+        setNewDhikrArabic('');
+        setNewDhikrLatin('');
+    };
+
+    // --- Slide Tab Logic ---
+    const addSlide = (type: 'text' | 'image' | 'schedule' | 'finance' | 'friday-officer') => {
+        let newSlide: Slide;
+        const base = { id: `slide-${Date.now()}`, enabled: true, duration: 15 };
+        switch (type) {
+            case 'image': newSlide = { ...base, type, imageUrl: '', qrCodeUrl: '' }; break;
+            case 'schedule': newSlide = { ...base, type, title: 'Jadwal', scheduleItems: [] }; break;
+            case 'finance': newSlide = { ...base, type, financeInfo: { title: 'Keuangan', lastBalance: 0, income: 0, expense: 0, currentBalance: 0 } }; break;
+            case 'friday-officer': newSlide = { ...base, type, title: 'Petugas Jumat', officers: { khotib: '', imam: '', muadzin: '', bilal: '' }, fridayOnly: true }; break;
+            case 'text': default: newSlide = { ...base, type, title: '', content: '', qrCodeUrl: '' }; break;
+        }
+        setLocalSettings(p => ({ ...p, slides: [...(p.slides || []), newSlide] }));
+    };
+
+    const removeSlide = (index: number) => {
+        setLocalSettings(p => ({...p, slides: p.slides.filter((_, i) => i !== index) }));
+    };
+    
+    const handleSlideChange = (index: number, field: string, value: any) => {
+        setLocalSettings(p => {
+            const newSlides = [...p.slides];
+            newSlides[index] = { ...newSlides[index], [field]: value };
+            return { ...p, slides: newSlides };
+        });
+    };
+
+    const handleScheduleItemChange = (slideIndex: number, itemIndex: number, field: keyof ScheduleItem, value: string) => {
+        setLocalSettings(p => {
+            const newSlides = [...p.slides];
+            const slide = newSlides[slideIndex] as any; // Cast for simpler handling
+            const newItems = [...slide.scheduleItems];
+            newItems[itemIndex] = {...newItems[itemIndex], [field]: value};
+            newSlides[slideIndex] = {...slide, scheduleItems: newItems};
+            return {...p, slides: newSlides};
+        });
+    };
+
+    const addScheduleItem = (slideIndex: number) => {
+         setLocalSettings(p => {
+            const newSlides = [...p.slides];
+            const slide = newSlides[slideIndex] as any;
+            const newItem: ScheduleItem = { id: `item-${Date.now()}`, topic: '', speaker: '', day: '', time: '' };
+            newSlides[slideIndex] = {...slide, scheduleItems: [...slide.scheduleItems, newItem]};
+            return {...p, slides: newSlides};
+        });
+    };
+
+    const removeScheduleItem = (slideIndex: number, itemIndex: number) => {
+        setLocalSettings(p => {
+            const newSlides = [...p.slides];
+            const slide = newSlides[slideIndex] as any;
+            newSlides[slideIndex] = {...slide, scheduleItems: slide.scheduleItems.filter((_: any, i: number) => i !== itemIndex)};
+            return {...p, slides: newSlides};
+        });
+    };
+
+    const handleFinanceInfoChange = (slideIndex: number, field: keyof Omit<FinanceInfo, 'lastUpdated' | 'currentBalance'>, value: string | number) => {
+        setLocalSettings(p => {
+            const newSlides = [...p.slides];
+            const slide = newSlides[slideIndex] as any;
+            const newInfo = { ...slide.financeInfo, [field]: Number(value) || 0 };
+            newInfo.currentBalance = (newInfo.lastBalance || 0) + (newInfo.income || 0) - (newInfo.expense || 0);
+            newSlides[slideIndex] = { ...slide, financeInfo: newInfo };
+            return { ...p, slides: newSlides };
+        });
+    };
+
+    const handleSlideImageTypeChange = (index: number, type: 'url' | 'upload') => {
+        const slideId = localSettings.slides[index].id;
+        setSlideImageTypes(p => ({...p, [slideId]: type}));
+    };
+
+    const handleSlideImageChange = async (event: React.ChangeEvent<HTMLInputElement>, index: number) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+        try {
+            const compressedBase64 = await compressImage(file);
+            handleSlideChange(index, 'imageUrl', compressedBase64);
+        } catch(e) {
+            alert('Failed to process image');
+        }
+    };
+
+    // --- Main Actions ---
+    const handleCommand = (type: any, payload?: any) => {
+        if (navigator.vibrate) navigator.vibrate(50);
+        sendCommand({ type, payload, timestamp: Date.now() });
+    };
+
+    const handleSendText = (e: React.FormEvent) => {
+        e.preventDefault();
+        handleCommand('SEND_TEXT', inputText);
+        setInputText('');
+    };
+
+    const requestSettings = () => {
+        handleCommand('REQUEST_SETTINGS');
+    };
+
+    const handleSaveSettings = () => {
+        setIsSending(true);
+        // Send the entire localSettings object as UPDATE_DATA payload
+        // The host app's logic in App.tsx needs to handle bulk updates, which we improved previously.
+        handleCommand('UPDATE_DATA', localSettings);
+        setTimeout(() => {
+            setIsSending(false);
+            alert('Pengaturan dikirim ke TV!');
+        }, 1000);
+    };
+
+    // --- Wake Lock ---
+    useEffect(() => {
+        const requestWakeLock = async () => {
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLockRef.current = await (navigator as any).wakeLock.request('screen');
+                } catch (err) { console.error(err); }
+            }
+        };
+        requestWakeLock();
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') requestWakeLock();
+        });
+    }, []);
+
+    useEffect(() => {
+        let timer: ReturnType<typeof setTimeout>;
+        if (connectionStatus === 'connecting') {
+            setShowRetry(false);
+            timer = setTimeout(() => setShowRetry(true), 5000);
+        } else setShowRetry(false);
+        return () => clearTimeout(timer);
+    }, [connectionStatus]);
+
 
     if (connectionStatus !== 'connected') {
         return (
             <div className="h-screen w-full bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-                <h2 className="text-xl font-bold mb-2">
-                    {connectionStatus === 'connecting' ? 'Menghubungkan...' : 'Terputus'}
-                </h2>
+                <h2 className="text-xl font-bold mb-2">{connectionStatus === 'connecting' ? 'Menghubungkan...' : 'Terputus'}</h2>
                 <p className="text-slate-400 mb-6 text-sm">Pastikan satu jaringan & layar HP tetap nyala.</p>
                 {(showRetry || connectionStatus === 'disconnected') && (
-                    <button onClick={resetConnection} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-full font-semibold transition-colors shadow-lg animate-fade-in">
-                        Coba Lagi
-                    </button>
+                    <button onClick={resetConnection} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-full font-semibold transition-colors shadow-lg animate-fade-in">Coba Lagi</button>
                 )}
             </div>
         );
@@ -221,7 +362,6 @@ export const RemoteView: React.FC = () => {
 
     return (
         <div className="h-screen w-full bg-slate-900 text-white flex flex-col">
-            {/* Header */}
             <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800/50 backdrop-blur-md">
                 <h1 className="text-lg font-bold text-[var(--accent-color)]">Waqti Remote</h1>
                 <div className="flex items-center gap-2">
@@ -230,41 +370,21 @@ export const RemoteView: React.FC = () => {
                 </div>
             </div>
 
-            {/* Content Area */}
             <div className="flex-grow p-4 overflow-y-auto pb-20">
                 {activeTab === 'playback' && (
                     <div className="grid grid-cols-2 gap-4 h-full content-start">
-                        <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-                            <span className="font-semibold text-sm">Slide Mundur</span>
-                        </button>
-
-                        <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                            <span className="font-semibold text-sm">Slide Maju</span>
-                        </button>
-
-                        <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                            <span className="text-xl font-bold">Matikan Alarm</span>
-                        </button>
-
-                        <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                            <span className="font-semibold text-sm">Muat Ulang Display</span>
-                        </button>
+                        <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">Slide Mundur</span></button>
+                        <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">Slide Maju</span></button>
+                        <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">Matikan Alarm</span></button>
+                        <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">Muat Ulang Display</span></button>
                     </div>
                 )} 
                 
                 {activeTab === 'nav' && (
                     <div className="flex flex-col h-full gap-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => handleCommand('OPEN_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600">
-                                <SettingsIcon /> Buka Menu
-                            </button>
-                            <button onClick={() => handleCommand('CLOSE_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600">
-                                <CloseIcon /> Tutup Menu
-                            </button>
+                            <button onClick={() => handleCommand('OPEN_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><SettingsIcon /> Buka Menu</button>
+                            <button onClick={() => handleCommand('CLOSE_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><CloseIcon /> Tutup Menu</button>
                         </div>
                         <div className="flex-grow flex items-center justify-center py-4">
                             <div className="relative w-64 h-64 bg-slate-800 rounded-full shadow-2xl flex items-center justify-center border border-slate-700">
@@ -282,184 +402,126 @@ export const RemoteView: React.FC = () => {
                     </div>
                 )}
 
-                {activeTab === 'input' && (
-                    <div className="flex flex-col gap-4 h-full">
-                        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center shadow-md">
-                            <div>
-                                <h3 className="font-bold text-lg">Pengaturan</h3>
-                                <p className="text-xs text-slate-400">Edit data dan kirim ke TV.</p>
-                            </div>
-                            <button onClick={requestSettings} className="bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-2 active:bg-indigo-700 hover:bg-indigo-500 transition-colors">
-                                <DownloadIcon /> Load
-                            </button>
+                {activeTab === 'settings' && (
+                    <div className="flex flex-col h-full bg-slate-800 rounded-xl overflow-hidden shadow-xl border border-slate-700">
+                        {/* Settings Toolbar */}
+                        <div className="p-3 bg-slate-700/50 flex gap-2 overflow-x-auto no-scrollbar border-b border-slate-600">
+                            {TABS.map(tabKey => (
+                                <button
+                                    key={tabKey}
+                                    onClick={() => setSettingsTab(tabKey as TabNameKey)}
+                                    className={`px-4 py-2 rounded-md text-sm font-semibold whitespace-nowrap transition-colors ${
+                                        settingsTab === tabKey 
+                                        ? 'bg-[var(--accent-color)] text-white' 
+                                        : 'bg-slate-600/50 text-slate-300 hover:bg-slate-600'
+                                    }`}
+                                >
+                                    {t(`settings.tabs.${tabKey}`)}
+                                </button>
+                            ))}
                         </div>
 
-                        {/* Section 1: Info Umum */}
-                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
-                            <button type="button" onClick={() => toggleSection('info')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
-                                <span>Info Masjid & Umum</span>
-                                <span className={`transform transition-transform duration-200 ${openSections.info ? 'rotate-180' : ''}`}><ChevronDown /></span>
-                            </button>
-                            {openSections.info && (
-                                <div className="p-4 space-y-4 border-t border-slate-700">
-                                    <div>
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Nama Masjid</label>
-                                        <input type="text" value={settingsState.mosqueName} onChange={(e) => handleChange('mosqueName', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Kota (Auto-Update Jadwal)</label>
-                                        <input type="text" value={settingsState.city} onChange={(e) => handleChange('city', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Teks Berjalan</label>
-                                        <textarea value={settingsState.runningText} onChange={(e) => handleChange('runningText', e.target.value)} rows={3} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
-                                    </div>
-                                </div>
+                        {/* Settings Content Area */}
+                        <div className="flex-grow p-4 overflow-y-auto bg-slate-200 dark:bg-slate-900 text-slate-900 dark:text-white">
+                            {settingsTab === 'general' && (
+                                <GeneralSettingsTab 
+                                    localSettings={localSettings} 
+                                    handleInputChange={handleInputChange} 
+                                    handleExportData={() => {}} // Not applicable on remote
+                                    handleImportData={() => {}} // Not applicable on remote
+                                    importFileRef={importFileRef}
+                                    onGoToServices={() => {}} // Handled separately
+                                />
+                            )}
+                            {settingsTab === 'calculation' && (
+                                <CalculationSettingsTab 
+                                    localSettings={localSettings} 
+                                    handleInputChange={handleInputChange} 
+                                    handleNestedChange={handleNestedChange}
+                                    citySearch={citySearch}
+                                    setCitySearch={setCitySearch}
+                                    handleLocationSearch={() => { /* Simple mock for location search could be added if needed */ }}
+                                    isSearching={isSearching}
+                                    locationStatus={locationStatus}
+                                    locationStatusColor={locationStatusColor}
+                                />
+                            )}
+                            {settingsTab === 'display' && (
+                                <DisplaySettingsTab 
+                                    localSettings={localSettings} 
+                                    setLocalSettings={setLocalSettings} 
+                                    handleInputChange={handleInputChange}
+                                    handleThemeCheckboxChange={handleThemeCheckboxChange}
+                                    handleCustomTextChange={handleCustomTextChange}
+                                    addCustomText={addCustomText}
+                                    removeCustomText={removeCustomText}
+                                    uploadStatus={uploadStatus}
+                                    fileInputRef={fileInputRef}
+                                    handleFileChange={handleFileChange}
+                                    uploadStatusColor={uploadStatusColor}
+                                />
+                            )}
+                            {settingsTab === 'alarm' && (
+                                <AlarmSettingsTab 
+                                    localSettings={localSettings}
+                                    setLocalSettings={setLocalSettings}
+                                    handleInputChange={handleInputChange}
+                                    handleNestedChange={handleNestedChange}
+                                    handleDhikrSelectionChange={handleDhikrSelectionChange}
+                                    handleMoveDhikr={handleMoveDhikr}
+                                    handleRemoveDhikr={handleRemoveDhikr}
+                                    newDhikrArabic={newDhikrArabic}
+                                    setNewDhikrArabic={setNewDhikrArabic}
+                                    newDhikrLatin={newDhikrLatin}
+                                    setNewDhikrLatin={setNewDhikrLatin}
+                                    handleAddDhikr={handleAddDhikr}
+                                />
+                            )}
+                            {settingsTab === 'slides' && (
+                                <SlideSettingsTab 
+                                    localSettings={localSettings}
+                                    addSlide={addSlide}
+                                    removeSlide={removeSlide}
+                                    handleSlideChange={handleSlideChange}
+                                    handleScheduleItemChange={handleScheduleItemChange}
+                                    addScheduleItem={addScheduleItem}
+                                    removeScheduleItem={removeScheduleItem}
+                                    handleFinanceInfoChange={handleFinanceInfoChange}
+                                    slideImageTypes={slideImageTypes}
+                                    handleSlideImageTypeChange={handleSlideImageTypeChange}
+                                    slideFileInputRefs={slideFileInputRefs}
+                                    // Custom image handling for remote (compression + base64)
+                                    // We override the internal handling by passing refs but logic handles 'imageUrl' update manually in slide display
+                                />
                             )}
                         </div>
 
-                        {/* Section 2: Tampilan */}
-                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
-                            <button type="button" onClick={() => toggleSection('display')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
-                                <span>Tampilan</span>
-                                <span className={`transform transition-transform duration-200 ${openSections.display ? 'rotate-180' : ''}`}><ChevronDown /></span>
+                        {/* Save / Sync Footer */}
+                        <div className="p-4 bg-slate-800 border-t border-slate-700 flex gap-4">
+                            <button 
+                                onClick={requestSettings} 
+                                className="px-4 py-3 bg-slate-600 rounded-lg text-white font-bold flex items-center gap-2 hover:bg-slate-500"
+                            >
+                                <DownloadIcon /> Sync dari TV
                             </button>
-                            {openSections.display && (
-                                <div className="p-4 space-y-4 border-t border-slate-700">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Tema</label>
-                                            <select value={settingsState.theme} onChange={(e) => handleChange('theme', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none">
-                                                <option value="dark">Gelap</option>
-                                                <option value="light">Terang</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Mode Layar</label>
-                                            <select value={settingsState.displayMode} onChange={(e) => handleChange('displayMode', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none">
-                                                <option value="landscape">Landscape</option>
-                                                <option value="portrait">Portrait</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Ganti Wallpaper</label>
-                                        <input type="file" accept="image/*" ref={fileInputRef} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--accent-color)] file:text-white" />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        {/* Section 3: Jadwal & Koreksi */}
-                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
-                            <button type="button" onClick={() => toggleSection('schedule')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
-                                <span>Jadwal & Koreksi</span>
-                                <span className={`transform transition-transform duration-200 ${openSections.schedule ? 'rotate-180' : ''}`}><ChevronDown /></span>
+                            <button 
+                                onClick={handleSaveSettings} 
+                                disabled={isSending}
+                                className="flex-grow px-4 py-3 bg-[var(--accent-color)] rounded-lg text-white font-bold shadow-lg hover:opacity-90 disabled:opacity-50 flex justify-center items-center gap-2"
+                            >
+                                {isSending ? 'Mengirim...' : 'Kirim Perubahan ke TV'} <SendIcon />
                             </button>
-                            {openSections.schedule && (
-                                <div className="p-4 space-y-4 border-t border-slate-700">
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Metode</label>
-                                            <select value={settingsState.calculationMethod} onChange={(e) => handleChange('calculationMethod', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1 text-sm focus:border-[var(--accent-color)] focus:outline-none">
-                                                <option value="17">Kemenag RI</option>
-                                                <option value="3">Muslim World League</option>
-                                                <option value="5">Egyptian</option>
-                                            </select>
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Mazhab (Ashar)</label>
-                                            <select value={settingsState.madhab} onChange={(e) => handleChange('madhab', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1 text-sm focus:border-[var(--accent-color)] focus:outline-none">
-                                                <option value="0">Syafi'i (Standar)</option>
-                                                <option value="1">Hanafi</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Koreksi Waktu (Menit)</p>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {PRAYER_NAMES.map(name => (
-                                                <div key={`adj-${name}`}>
-                                                    <label className="text-[10px] text-slate-500 uppercase block mb-1">{name}</label>
-                                                    <input type="number" value={settingsState.adjustments[name]} onChange={(e) => handleNestedChange('adjustments', name, e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-center text-white focus:border-[var(--accent-color)] focus:outline-none" />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div>
-                                        <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Jeda Iqamah (Menit)</p>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {IQAMAH_PRAYERS.map(name => (
-                                                <div key={`iqm-${name}`}>
-                                                    <label className="text-[10px] text-slate-500 uppercase block mb-1">{name}</label>
-                                                    <input type="number" value={settingsState.iqamahOffsets[name]} onChange={(e) => handleNestedChange('iqamahOffsets', name, e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-center text-white focus:border-[var(--accent-color)] focus:outline-none" />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
-
-                        {/* Section 4: Jumat */}
-                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
-                            <button type="button" onClick={() => toggleSection('friday')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
-                                <span>Info Jum'at</span>
-                                <span className={`transform transition-transform duration-200 ${openSections.friday ? 'rotate-180' : ''}`}><ChevronDown /></span>
-                            </button>
-                            {openSections.friday && (
-                                <div className="p-4 space-y-4 border-t border-slate-700">
-                                    <div>
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Judul Pesan Khutbah</label>
-                                        <input type="text" value={settingsState.khutbahMessageTitle} onChange={(e) => handleChange('khutbahMessageTitle', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none" />
-                                    </div>
-                                    <div>
-                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Waktu Manual (Jika Perlu)</label>
-                                        <input type="time" value={settingsState.manualFridayTime} onChange={(e) => handleChange('manualFridayTime', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none" />
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                        <button 
-                            onClick={handleFormSubmit}
-                            disabled={isSending}
-                            className="w-full py-4 bg-[var(--accent-color)] rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 mb-8"
-                        >
-                            {isSending ? (
-                                <>
-                                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                                    Mengirim...
-                                </>
-                            ) : (
-                                <>
-                                    <SendIcon /> Simpan Perubahan
-                                </>
-                            )}
-                        </button>
-                        
-                        <p className="text-xs text-center text-slate-500 pb-4">
-                            Catatan: Pengaturan Slide & Keuangan sebaiknya diatur lewat PC/TV langsung.
-                        </p>
                     </div>
                 )}
             </div>
 
-            {/* Bottom Navigation */}
             <div className="flex border-t border-slate-700 bg-slate-800">
-                <button onClick={() => setActiveTab('playback')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'playback' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}>
-                    <PlaybackIcon /><span className="text-xs font-semibold">Playback</span>
-                </button>
+                <button onClick={() => setActiveTab('playback')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'playback' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><PlaybackIcon /><span className="text-xs font-semibold">Playback</span></button>
                 <div className="w-px bg-slate-700"></div>
-                <button onClick={() => setActiveTab('input')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'input' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}>
-                    <SettingsIcon /><span className="text-xs font-semibold">Pengaturan</span>
-                </button>
+                <button onClick={() => setActiveTab('settings')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'settings' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><SettingsIcon /><span className="text-xs font-semibold">Pengaturan</span></button>
                 <div className="w-px bg-slate-700"></div>
-                <button onClick={() => setActiveTab('nav')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'nav' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}>
-                    <MenuIcon /><span className="text-xs font-semibold">Navigasi</span>
-                </button>
+                <button onClick={() => setActiveTab('nav')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'nav' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><MenuIcon /><span className="text-xs font-semibold">Navigasi</span></button>
             </div>
         </div>
     );
