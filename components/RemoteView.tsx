@@ -1,9 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRemote } from '../contexts/RemoteContext';
 import { t } from '../i18n';
 
 export const RemoteView: React.FC = () => {
-    const { connectionStatus, sendCommand } = useRemote();
+    const { connectionStatus, sendCommand, resetConnection } = useRemote();
+    const [showRetry, setShowRetry] = useState(false);
+
+    // Effect to show retry button if connecting takes too long
+    useEffect(() => {
+        let timer: ReturnType<typeof setTimeout>;
+        if (connectionStatus === 'connecting') {
+            setShowRetry(false);
+            timer = setTimeout(() => {
+                setShowRetry(true);
+            }, 5000); // Show retry after 5 seconds
+        } else {
+            setShowRetry(false);
+        }
+        return () => clearTimeout(timer);
+    }, [connectionStatus]);
 
     const handleCommand = (type: 'NEXT_SLIDE' | 'PREV_SLIDE' | 'STOP_ALARM' | 'REFRESH') => {
         // Vibrate for feedback
@@ -19,8 +34,21 @@ export const RemoteView: React.FC = () => {
         return (
             <div className="h-screen w-full bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-                <h2 className="text-xl font-bold mb-2">Menghubungkan ke Layar...</h2>
-                <p className="text-slate-400">Pastikan perangkat Display sedang aktif.</p>
+                <h2 className="text-xl font-bold mb-2">
+                    {connectionStatus === 'connecting' ? 'Menghubungkan ke Layar...' : 'Terputus'}
+                </h2>
+                <p className="text-slate-400 mb-6 text-sm">
+                    Pastikan HP dan TV terhubung ke jaringan internet/WiFi yang sama.
+                </p>
+                
+                {(showRetry || connectionStatus === 'disconnected') && (
+                    <button 
+                        onClick={resetConnection}
+                        className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-full font-semibold transition-colors shadow-lg animate-fade-in"
+                    >
+                        Coba Hubungkan Lagi
+                    </button>
+                )}
             </div>
         );
     }
