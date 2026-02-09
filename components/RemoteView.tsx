@@ -156,8 +156,6 @@ export const RemoteView: React.FC = () => {
 
     const handleFormSubmit = async () => {
         setIsSending(true);
-        // Prepare payload, filtering only modified/necessary fields ideally, 
-        // but for simplicity sending the whole state struct that matches the UPDATE_DATA handler.
         const payload: any = {
             mosqueName: settingsState.mosqueName,
             city: settingsState.city,
@@ -286,89 +284,92 @@ export const RemoteView: React.FC = () => {
 
                 {activeTab === 'input' && (
                     <div className="flex flex-col gap-4 h-full">
-                        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center">
+                        <div className="bg-slate-800 p-4 rounded-lg flex justify-between items-center shadow-md">
                             <div>
                                 <h3 className="font-bold text-lg">Pengaturan</h3>
                                 <p className="text-xs text-slate-400">Edit data dan kirim ke TV.</p>
                             </div>
-                            <button onClick={requestSettings} className="bg-indigo-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-2 active:bg-indigo-700">
+                            <button onClick={requestSettings} className="bg-indigo-600 text-white px-3 py-2 rounded-lg text-sm flex items-center gap-2 active:bg-indigo-700 hover:bg-indigo-500 transition-colors">
                                 <DownloadIcon /> Load
                             </button>
                         </div>
 
                         {/* Section 1: Info Umum */}
-                        <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
-                            <button onClick={() => toggleSection('info')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold">
-                                Info Masjid & Umum <ChevronDown />
+                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
+                            <button type="button" onClick={() => toggleSection('info')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
+                                <span>Info Masjid & Umum</span>
+                                <span className={`transform transition-transform duration-200 ${openSections.info ? 'rotate-180' : ''}`}><ChevronDown /></span>
                             </button>
                             {openSections.info && (
-                                <div className="p-4 space-y-3">
+                                <div className="p-4 space-y-4 border-t border-slate-700">
                                     <div>
-                                        <label className="text-xs text-slate-400">Nama Masjid</label>
-                                        <input type="text" value={settingsState.mosqueName} onChange={(e) => handleChange('mosqueName', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1" />
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Nama Masjid</label>
+                                        <input type="text" value={settingsState.mosqueName} onChange={(e) => handleChange('mosqueName', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
                                     </div>
                                     <div>
-                                        <label className="text-xs text-slate-400">Kota (Auto-Update Jadwal)</label>
-                                        <input type="text" value={settingsState.city} onChange={(e) => handleChange('city', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1" />
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Kota (Auto-Update Jadwal)</label>
+                                        <input type="text" value={settingsState.city} onChange={(e) => handleChange('city', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
                                     </div>
                                     <div>
-                                        <label className="text-xs text-slate-400">Teks Berjalan</label>
-                                        <textarea value={settingsState.runningText} onChange={(e) => handleChange('runningText', e.target.value)} rows={2} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1" />
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Teks Berjalan</label>
+                                        <textarea value={settingsState.runningText} onChange={(e) => handleChange('runningText', e.target.value)} rows={3} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none focus:ring-1 focus:ring-[var(--accent-color)]" />
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Section 2: Tampilan */}
-                        <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
-                            <button onClick={() => toggleSection('display')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold">
-                                Tampilan <ChevronDown />
+                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
+                            <button type="button" onClick={() => toggleSection('display')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
+                                <span>Tampilan</span>
+                                <span className={`transform transition-transform duration-200 ${openSections.display ? 'rotate-180' : ''}`}><ChevronDown /></span>
                             </button>
                             {openSections.display && (
-                                <div className="p-4 space-y-3">
+                                <div className="p-4 space-y-4 border-t border-slate-700">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-xs text-slate-400">Tema</label>
-                                            <select value={settingsState.theme} onChange={(e) => handleChange('theme', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1">
+                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Tema</label>
+                                            <select value={settingsState.theme} onChange={(e) => handleChange('theme', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none">
                                                 <option value="dark">Gelap</option>
                                                 <option value="light">Terang</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="text-xs text-slate-400">Mode Layar</label>
-                                            <select value={settingsState.displayMode} onChange={(e) => handleChange('displayMode', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1">
+                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Mode Layar</label>
+                                            <select value={settingsState.displayMode} onChange={(e) => handleChange('displayMode', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none">
                                                 <option value="landscape">Landscape</option>
                                                 <option value="portrait">Portrait</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="text-xs text-slate-400">Ganti Wallpaper</label>
-                                        <input type="file" accept="image/*" ref={fileInputRef} className="w-full bg-slate-900 border border-slate-600 rounded p-1 text-sm mt-1 file:mr-2 file:bg-slate-700 file:text-white file:border-0 file:rounded file:px-2" />
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Ganti Wallpaper</label>
+                                        <input type="file" accept="image/*" ref={fileInputRef} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-sm mt-1 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[var(--accent-color)] file:text-white" />
                                     </div>
                                 </div>
                             )}
                         </div>
 
                         {/* Section 3: Jadwal & Koreksi */}
-                        <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
-                            <button onClick={() => toggleSection('schedule')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold">
-                                Jadwal & Koreksi <ChevronDown />
+                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
+                            <button type="button" onClick={() => toggleSection('schedule')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
+                                <span>Jadwal & Koreksi</span>
+                                <span className={`transform transition-transform duration-200 ${openSections.schedule ? 'rotate-180' : ''}`}><ChevronDown /></span>
                             </button>
                             {openSections.schedule && (
-                                <div className="p-4 space-y-4">
+                                <div className="p-4 space-y-4 border-t border-slate-700">
                                     <div className="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label className="text-xs text-slate-400">Metode</label>
-                                            <select value={settingsState.calculationMethod} onChange={(e) => handleChange('calculationMethod', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1">
+                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Metode</label>
+                                            <select value={settingsState.calculationMethod} onChange={(e) => handleChange('calculationMethod', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1 text-sm focus:border-[var(--accent-color)] focus:outline-none">
                                                 <option value="17">Kemenag RI</option>
                                                 <option value="3">Muslim World League</option>
                                                 <option value="5">Egyptian</option>
                                             </select>
                                         </div>
                                         <div>
-                                            <label className="text-xs text-slate-400">Mazhab (Ashar)</label>
-                                            <select value={settingsState.madhab} onChange={(e) => handleChange('madhab', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1">
+                                            <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Mazhab (Ashar)</label>
+                                            <select value={settingsState.madhab} onChange={(e) => handleChange('madhab', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1 text-sm focus:border-[var(--accent-color)] focus:outline-none">
                                                 <option value="0">Syafi'i (Standar)</option>
                                                 <option value="1">Hanafi</option>
                                             </select>
@@ -376,24 +377,24 @@ export const RemoteView: React.FC = () => {
                                     </div>
                                     
                                     <div>
-                                        <p className="text-xs font-bold text-slate-400 mb-2 uppercase">Koreksi Waktu (Menit)</p>
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Koreksi Waktu (Menit)</p>
+                                        <div className="grid grid-cols-3 gap-3">
                                             {PRAYER_NAMES.map(name => (
                                                 <div key={`adj-${name}`}>
-                                                    <label className="text-[10px] text-slate-500 uppercase">{name}</label>
-                                                    <input type="number" value={settingsState.adjustments[name]} onChange={(e) => handleNestedChange('adjustments', name, e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-1 text-center text-white" />
+                                                    <label className="text-[10px] text-slate-500 uppercase block mb-1">{name}</label>
+                                                    <input type="number" value={settingsState.adjustments[name]} onChange={(e) => handleNestedChange('adjustments', name, e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-center text-white focus:border-[var(--accent-color)] focus:outline-none" />
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
 
                                     <div>
-                                        <p className="text-xs font-bold text-slate-400 mb-2 uppercase">Jeda Iqamah (Menit)</p>
-                                        <div className="grid grid-cols-3 gap-2">
+                                        <p className="text-xs font-bold text-slate-400 mb-2 uppercase tracking-wide">Jeda Iqamah (Menit)</p>
+                                        <div className="grid grid-cols-3 gap-3">
                                             {IQAMAH_PRAYERS.map(name => (
                                                 <div key={`iqm-${name}`}>
-                                                    <label className="text-[10px] text-slate-500 uppercase">{name}</label>
-                                                    <input type="number" value={settingsState.iqamahOffsets[name]} onChange={(e) => handleNestedChange('iqamahOffsets', name, e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-1 text-center text-white" />
+                                                    <label className="text-[10px] text-slate-500 uppercase block mb-1">{name}</label>
+                                                    <input type="number" value={settingsState.iqamahOffsets[name]} onChange={(e) => handleNestedChange('iqamahOffsets', name, e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-center text-white focus:border-[var(--accent-color)] focus:outline-none" />
                                                 </div>
                                             ))}
                                         </div>
@@ -403,19 +404,20 @@ export const RemoteView: React.FC = () => {
                         </div>
 
                         {/* Section 4: Jumat */}
-                        <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
-                            <button onClick={() => toggleSection('friday')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold">
-                                Info Jum'at <ChevronDown />
+                        <div className="bg-slate-800 rounded-lg border border-slate-700 shadow-sm">
+                            <button type="button" onClick={() => toggleSection('friday')} className="w-full p-4 flex justify-between items-center bg-slate-700/50 font-semibold rounded-t-lg active:bg-slate-700 transition-colors">
+                                <span>Info Jum'at</span>
+                                <span className={`transform transition-transform duration-200 ${openSections.friday ? 'rotate-180' : ''}`}><ChevronDown /></span>
                             </button>
                             {openSections.friday && (
-                                <div className="p-4 space-y-3">
+                                <div className="p-4 space-y-4 border-t border-slate-700">
                                     <div>
-                                        <label className="text-xs text-slate-400">Judul Pesan Khutbah</label>
-                                        <input type="text" value={settingsState.khutbahMessageTitle} onChange={(e) => handleChange('khutbahMessageTitle', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1" />
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Judul Pesan Khutbah</label>
+                                        <input type="text" value={settingsState.khutbahMessageTitle} onChange={(e) => handleChange('khutbahMessageTitle', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none" />
                                     </div>
                                     <div>
-                                        <label className="text-xs text-slate-400">Waktu Manual (Jika Perlu)</label>
-                                        <input type="time" value={settingsState.manualFridayTime} onChange={(e) => handleChange('manualFridayTime', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-2 text-white mt-1" />
+                                        <label className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Waktu Manual (Jika Perlu)</label>
+                                        <input type="time" value={settingsState.manualFridayTime} onChange={(e) => handleChange('manualFridayTime', e.target.value)} className="w-full bg-slate-900 border border-slate-600 rounded p-3 text-white mt-1 focus:border-[var(--accent-color)] focus:outline-none" />
                                     </div>
                                 </div>
                             )}
@@ -424,7 +426,7 @@ export const RemoteView: React.FC = () => {
                         <button 
                             onClick={handleFormSubmit}
                             disabled={isSending}
-                            className="w-full py-4 bg-[var(--accent-color)] rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2"
+                            className="w-full py-4 bg-[var(--accent-color)] rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-all flex justify-center items-center gap-2 mb-8"
                         >
                             {isSending ? (
                                 <>
