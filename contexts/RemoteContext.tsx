@@ -37,7 +37,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 try {
                     connection.send({ type: 'PING', timestamp: Date.now() });
                 } catch (e) {
-                    console.warn("Heartbeat failed", e);
+                    // Suppress
                 }
             }
         }, 2000);
@@ -59,15 +59,12 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         // Prevent double initialization in React StrictMode
         if (peerRef.current && !peerRef.current.destroyed) {
-            console.log("Peer already active, skipping init.");
             return;
         }
 
-        console.log(`Initializing PeerJS... Mode: ${isHostMode ? 'HOST' : 'REMOTE'}`);
-
         let peer: any;
         const peerConfig = {
-            debug: 1, // Reduced debug level
+            debug: 0, // Disable debug logs to clean console
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -84,7 +81,6 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             peer = new Peer(fullId, peerConfig);
             
             peer.on('open', (id: string) => {
-                console.log("Host Peer Open:", id);
                 // Extract short ID just in case PeerJS adds suffix
                 const finalShortId = id.replace('waqti-', '').split('-')[0]; 
                 setPeerId(finalShortId);
@@ -94,7 +90,6 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             peer = new Peer(peerConfig); // Let server assign ID for remote
             
             peer.on('open', (id: string) => {
-                console.log("Remote Peer Open:", id);
                 setPeerId(id);
                 if (remoteTarget) {
                     connectToHost(peer, remoteTarget);
@@ -104,38 +99,31 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         // --- Connection Handlers ---
         peer.on('connection', (conn: any) => {
-            console.log("Incoming connection from", conn.peer);
-            
             conn.on('open', () => {
-                console.log("Connection Established!");
                 connRef.current = conn;
                 setConnectionStatus('connected');
             });
 
             conn.on('data', (data: RemoteCommand) => {
                 if (data.type === 'PING') return;
-                console.log("Received command:", data);
                 setLastCommand(data);
             });
 
             conn.on('close', () => {
-                console.log("Connection closed remotely");
                 setConnectionStatus('disconnected');
                 connRef.current = null;
             });
             
-            conn.on('error', (err: any) => console.error("Conn error:", err));
+            conn.on('error', (err: any) => {});
         });
 
         // --- Peer Event Handlers ---
         peer.on('disconnected', () => {
-            console.log("Peer disconnected from server.");
             // Automatically try to reconnect to the signaling server if not destroyed
             if (peerRef.current && !peerRef.current.destroyed) {
                 // Add a small delay to avoid rapid reconnection loops
                 setTimeout(() => {
                     if (peerRef.current && !peerRef.current.destroyed && peerRef.current.disconnected) {
-                        console.log("Attempting to reconnect to server...");
                         peerRef.current.reconnect();
                     }
                 }, 3000);
@@ -143,22 +131,21 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
 
         peer.on('close', () => {
-            console.log("Peer closed.");
             setConnectionStatus('disconnected');
             setPeerId(null);
         });
 
         peer.on('error', (err: any) => {
             // Suppress noisy network errors to avoid alarming the user in console
-            if (err.type === 'network' || err.type === 'peer-unavailable' || err.type === 'socket-error' || err.type === 'socket-closed') {
-                 console.warn(`PeerJS Network Event (${err.type}): checking connection...`);
+            // Common errors: 'network', 'peer-unavailable', 'socket-error', 'socket-closed'
+            // We just log a warning instead of error for these
+            const ignoredErrors = ['network', 'peer-unavailable', 'socket-error', 'socket-closed', 'webrtc'];
+            if (ignoredErrors.includes(err.type) || (err.message && (err.message.includes('Lost connection') || err.message.includes('Could not connect')))) {
+                 // console.warn(`PeerJS Network Event: ${err.type}`);
                  return; 
             }
-            if (err.message && (err.message.includes('Lost connection to server') || err.message.includes('Could not connect to peer'))) {
-                 console.warn("PeerJS connection lost. Awaiting auto-reconnect.");
-                 return;
-            }
             
+            // Only log genuine setup errors
             console.error("Peer Error:", err.type, err);
             
             if (err.type === 'unavailable-id') {
@@ -182,7 +169,6 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         setConnectionStatus('connecting');
         const targetFullId = `waqti-${targetShortId.toUpperCase()}`;
-        console.log("Attempting to connect to:", targetFullId);
 
         const conn = peer.connect(targetFullId, {
             reliable: true,
@@ -192,9 +178,6 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         // Set a timeout to fail if connection takes too long
         const connectionTimeout = setTimeout(() => {
             if (conn && !conn.open) {
-                console.warn("Connection timed out.");
-                // We don't close immediately here to allow late connections,
-                // but we update UI. PeerJS has its own internal timeouts too.
                 if (connectionStatus === 'connecting') {
                      setConnectionStatus('disconnected');
                 }
@@ -203,14 +186,12 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         conn.on('open', () => {
             clearTimeout(connectionTimeout);
-            console.log("Connected to host successfully!");
             setConnectionStatus('connected');
             connRef.current = conn;
             startHeartbeat(conn);
         });
 
         conn.on('close', () => {
-            console.log("Connection closed.");
             setConnectionStatus('disconnected');
             connRef.current = null;
             stopHeartbeat();
@@ -218,7 +199,6 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
 
         conn.on('error', (err: any) => {
-            console.error("Connection Error:", err);
             setConnectionStatus('disconnected');
             clearTimeout(connectionTimeout);
         });
@@ -256,17 +236,14 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             try {
                 connRef.current.send(command);
             } catch (e) {
-                console.error("Send failed:", e);
                 setConnectionStatus('disconnected');
             }
         } else {
-            console.warn("Cannot send, not connected.");
             setConnectionStatus('disconnected');
         }
     };
 
     const resetConnection = () => {
-        console.log("Resetting connection...");
         const params = new URLSearchParams(window.location.search);
         const remoteTarget = params.get('remote');
         

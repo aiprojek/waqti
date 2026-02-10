@@ -65,7 +65,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
     const [manualRemoteId, setManualRemoteId] = useState('');
 
     useEffect(() => {
-        if (!isRemote && peerId && qrCodeRef.current && isHost) {
+        if (!isRemote && peerId && qrCodeRef.current && isHost && !isScanning) {
             qrCodeRef.current.innerHTML = ''; // Clear previous
             const remoteUrl = `${window.location.origin}${window.location.pathname}?remote=${peerId}`;
             new QRCode(qrCodeRef.current, {
@@ -77,11 +77,12 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                 correctLevel : QRCode.CorrectLevel.H
             });
         }
-    }, [peerId, isHost, isRemote]);
+    }, [peerId, isHost, isRemote, isScanning]);
 
     // Handle Scanner Logic
     const startScanner = () => {
         setIsScanning(true);
+        // Add a small delay to ensure the DOM element #qr-reader is rendered
         setTimeout(() => {
             const html5QrCode = new Html5Qrcode("qr-reader");
             scannerRef.current = html5QrCode;
@@ -101,6 +102,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
             }).catch((err: any) => {
                 console.error("Error starting scanner", err);
                 setIsScanning(false);
+                alert("Could not start camera. Please ensure camera permissions are granted.");
             });
         }, 100);
     };
@@ -202,7 +204,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                 <div className="grid grid-cols-1 gap-4">
                     <Input label={t('settings.general.mosqueName')} name="mosqueName" value={localSettings.mosqueName} onChange={handleInputChange} />
                     <div>
-                        <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 block">{t('settings.general.language')}</label>
+                        <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 block text-left">{t('settings.general.language')}</label>
                         <LanguageSwitcher />
                     </div>
                 </div>
@@ -212,18 +214,24 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                 <>
                     <CollapsibleSection title={t('settings.general.remote.title')}>
                         <div className="flex flex-col md:flex-row gap-6 items-start">
-                            <div className="flex-shrink-0 bg-white p-2 rounded-lg mx-auto md:mx-0">
-                                <div ref={qrCodeRef} className="w-[128px] h-[128px] bg-gray-200"></div>
+                            <div className="flex-shrink-0 bg-white p-2 rounded-lg mx-auto md:mx-0 w-[144px] h-[144px] flex items-center justify-center overflow-hidden relative">
+                                {isScanning ? (
+                                    <div id="qr-reader" className="w-full h-full"></div>
+                                ) : (
+                                    <div ref={qrCodeRef} className="w-[128px] h-[128px] bg-gray-200"></div>
+                                )}
                             </div>
                             <div className="space-y-4 text-center md:text-left flex-grow w-full">
                                 <div>
                                     <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
                                         {t('settings.general.remote.description')}
                                     </p>
-                                    <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-lg inline-block">
-                                        <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t('settings.general.remote.pairingCode')}</p>
-                                        <p className="text-2xl font-mono font-bold tracking-widest text-[var(--accent-color)]">{peerId || '...'}</p>
-                                    </div>
+                                    {!isScanning && (
+                                        <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-lg inline-block">
+                                            <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t('settings.general.remote.pairingCode')}</p>
+                                            <p className="text-2xl font-mono font-bold tracking-widest text-[var(--accent-color)]">{peerId || '...'}</p>
+                                        </div>
+                                    )}
                                 </div>
                                 
                                 <div className="flex flex-col md:flex-row items-center gap-3 justify-center md:justify-start">
@@ -236,13 +244,22 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                                     
                                     <div className="h-px w-full md:w-px md:h-8 bg-slate-300 dark:bg-slate-600 hidden md:block"></div>
 
-                                    <button 
-                                        onClick={startScanner}
-                                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-semibold whitespace-nowrap"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
-                                        {t('settings.general.remote.scanButton')}
-                                    </button>
+                                    {isScanning ? (
+                                        <button 
+                                            onClick={stopScanner}
+                                            className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm font-semibold whitespace-nowrap"
+                                        >
+                                            Stop Scan
+                                        </button>
+                                    ) : (
+                                        <button 
+                                            onClick={startScanner}
+                                            className="flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors text-sm font-semibold whitespace-nowrap"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><rect x="7" y="7" width="10" height="10" rx="1"/></svg>
+                                            {t('settings.general.remote.scanButton')}
+                                        </button>
+                                    )}
                                 </div>
 
                                 {/* Manual Input Section */}

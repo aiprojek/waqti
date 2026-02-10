@@ -69,15 +69,15 @@ export const QuillEditor: React.FC<QuillEditorProps> = ({ value, onChange }) => 
 // Reusable components for the form
 export const Input = ({ label, help, ...props }: React.InputHTMLAttributes<HTMLInputElement> & { label: string; help?: string }) => (
     <div className="flex flex-col">
-        <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300">{label}</label>
+        <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 text-left">{label}</label>
         <input {...props} className="bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] disabled:opacity-50" />
-        {help && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{help}</p>}
+        {help && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 text-left">{help}</p>}
     </div>
 );
 
 export const Select = ({ label, children, ...props }: React.SelectHTMLAttributes<HTMLSelectElement> & { label: string }) => (
     <div className="flex flex-col">
-        <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300">{label}</label>
+        <label className="mb-1 text-sm font-medium text-slate-600 dark:text-slate-300 text-left">{label}</label>
         <select {...props} className="bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md p-2 text-slate-800 dark:text-white focus:outline-none focus:ring-2 focus:ring-[var(--accent-color)] appearance-none">
             {children}
         </select>
@@ -88,9 +88,9 @@ export const Checkbox = ({ label, help, ...props }: React.InputHTMLAttributes<HT
     <div>
         <label className="flex items-center space-x-2 cursor-pointer">
             <input type="checkbox" {...props} className="w-5 h-5 rounded bg-slate-200 dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-[var(--accent-color)] focus:ring-[var(--accent-color)]" />
-            <span className="text-slate-700 dark:text-slate-300">{label}</span>
+            <span className="text-slate-700 dark:text-slate-300 text-left">{label}</span>
         </label>
-        {help && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ml-7">{help}</p>}
+        {help && <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 ml-7 text-left">{help}</p>}
     </div>
 );
 
@@ -262,7 +262,7 @@ export const QRCodeManager: React.FC<QRCodeManagerProps> = ({ slide, onSlideChan
 
     return (
         <div className="mt-4 pt-4 border-t border-slate-300 dark:border-slate-600 space-y-3">
-            <h5 className="font-semibold">Kode QR (Opsional)</h5>
+            <h5 className="font-semibold text-left">Kode QR (Opsional)</h5>
             <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-grow">
                     <button
@@ -279,7 +279,7 @@ export const QRCodeManager: React.FC<QRCodeManagerProps> = ({ slide, onSlideChan
                         ref={qrCodeFileInputRef}
                         onChange={handleQRCodeFileChange}
                     />
-                    {qrUploadStatus && <p className="text-xs mt-1">{qrUploadStatus}</p>}
+                    {qrUploadStatus && <p className="text-xs mt-1 text-left">{qrUploadStatus}</p>}
                 </div>
                 {slide.qrCodeUrl && (
                      <div className="relative group w-16 h-16 rounded-md overflow-hidden border border-slate-300 dark:border-slate-600 flex-shrink-0">
@@ -330,13 +330,13 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ title, c
                 className="w-full flex justify-between items-center p-4 bg-slate-100/50 dark:bg-slate-900/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 transition-colors text-left"
                 aria-expanded={isOpen}
             >
-                <h3 className="text-lg font-bold">{title}</h3>
+                <h3 className="text-lg font-bold text-left">{title}</h3>
                 <span className={`transform transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
                     <ChevronDownIcon />
                 </span>
             </button>
             <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-[9999px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                <div className="p-6">
+                <div className="p-6 text-left">
                     {children}
                 </div>
             </div>
