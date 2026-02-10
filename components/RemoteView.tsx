@@ -16,7 +16,7 @@ import { SlideSettingsTab } from './settings/SlideSettingsTab';
 // Simple Icons
 const PlaybackIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>);
 const MenuIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
-const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
+const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 const ArrowUp = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>);
 const ArrowDown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>);
 const ArrowLeft = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>);
@@ -24,6 +24,7 @@ const ArrowRight = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" hei
 const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
 const SendIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
 const DownloadIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>);
+const ChevronDown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>);
 
 const TABS = ['general', 'calculation', 'display', 'alarm', 'slides'];
 type TabNameKey = (typeof TABS)[number];
@@ -40,6 +41,7 @@ export const RemoteView: React.FC = () => {
     const [localSettings, setLocalSettings] = useState<Settings>(() => getDefaultSettings(language));
     const [settingsTab, setSettingsTab] = useState<TabNameKey>('general');
     const [isSending, setIsSending] = useState(false);
+    const [isSettingsNavOpen, setIsSettingsNavOpen] = useState(false);
 
     // --- Helpers for Display Tab ---
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -75,7 +77,6 @@ export const RemoteView: React.FC = () => {
     // --- Listen for Data from TV ---
     useEffect(() => {
         if (lastCommand && lastCommand.type === 'SETTINGS_SNAPSHOT' && lastCommand.payload) {
-            // Merge received snapshot with default settings structure to ensure type safety
             setLocalSettings(prev => ({
                 ...prev,
                 ...lastCommand.payload
@@ -135,13 +136,13 @@ export const RemoteView: React.FC = () => {
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
-        setUploadStatus({ message: 'Compressing & Saving...', type: 'info' });
+        setUploadStatus({ message: 'Compressing...', type: 'info' });
         try {
             const compressedBase64 = await compressImage(file);
             setLocalSettings(prev => ({...prev, wallpaper: compressedBase64}));
-            setUploadStatus({ message: 'Ready to send.', type: 'success' });
+            setUploadStatus({ message: 'Ready.', type: 'success' });
         } catch (e) {
-            setUploadStatus({ message: 'Failed to process image.', type: 'error' });
+            setUploadStatus({ message: 'Error.', type: 'error' });
         }
     };
 
@@ -218,7 +219,7 @@ export const RemoteView: React.FC = () => {
         const base = { id: `slide-${Date.now()}`, enabled: true, duration: 15 };
         switch (type) {
             case 'image': newSlide = { ...base, type, imageUrl: '', qrCodeUrl: '' }; break;
-            case 'schedule': newSlide = { ...base, type, title: 'Jadwal', scheduleItems: [] }; break;
+            case 'schedule': newSlide = { ...base, type, title: t('settings.slides.type.schedule'), scheduleItems: [] }; break;
             case 'finance': newSlide = { ...base, type, financeInfo: { title: 'Keuangan', lastBalance: 0, income: 0, expense: 0, currentBalance: 0 } }; break;
             case 'friday-officer': newSlide = { ...base, type, title: 'Petugas Jumat', officers: { khotib: '', imam: '', muadzin: '', bilal: '' }, fridayOnly: true }; break;
             case 'text': default: newSlide = { ...base, type, title: '', content: '', qrCodeUrl: '' }; break;
@@ -241,7 +242,7 @@ export const RemoteView: React.FC = () => {
     const handleScheduleItemChange = (slideIndex: number, itemIndex: number, field: keyof ScheduleItem, value: string) => {
         setLocalSettings(p => {
             const newSlides = [...p.slides];
-            const slide = newSlides[slideIndex] as any; // Cast for simpler handling
+            const slide = newSlides[slideIndex] as any;
             const newItems = [...slide.scheduleItems];
             newItems[itemIndex] = {...newItems[itemIndex], [field]: value};
             newSlides[slideIndex] = {...slide, scheduleItems: newItems};
@@ -313,8 +314,6 @@ export const RemoteView: React.FC = () => {
 
     const handleSaveSettings = () => {
         setIsSending(true);
-        // Send the entire localSettings object as UPDATE_DATA payload
-        // The host app's logic in App.tsx needs to handle bulk updates, which we improved previously.
         handleCommand('UPDATE_DATA', localSettings);
         setTimeout(() => {
             setIsSending(false);
@@ -373,18 +372,18 @@ export const RemoteView: React.FC = () => {
             <div className="flex-grow p-4 overflow-y-auto pb-20">
                 {activeTab === 'playback' && (
                     <div className="grid grid-cols-2 gap-4 h-full content-start">
-                        <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">Slide Mundur</span></button>
-                        <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">Slide Maju</span></button>
-                        <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">Matikan Alarm</span></button>
-                        <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">Muat Ulang Display</span></button>
+                        <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">Mundur</span></button>
+                        <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">Maju</span></button>
+                        <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">Stop</span></button>
+                        <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">Refresh</span></button>
                     </div>
                 )} 
                 
                 {activeTab === 'nav' && (
                     <div className="flex flex-col h-full gap-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => handleCommand('OPEN_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><SettingsIcon /> Buka Menu</button>
-                            <button onClick={() => handleCommand('CLOSE_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><CloseIcon /> Tutup Menu</button>
+                            <button onClick={() => handleCommand('OPEN_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><SettingsIcon /> Menu</button>
+                            <button onClick={() => handleCommand('CLOSE_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><CloseIcon /> Tutup</button>
                         </div>
                         <div className="flex-grow flex items-center justify-center py-4">
                             <div className="relative w-64 h-64 bg-slate-800 rounded-full shadow-2xl flex items-center justify-center border border-slate-700">
@@ -404,112 +403,132 @@ export const RemoteView: React.FC = () => {
 
                 {activeTab === 'settings' && (
                     <div className="flex flex-col h-full bg-slate-800 rounded-xl overflow-hidden shadow-xl border border-slate-700">
-                        {/* Settings Toolbar */}
-                        <div className="p-3 bg-slate-700/50 flex gap-2 overflow-x-auto no-scrollbar border-b border-slate-600">
-                            {TABS.map(tabKey => (
-                                <button
-                                    key={tabKey}
-                                    onClick={() => setSettingsTab(tabKey as TabNameKey)}
-                                    className={`px-4 py-2 rounded-md text-sm font-semibold whitespace-nowrap transition-colors ${
-                                        settingsTab === tabKey 
-                                        ? 'bg-[var(--accent-color)] text-white' 
-                                        : 'bg-slate-600/50 text-slate-300 hover:bg-slate-600'
-                                    }`}
-                                >
-                                    {t(`settings.tabs.${tabKey}`)}
-                                </button>
-                            ))}
+                        {/* Settings Toolbar (Dropdown) */}
+                        <div className="p-4 bg-slate-700/50 border-b border-slate-600 relative z-20">
+                            <button
+                                onClick={() => setIsSettingsNavOpen(!isSettingsNavOpen)}
+                                className="w-full flex justify-between items-center p-3 rounded-lg font-bold bg-slate-600 text-white border border-slate-500 shadow-sm"
+                            >
+                                <span>{t(`settings.tabs.${settingsTab}`)}</span>
+                                <span className={`transform transition-transform duration-200 ${isSettingsNavOpen ? 'rotate-180' : ''}`}>
+                                    <ChevronDown />
+                                </span>
+                            </button>
+                            {isSettingsNavOpen && (
+                                <>
+                                    <div className="fixed inset-0 z-10" onClick={() => setIsSettingsNavOpen(false)}></div>
+                                    <div className="absolute top-full left-4 right-4 mt-2 bg-slate-700 rounded-lg shadow-xl border border-slate-600 overflow-hidden z-30 flex flex-col">
+                                        {TABS.map(tabKey => (
+                                            <button
+                                                key={tabKey}
+                                                onClick={() => {
+                                                    setSettingsTab(tabKey as TabNameKey);
+                                                    setIsSettingsNavOpen(false);
+                                                }}
+                                                className={`p-4 text-left font-medium border-b border-slate-600 last:border-0 hover:bg-slate-600 transition-colors ${
+                                                    settingsTab === tabKey 
+                                                    ? 'bg-[var(--accent-color)] text-white' 
+                                                    : 'text-slate-200'
+                                                }`}
+                                            >
+                                                {t(`settings.tabs.${tabKey}`)}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </>
+                            )}
                         </div>
 
                         {/* Settings Content Area */}
                         <div className="flex-grow p-4 overflow-y-auto bg-slate-200 dark:bg-slate-900 text-slate-900 dark:text-white">
-                            {settingsTab === 'general' && (
-                                <GeneralSettingsTab 
-                                    localSettings={localSettings} 
-                                    handleInputChange={handleInputChange} 
-                                    handleExportData={() => {}} // Not applicable on remote
-                                    handleImportData={() => {}} // Not applicable on remote
-                                    importFileRef={importFileRef}
-                                    onGoToServices={() => {}} // Handled separately
-                                />
-                            )}
-                            {settingsTab === 'calculation' && (
-                                <CalculationSettingsTab 
-                                    localSettings={localSettings} 
-                                    handleInputChange={handleInputChange} 
-                                    handleNestedChange={handleNestedChange}
-                                    citySearch={citySearch}
-                                    setCitySearch={setCitySearch}
-                                    handleLocationSearch={() => { /* Simple mock for location search could be added if needed */ }}
-                                    isSearching={isSearching}
-                                    locationStatus={locationStatus}
-                                    locationStatusColor={locationStatusColor}
-                                />
-                            )}
-                            {settingsTab === 'display' && (
-                                <DisplaySettingsTab 
-                                    localSettings={localSettings} 
-                                    setLocalSettings={setLocalSettings} 
-                                    handleInputChange={handleInputChange}
-                                    handleThemeCheckboxChange={handleThemeCheckboxChange}
-                                    handleCustomTextChange={handleCustomTextChange}
-                                    addCustomText={addCustomText}
-                                    removeCustomText={removeCustomText}
-                                    uploadStatus={uploadStatus}
-                                    fileInputRef={fileInputRef}
-                                    handleFileChange={handleFileChange}
-                                    uploadStatusColor={uploadStatusColor}
-                                />
-                            )}
-                            {settingsTab === 'alarm' && (
-                                <AlarmSettingsTab 
-                                    localSettings={localSettings}
-                                    setLocalSettings={setLocalSettings}
-                                    handleInputChange={handleInputChange}
-                                    handleNestedChange={handleNestedChange}
-                                    handleDhikrSelectionChange={handleDhikrSelectionChange}
-                                    handleMoveDhikr={handleMoveDhikr}
-                                    handleRemoveDhikr={handleRemoveDhikr}
-                                    newDhikrArabic={newDhikrArabic}
-                                    setNewDhikrArabic={setNewDhikrArabic}
-                                    newDhikrLatin={newDhikrLatin}
-                                    setNewDhikrLatin={setNewDhikrLatin}
-                                    handleAddDhikr={handleAddDhikr}
-                                />
-                            )}
-                            {settingsTab === 'slides' && (
-                                <SlideSettingsTab 
-                                    localSettings={localSettings}
-                                    addSlide={addSlide}
-                                    removeSlide={removeSlide}
-                                    handleSlideChange={handleSlideChange}
-                                    handleScheduleItemChange={handleScheduleItemChange}
-                                    addScheduleItem={addScheduleItem}
-                                    removeScheduleItem={removeScheduleItem}
-                                    handleFinanceInfoChange={handleFinanceInfoChange}
-                                    slideImageTypes={slideImageTypes}
-                                    handleSlideImageTypeChange={handleSlideImageTypeChange}
-                                    slideFileInputRefs={slideFileInputRefs}
-                                    // Custom image handling for remote (compression + base64)
-                                    // We override the internal handling by passing refs but logic handles 'imageUrl' update manually in slide display
-                                />
-                            )}
+                            <div className="space-y-6">
+                                {settingsTab === 'general' && (
+                                    <GeneralSettingsTab 
+                                        localSettings={localSettings} 
+                                        handleInputChange={handleInputChange} 
+                                        handleExportData={() => {}} 
+                                        handleImportData={() => {}} 
+                                        importFileRef={importFileRef}
+                                        onGoToServices={() => {}} 
+                                        isRemote={true}
+                                    />
+                                )}
+                                {settingsTab === 'calculation' && (
+                                    <CalculationSettingsTab 
+                                        localSettings={localSettings} 
+                                        handleInputChange={handleInputChange} 
+                                        handleNestedChange={handleNestedChange}
+                                        citySearch={citySearch}
+                                        setCitySearch={setCitySearch}
+                                        handleLocationSearch={() => {}}
+                                        isSearching={isSearching}
+                                        locationStatus={locationStatus}
+                                        locationStatusColor={locationStatusColor}
+                                    />
+                                )}
+                                {settingsTab === 'display' && (
+                                    <DisplaySettingsTab 
+                                        localSettings={localSettings} 
+                                        setLocalSettings={setLocalSettings} 
+                                        handleInputChange={handleInputChange}
+                                        handleThemeCheckboxChange={handleThemeCheckboxChange}
+                                        handleCustomTextChange={handleCustomTextChange}
+                                        addCustomText={addCustomText}
+                                        removeCustomText={removeCustomText}
+                                        uploadStatus={uploadStatus}
+                                        fileInputRef={fileInputRef}
+                                        handleFileChange={handleFileChange}
+                                        uploadStatusColor={uploadStatusColor}
+                                    />
+                                )}
+                                {settingsTab === 'alarm' && (
+                                    <AlarmSettingsTab 
+                                        localSettings={localSettings}
+                                        setLocalSettings={setLocalSettings}
+                                        handleInputChange={handleInputChange}
+                                        handleNestedChange={handleNestedChange}
+                                        handleDhikrSelectionChange={handleDhikrSelectionChange}
+                                        handleMoveDhikr={handleMoveDhikr}
+                                        handleRemoveDhikr={handleRemoveDhikr}
+                                        newDhikrArabic={newDhikrArabic}
+                                        setNewDhikrArabic={setNewDhikrArabic}
+                                        newDhikrLatin={newDhikrLatin}
+                                        setNewDhikrLatin={setNewDhikrLatin}
+                                        handleAddDhikr={handleAddDhikr}
+                                    />
+                                )}
+                                {settingsTab === 'slides' && (
+                                    <SlideSettingsTab 
+                                        localSettings={localSettings}
+                                        addSlide={addSlide}
+                                        removeSlide={removeSlide}
+                                        handleSlideChange={handleSlideChange}
+                                        handleScheduleItemChange={handleScheduleItemChange}
+                                        addScheduleItem={addScheduleItem}
+                                        removeScheduleItem={removeScheduleItem}
+                                        handleFinanceInfoChange={handleFinanceInfoChange}
+                                        slideImageTypes={slideImageTypes}
+                                        handleSlideImageTypeChange={handleSlideImageTypeChange}
+                                        slideFileInputRefs={slideFileInputRefs}
+                                    />
+                                )}
+                            </div>
                         </div>
 
                         {/* Save / Sync Footer */}
                         <div className="p-4 bg-slate-800 border-t border-slate-700 flex gap-4">
                             <button 
                                 onClick={requestSettings} 
-                                className="px-4 py-3 bg-slate-600 rounded-lg text-white font-bold flex items-center gap-2 hover:bg-slate-500"
+                                className="px-4 py-3 bg-slate-600 rounded-lg text-white font-bold flex items-center gap-2 hover:bg-slate-500 whitespace-nowrap"
                             >
-                                <DownloadIcon /> Sync dari TV
+                                <DownloadIcon /> Ambil
                             </button>
                             <button 
                                 onClick={handleSaveSettings} 
                                 disabled={isSending}
-                                className="flex-grow px-4 py-3 bg-[var(--accent-color)] rounded-lg text-white font-bold shadow-lg hover:opacity-90 disabled:opacity-50 flex justify-center items-center gap-2"
+                                className="flex-grow px-4 py-3 bg-[var(--accent-color)] rounded-lg text-white font-bold shadow-lg hover:opacity-90 disabled:opacity-50 flex justify-center items-center gap-2 whitespace-nowrap"
                             >
-                                {isSending ? 'Mengirim...' : 'Kirim Perubahan ke TV'} <SendIcon />
+                                {isSending ? 'Mengirim...' : 'Kirim'} <SendIcon />
                             </button>
                         </div>
                     </div>
