@@ -349,7 +349,9 @@ export const en = {
                 description: 'A special version of Waqti with your Mosque/Foundation Logo permanently embedded, corporate colors, and specific features upon request.',
                 price: 'Contact Us'
             },
-            contact_button: 'Order via WhatsApp'
+            contact_button: 'Order via WhatsApp',
+            note_title: 'Note:',
+            note_content: 'This Web App version remains Free & Open Source forever. The services above are optional add-ons for those needing hardware convenience or specific customization.'
         },
         guide: {
             title: 'Settings Guide',

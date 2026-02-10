@@ -89,7 +89,7 @@ export const ServicesTab: React.FC = () => {
             
             <div className="text-center mt-8 p-4 bg-yellow-50 dark:bg-yellow-900/10 rounded-lg border border-yellow-200 dark:border-yellow-800">
                 <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                    <strong>Catatan:</strong> Aplikasi versi Web ini tetap Gratis & Open Source selamanya. Layanan di atas adalah opsi tambahan bagi Anda yang membutuhkan kemudahan perangkat keras atau kustomisasi khusus.
+                    <strong>{t('info.services.note_title')}</strong> {t('info.services.note_content')}
                 </p>
             </div>
         </div>

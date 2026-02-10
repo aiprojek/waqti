@@ -349,7 +349,9 @@ export const id = {
                 description: 'Versi khusus Waqti dengan Logo Masjid/Yayasan Anda yang permanen, warna korporat, dan fitur khusus sesuai permintaan donatur.',
                 price: 'Hubungi Kami'
             },
-            contact_button: 'Pesan via WhatsApp'
+            contact_button: 'Pesan via WhatsApp',
+            note_title: 'Catatan:',
+            note_content: 'Aplikasi versi Web ini tetap Gratis & Open Source selamanya. Layanan di atas adalah opsi tambahan bagi Anda yang membutuhkan kemudahan perangkat keras atau kustomisasi khusus.'
         },
         guide: {
             title: 'Panduan Pengaturan',
