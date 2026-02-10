@@ -149,6 +149,16 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
 
         peer.on('error', (err: any) => {
+            // Suppress noisy network errors to avoid alarming the user in console
+            if (err.type === 'network' || err.type === 'peer-unavailable' || err.type === 'socket-error' || err.type === 'socket-closed') {
+                 console.warn(`PeerJS Network Event (${err.type}): checking connection...`);
+                 return; 
+            }
+            if (err.message && (err.message.includes('Lost connection to server') || err.message.includes('Could not connect to peer'))) {
+                 console.warn("PeerJS connection lost. Awaiting auto-reconnect.");
+                 return;
+            }
+            
             console.error("Peer Error:", err.type, err);
             
             if (err.type === 'unavailable-id') {
@@ -160,12 +170,6 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             } else if (err.type === 'peer-unavailable') {
                 // Host not found
                 setConnectionStatus('disconnected');
-            } else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error' || err.type === 'socket-closed') {
-                // These errors indicate connection issues with the signaling server.
-                // We rely on the 'disconnected' event to trigger reconnection.
-                // Explicitly calling reconnect here can cause the "not disconnected" error
-                // if the internal state hasn't updated yet.
-                console.warn("Network issue detected. Waiting for auto-reconnect...");
             }
         });
 

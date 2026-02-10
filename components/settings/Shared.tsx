@@ -1,3 +1,4 @@
+
 import React, { useRef, useEffect, useState } from 'react';
 import type { Slide, QRCodePosition } from '../../types';
 // FIX: Replaced DEFAULT_SETTINGS with getDefaultSettings and useLanguage hook to get dynamic default settings.
@@ -326,7 +327,7 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ title, c
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full flex justify-between items-center p-4 bg-slate-100/50 dark:bg-slate-900/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 transition-colors"
+                className="w-full flex justify-between items-center p-4 bg-slate-100/50 dark:bg-slate-900/20 hover:bg-slate-200/50 dark:hover:bg-slate-900/40 transition-colors text-left"
                 aria-expanded={isOpen}
             >
                 <h3 className="text-lg font-bold">{title}</h3>
