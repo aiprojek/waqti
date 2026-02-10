@@ -67,7 +67,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         let peer: any;
         const peerConfig = {
-            debug: 1,
+            debug: 1, // Reduced debug level
             config: {
                 iceServers: [
                     { urls: 'stun:stun.l.google.com:19302' },
@@ -102,7 +102,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             });
         }
 
-        // --- Event Handlers ---
+        // --- Connection Handlers ---
         peer.on('connection', (conn: any) => {
             console.log("Incoming connection from", conn.peer);
             
@@ -127,6 +127,27 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             conn.on('error', (err: any) => console.error("Conn error:", err));
         });
 
+        // --- Peer Event Handlers ---
+        peer.on('disconnected', () => {
+            console.log("Peer disconnected from server.");
+            // Automatically try to reconnect to the signaling server if not destroyed
+            if (peerRef.current && !peerRef.current.destroyed) {
+                // Add a small delay to avoid rapid reconnection loops
+                setTimeout(() => {
+                    if (peerRef.current && !peerRef.current.destroyed && peerRef.current.disconnected) {
+                        console.log("Attempting to reconnect to server...");
+                        peerRef.current.reconnect();
+                    }
+                }, 3000);
+            }
+        });
+
+        peer.on('close', () => {
+            console.log("Peer closed.");
+            setConnectionStatus('disconnected');
+            setPeerId(null);
+        });
+
         peer.on('error', (err: any) => {
             console.error("Peer Error:", err.type, err);
             
@@ -139,12 +160,12 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
             } else if (err.type === 'peer-unavailable') {
                 // Host not found
                 setConnectionStatus('disconnected');
-            } else if (err.type === 'disconnected' || err.type === 'network') {
-                setConnectionStatus('disconnected');
-                // Try to reconnect to signaling server
-                if (!peer.destroyed) {
-                    peer.reconnect();
-                }
+            } else if (err.type === 'network' || err.type === 'server-error' || err.type === 'socket-error' || err.type === 'socket-closed') {
+                // These errors indicate connection issues with the signaling server.
+                // We rely on the 'disconnected' event to trigger reconnection.
+                // Explicitly calling reconnect here can cause the "not disconnected" error
+                // if the internal state hasn't updated yet.
+                console.warn("Network issue detected. Waiting for auto-reconnect...");
             }
         });
 
@@ -167,11 +188,14 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         // Set a timeout to fail if connection takes too long
         const connectionTimeout = setTimeout(() => {
             if (conn && !conn.open) {
-                console.warn("Connection timed out. Retrying...");
-                conn.close();
-                // Retry logic handled by 'close' listener below or manual retry
+                console.warn("Connection timed out.");
+                // We don't close immediately here to allow late connections,
+                // but we update UI. PeerJS has its own internal timeouts too.
+                if (connectionStatus === 'connecting') {
+                     setConnectionStatus('disconnected');
+                }
             }
-        }, 5000);
+        }, 10000);
 
         conn.on('open', () => {
             clearTimeout(connectionTimeout);
