@@ -76,7 +76,17 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         if (isHostMode) {
             setIsHost(true);
-            const shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            
+            // --- PERSISTENT ID LOGIC ---
+            // 1. Try to get existing ID from localStorage
+            let shortId = localStorage.getItem('waqti_host_id');
+            
+            // 2. If not found, generate new one and save it
+            if (!shortId) {
+                shortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                localStorage.setItem('waqti_host_id', shortId);
+            }
+
             const fullId = `waqti-${shortId}`;
             peer = new Peer(fullId, peerConfig);
             
@@ -136,26 +146,27 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         });
 
         peer.on('error', (err: any) => {
-            // Suppress noisy network errors to avoid alarming the user in console
-            // Common errors: 'network', 'peer-unavailable', 'socket-error', 'socket-closed'
-            // We just log a warning instead of error for these
+            // Suppress noisy network errors
             const ignoredErrors = ['network', 'peer-unavailable', 'socket-error', 'socket-closed', 'webrtc'];
             if (ignoredErrors.includes(err.type) || (err.message && (err.message.includes('Lost connection') || err.message.includes('Could not connect')))) {
-                 // console.warn(`PeerJS Network Event: ${err.type}`);
                  return; 
             }
             
-            // Only log genuine setup errors
             console.error("Peer Error:", err.type, err);
             
             if (err.type === 'unavailable-id') {
-                // If Host ID taken, retry with new ID
+                // Critical: If Host ID is taken (e.g. tab duplicate or zombie session),
+                // we MUST regenerate a new ID to allow this instance to work.
                 if (isHostMode) {
+                    console.warn("Peer ID unavailable (collision). Generating new ID...");
+                    const newShortId = Math.random().toString(36).substring(2, 8).toUpperCase();
+                    localStorage.setItem('waqti_host_id', newShortId);
+                    
+                    // Destroy current peer and retry with new ID
                     peer.destroy();
                     setTimeout(() => initializePeer(true), 500);
                 }
             } else if (err.type === 'peer-unavailable') {
-                // Host not found
                 setConnectionStatus('disconnected');
             }
         });
