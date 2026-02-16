@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import useClock from '../../hooks/useClock';
 import { useSettings } from '../../contexts/SettingsContext';
 import { PRAYER_NAMES } from '../../constants';
@@ -24,57 +24,59 @@ const AnimatedDigit: React.FC<{ value: string }> = ({ value }) => {
     );
 };
 
-// Komponen Kartu yang Diekstrak agar stabil (tidak re-mount setiap detik)
+// Helper untuk menghitung waktu Iqamah
+const getIqamahTime = (prayerTime: string, offsetMinutes: number): string => {
+    if (!prayerTime) return '--:--';
+    const [hours, minutes] = prayerTime.split(':').map(Number);
+    const date = new Date();
+    date.setHours(hours, minutes + offsetMinutes);
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+};
+
+// Komponen Kartu Tunggal yang Berputar
 const MinimalistInfoCard: React.FC<{
-    showSchedule: boolean;
-    setShowSchedule: (show: boolean) => void;
-    prayerTimes: PrayerTimes | null;
-    nextPrayer: { name: PrayerName; time: Date; } | null;
+    prayerName: PrayerName;
+    prayerTime: string;
+    isNext: boolean;
     timeToNextPrayer: string;
     isFriday: boolean;
-}> = ({ showSchedule, setShowSchedule, prayerTimes, nextPrayer, timeToNextPrayer, isFriday }) => {
+    iqamahTime: string;
+}> = ({ prayerName, prayerTime, isNext, timeToNextPrayer, isFriday, iqamahTime }) => {
     const { settings } = useSettings();
-    const nextPrayerName = nextPrayer ? (isFriday && settings.enableFridayMode && nextPrayer.name === 'Dhuhr' ? t('general.jummah') : t(`prayerNames.${nextPrayer.name}`)) : '';
+    
+    const displayName = isFriday && settings.enableFridayMode && prayerName === 'Dhuhr' 
+        ? t('general.jummah') 
+        : t(`prayerNames.${prayerName}`);
+
+    // Jangan tampilkan Iqamah untuk Terbit atau jika offsetnya 0 (opsional, tapi biasanya Terbit tidak ada iqamah)
+    const showIqamah = prayerName !== 'Sunrise' && !(isFriday && settings.enableFridayMode && prayerName === 'Dhuhr');
 
     return (
         <div 
-            className="text-center bg-black/20 backdrop-blur-md border-2 border-[var(--accent-color)] rounded-3xl p-6 animate-pulse-glow w-full max-w-sm transition-all duration-500 overflow-hidden relative cursor-pointer"
-            style={{ minHeight: '220px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}
-            onClick={() => setShowSchedule(!showSchedule)}
+            key={prayerName} // Key triggers animation on change
+            className={`text-center bg-black/20 backdrop-blur-md border-2 rounded-3xl p-6 w-full max-w-sm transition-all duration-500 overflow-hidden relative flex flex-col justify-center items-center animate-fade-in ${isNext ? 'border-[var(--accent-color)] animate-pulse-glow bg-[var(--accent-color)]/10' : 'border-white/10'}`}
+            style={{ minHeight: '240px' }}
         >
-            {showSchedule ? (
-                // Tampilan Jadwal Lengkap
-                <div className="w-full animate-fade-in space-y-2">
-                    <p className="text-sm uppercase tracking-widest text-white/80 font-bold mb-3 border-b border-white/20 pb-2">
-                        {t('main.otherPrayerTimes')}
-                    </p>
-                    <div className="flex flex-col gap-1 w-full">
-                        {PRAYER_NAMES.filter(n => n !== 'Sunrise').map(name => {
-                            const isNext = name === nextPrayer?.name;
-                            const displayName = isFriday && settings.enableFridayMode && name === 'Dhuhr' ? t('general.jummah') : t(`prayerNames.${name}`);
-                            return (
-                                <div key={name} className={`flex justify-between items-center px-2 py-1 rounded ${isNext ? 'bg-[var(--accent-color)]/40 font-bold' : 'text-white/80'}`}>
-                                    <span className="text-sm">{displayName}</span>
-                                    <span className="font-mono text-base">{prayerTimes ? prayerTimes[name] : '--:--'}</span>
-                                </div>
-                            );
-                        })}
-                    </div>
+            <p className="text-sm uppercase tracking-widest text-white font-bold mb-2" style={isNext ? { textShadow: '0 0 8px var(--accent-color), 0 0 4px rgba(0,0,0,0.6)' } : { opacity: 0.7 }}>
+                {isNext ? t('main.upNext') : t('main.prayerTime')}
+            </p>
+            <h2 className="text-[clamp(2rem,8vw,3.5rem)] font-bold my-1 text-white leading-tight">{displayName}</h2>
+            <p className="font-mono font-bold text-[clamp(2.5rem,10vw,5rem)] leading-none my-2 text-white">{prayerTime}</p>
+            
+            {/* Iqamah Indicator */}
+            {showIqamah && (
+                <div className="mt-1 mb-3 flex items-center justify-center gap-2 text-white/80">
+                    <span className="text-xs uppercase tracking-wide opacity-70">{t('main.iqamahIn').split(' ')[0]}</span>
+                    <span className="font-mono font-bold text-xl">{iqamahTime}</span>
                 </div>
+            )}
+
+            {isNext ? (
+                <p className="font-mono text-lg text-white/90 bg-black/20 px-3 py-1 rounded-full mt-auto">
+                    {t('main.in')} {timeToNextPrayer}
+                </p>
             ) : (
-                // Tampilan Next Prayer (Default)
-                <div className="animate-fade-in w-full">
-                    {nextPrayer && (
-                        <>
-                            <p className="text-base uppercase tracking-widest text-white font-bold" style={{ textShadow: '0 0 8px var(--accent-color), 0 0 4px rgba(0,0,0,0.6)' }}>
-                                {t('main.upNext')}
-                            </p>
-                            <h2 className="text-[clamp(2rem,8vw,3.5rem)] font-bold my-1">{nextPrayerName}</h2>
-                            <p className="font-mono font-bold text-[clamp(2.5rem,10vw,5rem)] leading-none my-2">{prayerTimes ? prayerTimes[nextPrayer.name] : '--:--'}</p>
-                            <p className="font-mono text-lg opacity-80">{t('main.in')} {timeToNextPrayer}</p>
-                        </>
-                    )}
-                </div>
+                <div className="h-9 mt-auto"></div> // Spacer to keep height consistent
             )}
         </div>
     );
@@ -91,10 +93,35 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
     const [isShowingHijri, setIsShowingHijri] = useState(false);
     const [dateOpacity, setDateOpacity] = useState(1);
     
-    // State untuk mengontrol tampilan jadwal vs next prayer
-    const [showSchedule, setShowSchedule] = useState(false);
+    // State untuk mengontrol shalat mana yang ditampilkan
+    const [displayIndex, setDisplayIndex] = useState(0);
 
-    // Efek untuk tanggal Hijriah/Masehi
+    // Reset index ke Next Prayer saat nextPrayer berubah
+    useEffect(() => {
+        if (nextPrayer) {
+            // Gunakan PRAYER_NAMES agar Sunrise termasuk
+            const idx = PRAYER_NAMES.indexOf(nextPrayer.name as any);
+            if (idx !== -1) {
+                setDisplayIndex(idx);
+            }
+        }
+    }, [nextPrayer?.name]);
+
+    // Efek Rotasi Kartu
+    useEffect(() => {
+        if (!settings.enableMinimalistSwap) return;
+
+        // Interval dalam milidetik (dari detik di pengaturan)
+        const intervalMs = Math.max(3, settings.minimalistSwapInterval) * 1000;
+
+        const timer = setInterval(() => {
+            setDisplayIndex(prev => (prev + 1) % PRAYER_NAMES.length);
+        }, intervalMs);
+
+        return () => clearInterval(timer);
+    }, [settings.enableMinimalistSwap, settings.minimalistSwapInterval]);
+
+    // Efek Toggle Tanggal Hijriah
     useEffect(() => {
         const interval = setInterval(() => {
             setDateOpacity(0);
@@ -106,33 +133,21 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
         return () => clearInterval(interval);
     }, []);
 
-    // Efek untuk merotasi kartu Next Prayer ke Jadwal Shalat berdasarkan interval di pengaturan
-    useEffect(() => {
-        if (!settings.enableMinimalistSwap) {
-            setShowSchedule(false);
-            return;
-        }
-
-        const intervalMs = Math.max(1, settings.minimalistSwapInterval) * 60 * 1000;
-
-        const scheduleInterval = setInterval(() => {
-            setShowSchedule(true);
-            // Tampilkan jadwal selama 20 detik, lalu kembali ke next prayer
-            setTimeout(() => {
-                setShowSchedule(false);
-            }, 20000); 
-        }, intervalMs);
-
-        return () => clearInterval(scheduleInterval);
-    }, [settings.enableMinimalistSwap, settings.minimalistSwapInterval]);
-
     const dateToShow = isShowingHijri ? formattedHijriDate : formattedFullDate;
+    
+    // Tentukan data untuk kartu yang sedang tampil
+    const currentPrayerName = PRAYER_NAMES[displayIndex];
+    const isNext = nextPrayer?.name === currentPrayerName;
+    const timeStr = prayerTimes ? prayerTimes[currentPrayerName] : '--:--';
+    
+    // Hitung waktu Iqamah
+    const offset = settings.iqamahOffsets[currentPrayerName] || 0;
+    const iqamahTime = getIqamahTime(timeStr, offset);
 
     // --- Portrait Layout ---
     if (settings.displayMode === 'portrait') {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-8">
-                {/* Main Time & Date */}
                 <div className="flex-shrink-0">
                     <h1 
                         className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(4rem,22vw,10rem)] leading-none flex items-baseline justify-center"
@@ -150,12 +165,12 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
                 </div>
 
                 <MinimalistInfoCard 
-                    showSchedule={showSchedule}
-                    setShowSchedule={setShowSchedule}
-                    prayerTimes={prayerTimes}
-                    nextPrayer={nextPrayer}
+                    prayerName={currentPrayerName}
+                    prayerTime={timeStr}
+                    isNext={isNext}
                     timeToNextPrayer={timeToNextPrayer}
                     isFriday={isFriday}
+                    iqamahTime={iqamahTime}
                 />
             </div>
         );
@@ -164,7 +179,6 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
     // --- Landscape Layout ---
     return (
         <div className="w-full h-full flex flex-col md:flex-row items-center justify-center text-center p-4 md:p-8 gap-8 md:gap-12">
-            {/* Main Time & Date */}
             <div className="flex-shrink-0">
                  <h1 
                     className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(4rem,22vw,10rem)] leading-none flex items-baseline justify-center"
@@ -182,12 +196,12 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
             </div>
 
             <MinimalistInfoCard 
-                showSchedule={showSchedule}
-                setShowSchedule={setShowSchedule}
-                prayerTimes={prayerTimes}
-                nextPrayer={nextPrayer}
+                prayerName={currentPrayerName}
+                prayerTime={timeStr}
+                isNext={isNext}
                 timeToNextPrayer={timeToNextPrayer}
                 isFriday={isFriday}
+                iqamahTime={iqamahTime}
             />
         </div>
     );

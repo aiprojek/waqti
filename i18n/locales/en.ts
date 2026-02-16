@@ -165,7 +165,7 @@ export const en = {
             layoutMinimalist: 'Minimalist',
             minimalist: {
                 enableSwap: 'Show Full Schedule Periodically',
-                swapInterval: 'Interval (minutes)'
+                swapInterval: 'Interval (seconds)'
             },
             bgAnimation: 'Enable Background Animation',
             dimScreen: {

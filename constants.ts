@@ -188,7 +188,7 @@ export const getDefaultSettings = (lang: Language): Settings => {
         displayMode: 'landscape',
         layoutTemplate: 'focus-jam',
         enableMinimalistSwap: true,
-        minimalistSwapInterval: 3, // minutes
+        minimalistSwapInterval: 15, // seconds (changed from 3 minutes)
         enableBackgroundAnimation: true,
         enableDimScreen: false,
         hijriDateOffset: 0,

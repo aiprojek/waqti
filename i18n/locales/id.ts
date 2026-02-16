@@ -165,7 +165,7 @@ export const id = {
             layoutMinimalist: 'Minimalis',
             minimalist: {
                 enableSwap: 'Tampilkan Jadwal Lengkap Secara Berkala',
-                swapInterval: 'Interval (menit)'
+                swapInterval: 'Interval (detik)'
             },
             bgAnimation: 'Aktifkan Animasi Latar Belakang',
             dimScreen: {
