@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import type { Settings, Slide, ScheduleSlide, ScheduleItem, FinanceSlide, FinanceInfo } from '../types';
 import { useSettings } from '../contexts/SettingsContext';
@@ -36,9 +37,10 @@ type TabNameKey = (typeof TABS)[number];
 
 interface PageProps {
     onBack: () => void;
+    onGoToServices: () => void;
 }
 
-export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
+export const SettingsPage: React.FC<PageProps> = ({ onBack, onGoToServices }) => {
     const { settings, saveSettings } = useSettings();
     const { language } = useLanguage();
     const [localSettings, setLocalSettings] = useState<Settings>(() => JSON.parse(JSON.stringify(settings)));
@@ -337,7 +339,7 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
     );
     const slideFileInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-    const addSlide = (type: 'text' | 'image' | 'schedule' | 'finance') => {
+    const addSlide = (type: 'text' | 'image' | 'schedule' | 'finance' | 'friday-officer') => {
         let newSlide: Slide;
         const base = { id: `slide-${Date.now()}`, enabled: true, duration: 15 };
         switch (type) {
@@ -349,6 +351,9 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
                 break;
              case 'finance':
                 newSlide = { ...base, type, financeInfo: { title: t('settings.slides.type.finance'), lastBalance: 0, income: 0, expense: 0, currentBalance: 0, lastUpdated: new Date().toISOString() } };
+                break;
+            case 'friday-officer':
+                newSlide = { ...base, type, title: t('settings.slides.type.friday-officer'), officers: { khotib: '', imam: '', muadzin: '', bilal: '' }, fridayOnly: true };
                 break;
             case 'text':
             default:
@@ -439,7 +444,7 @@ export const SettingsPage: React.FC<PageProps> = ({ onBack }) => {
     };
 
     const TAB_COMPONENTS: Record<TabNameKey, React.ReactNode> = {
-        'general': <GeneralSettingsTab {...{ localSettings, handleInputChange, handleExportData, handleImportData, importFileRef }} />,
+        'general': <GeneralSettingsTab {...{ localSettings, handleInputChange, handleExportData, handleImportData, importFileRef, onGoToServices }} />,
         'calculation': <CalculationSettingsTab {...{ localSettings, handleInputChange, handleNestedChange, citySearch, setCitySearch, handleLocationSearch, isSearching, locationStatus, locationStatusColor }} />,
         'display': <DisplaySettingsTab {...{ localSettings, setLocalSettings, handleInputChange, handleThemeCheckboxChange, handleCustomTextChange, addCustomText, removeCustomText, wallpaperType, setWallpaperType, uploadStatus, fileInputRef, handleFileChange, uploadStatusColor }} />,
         'alarm': <AlarmSettingsTab {...{ localSettings, setLocalSettings, handleInputChange, handleNestedChange, handleDhikrSelectionChange, handleMoveDhikr, handleRemoveDhikr, newDhikrArabic, setNewDhikrArabic, newDhikrLatin, setNewDhikrLatin, handleAddDhikr }} />,
