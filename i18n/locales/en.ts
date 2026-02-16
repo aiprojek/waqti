@@ -167,6 +167,11 @@ export const en = {
                 enableSwap: 'Show Full Schedule Periodically',
                 swapInterval: 'Interval (seconds)'
             },
+            clockStyle: {
+                title: 'Clock Style',
+                digital: 'Digital (Numbers)',
+                analog: 'Analog (Hands)'
+            },
             bgAnimation: 'Enable Background Animation',
             dimScreen: {
                 enable: 'Enable Dim Screen during Prayer',
@@ -320,7 +325,7 @@ export const en = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " with simplified usage—no account or backoffice needed. The name Waqti (وقتي) means 'My Time', emphasizing a personal connection to prayer times.",
             featuresTitle: 'Key Features',
-            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theme Presets:One-click style application (e.g., Masjidil Haram, Modern Minimalist).|Theming:Customize accent colors and wallpapers.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Power Saving:Auto Sleep/Wake feature to turn off the screen rendering at night.|Jum'ah Officers:Dedicated slide to display Imam, Khatib, and Muadzin.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
+            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Flash Message:Send urgent announcements from Remote that appear as a large popup on the screen.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theme Presets:One-click style application (e.g., Masjidil Haram, Modern Minimalist).|Theming:Customize accent colors and wallpapers.|Analog Clock View:Classic clock style option with elegant hands.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Power Saving:Auto Sleep/Wake feature to turn off the screen rendering at night.|Jum'ah Officers:Dedicated slide to display Imam, Khatib, and Muadzin.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
             supportTitle: 'Developer',
             coffee: 'Buy Me a Coffee',
             discussion: 'Join Discussion',
@@ -386,6 +391,7 @@ export const en = {
 <li><strong>Theme:</strong> Choose between a dark or light appearance.</li>
 <li><strong>Orientation Mode:</strong> 'Landscape' is suitable for wide screens (monitors), 'Portrait' is for tall screens. This affects the layout.</li>
 <li><strong>Display Layout Template:</strong> Select the main screen appearance. 'Focus Clock' is large and clear, 'Information Dashboard' shows various info, and 'Minimalist' is simple.</li>
+<li><strong>Clock Style:</strong> Choose between 'Digital' (numbers) or 'Analog' (hands) for the main clock display. The analog clock features classic ornaments and smooth ticking.</li>
 <li><strong>Power Saving (Sleep Mode):</strong> Automatically turns the screen black during specified hours (e.g., 10 PM to 3 AM) to save electricity and prevent burn-in.</li>
 <li><strong>Enable Dim Screen:</strong> If enabled, the screen will go black during the prayer time (after the initial 'Establish the Prayer' message) to reduce distractions.</li>
 <li><strong>Accent Color:</strong> The primary color used for highlights, buttons, and the next prayer time marker.</li>
@@ -403,7 +409,13 @@ export const en = {
 <li><strong>Fullscreen Mode:</strong> Press the <code>F11</code> key on your keyboard to make the browser enter fullscreen mode, hiding the address bar and tabs. Press <code>F11</code> again to exit.</li>
 <li><strong>Choose the Best Layout:</strong> In the Settings > Display menu, select the 'Layout Template' that is most suitable for remote viewing. <strong>'Focus Clock'</strong> is highly recommended for maximum readability, or <strong>'Information Dashboard'</strong> if you want to display schedules and financial info.</li>
 <li><strong>Instal Aplikasi (PWA) & Download Assets:</strong> For easy access and offline reliability, install this application onto the device. Also, go to Settings > General and click "Download Assets" to ensure all images and sounds are saved locally.</li>
-<li><strong>Remote Control:</strong> Use your phone to scan the QR code in Settings > Remote Control to manage slides or stop alarms without touching the TV.</li>
+<li><strong>Remote Control & Flash Message:</strong> Use your phone to scan the QR code in Settings > Remote Control.
+<ul>
+<li><strong>Controls:</strong> Advance/Rewind slides and stop alarms remotely.</li>
+<li><strong>Flash Message:</strong> In the 'Playback' tab on your phone, type a message in the <strong>"Flash Message"</strong> box and send. The message will appear as a large popup on the TV for 30 seconds (e.g., for parking announcements or lost items).</li>
+</ul>
+</li>
+<li><strong>Transfer Pengaturan:</strong> Atur semua pengaturan di komputer pribadi Anda terlebih dahulu. Lalu gunakan fitur <strong>Ekspor Data</strong> untuk menyimpan pengaturan. Pindahkan file tersebut ke komputer masjid dan gunakan fitur <strong>Impor Data</strong> untuk menerapkan semua konfigurasi secara instan.</li>
 </ol>`
             },
             alarm: {

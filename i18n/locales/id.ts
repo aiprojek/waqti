@@ -167,6 +167,11 @@ export const id = {
                 enableSwap: 'Tampilkan Jadwal Lengkap Secara Berkala',
                 swapInterval: 'Interval (detik)'
             },
+            clockStyle: {
+                title: 'Gaya Jam',
+                digital: 'Digital (Angka)',
+                analog: 'Analog (Jarum)'
+            },
             bgAnimation: 'Aktifkan Animasi Latar Belakang',
             dimScreen: {
                 enable: 'Aktifkan Layar Redup saat Shalat',
@@ -320,7 +325,7 @@ export const id = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " dengan penggunaan yang lebih sederhana—tanpa akun atau backoffice. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan personal dengan waktu shalat.",
             featuresTitle: 'Fitur Utama',
-            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
+            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Pesan Kilat:Kirim pengumuman mendadak dari Remote yang muncul sebagai popup besar di layar.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Tampilan Jam Analog:Opsi gaya jam klasik dengan jarum yang elegan.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
             supportTitle: 'Pengembang',
             coffee: 'Traktir Kopi',
             discussion: 'Gabung Diskusi',
@@ -386,6 +391,7 @@ export const id = {
 <li><strong>Tema:</strong> Pilih antara tampilan gelap atau terang.</li>
 <li><strong>Mode Orientasi:</strong> 'Landscape' cocok untuk layar lebar (monitor/TV), 'Portrait' untuk layar tinggi. Ini mempengaruhi tata letak.</li>
 <li><strong>Template Layout:</strong> Pilih tampilan layar utama. 'Fokus Jam' besar dan jelas, 'Dasbor Informasi' menampilkan beragam info, dan 'Minimalis' lebih sederhana.</li>
+<li><strong>Gaya Jam:</strong> Pilih antara 'Digital' (angka) atau 'Analog' (jarum) untuk tampilan jam utama. Jam analog dilengkapi ornamen klasik dan detik yang halus.</li>
 <li><strong>Hemat Daya (Sleep Mode):</strong> Secara otomatis membuat layar menjadi hitam pekat pada jam-jam tertentu (misal: 22.00 - 03.00) untuk menghemat listrik dan mencegah kerusakan layar.</li>
 <li><strong>Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat berlangsung (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
@@ -403,7 +409,12 @@ export const id = {
 <li><strong>Mode Layar Penuh:</strong> Tekan tombol <code>F11</code> pada keyboard agar browser masuk ke mode layar penuh (fullscreen) tanpa bilah alamat. Tekan <code>F11</code> lagi untuk keluar.</li>
 <li><strong>Pilih Layout Terbaik:</strong> Di menu Pengaturan > Tampilan, pilih 'Template Layout' yang paling sesuai untuk dilihat dari jauh. <strong>'Fokus Jam'</strong> sangat disarankan untuk keterbacaan maksimal, atau <strong>'Dasbor Informasi'</strong> jika ingin menampilkan jadwal dan info keuangan.</li>
 <li><strong>Instal Aplikasi (PWA) & Unduh Aset:</strong> Agar lebih mudah diakses dan andal secara offline, instal aplikasi ini ke perangkat. Juga, buka Pengaturan > Umum dan klik "Unduh Aset" untuk menyimpan gambar dan suara secara lokal.</li>
-<li><strong>Remote Control:</strong> Gunakan HP Anda untuk memindai kode QR di Pengaturan > Remote Control untuk mengatur slide atau mematikan alarm tanpa menyentuh TV.</li>
+<li><strong>Remote Control & Pesan Kilat:</strong> Gunakan HP Anda untuk memindai kode QR di Pengaturan > Remote Control.
+<ul>
+<li><strong>Kontrol:</strong> Anda bisa memajukan/memundurkan slide dan mematikan alarm dari jarak jauh.</li>
+<li><strong>Pesan Kilat:</strong> Di tab 'Playback' pada HP, ketik pesan di kolom <strong>"Pesan Kilat"</strong> dan kirim. Pesan akan muncul sebagai popup besar di tengah layar TV selama 30 detik (misal: untuk pengumuman parkir atau barang tertinggal).</li>
+</ul>
+</li>
 <li><strong>Transfer Pengaturan:</strong> Atur semua pengaturan di komputer pribadi Anda terlebih dahulu. Lalu gunakan fitur <strong>Ekspor Data</strong> untuk menyimpan pengaturan. Pindahkan file tersebut ke komputer masjid dan gunakan fitur <strong>Impor Data</strong> untuk menerapkan semua konfigurasi secara instan.</li>
 </ol>`
             },

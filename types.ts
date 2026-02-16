@@ -84,6 +84,9 @@ export type LayoutTemplate = 'focus-jam' | 'dashboard-info' | 'minimalis';
 
 export type CalculationSource = 'api' | 'calculated';
 
+// NEW: Clock Style Type
+export type ClockStyle = 'digital' | 'analog';
+
 export interface Settings {
     mosqueName: string;
     city: string;
@@ -117,6 +120,7 @@ export interface Settings {
     displayMode: 'landscape' | 'portrait';
     // NEW: Layout Template setting
     layoutTemplate: LayoutTemplate;
+    clockStyle: ClockStyle; // NEW: Analog vs Digital
     enableMinimalistSwap: boolean; // NEW: Minimalist specific setting
     minimalistSwapInterval: number; // NEW: Interval in minutes
     enableBackgroundAnimation: boolean;
@@ -177,7 +181,8 @@ export type RemoteCommandType =
     | 'SEND_TEXT' // For typing into inputs
     | 'UPDATE_DATA' // New: For bulk updating settings from phone
     | 'REQUEST_SETTINGS' // Phone requests settings from TV
-    | 'SETTINGS_SNAPSHOT'; // TV sends settings to Phone
+    | 'SETTINGS_SNAPSHOT' // TV sends settings to Phone
+    | 'SHOW_FLASH_MESSAGE'; // NEW: Show popup message
 
 export interface RemoteCommand {
     type: RemoteCommandType;

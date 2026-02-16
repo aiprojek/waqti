@@ -270,7 +270,7 @@ export const QRCodeManager: React.FC<QRCodeManagerProps> = ({ slide, onSlideChan
                         onClick={() => qrCodeFileInputRef.current?.click()}
                         className="w-full px-4 py-2 bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-slate-800 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
                     >
-                        Unggah Gambar QR...
+                        Unggah Gambar QR / QRIS...
                     </button>
                     <input
                         type="file"
@@ -298,12 +298,12 @@ export const QRCodeManager: React.FC<QRCodeManagerProps> = ({ slide, onSlideChan
                 value={slide.qrCodePosition || 'bottom-right'}
                 onChange={e => onSlideChange('qrCodePosition', e.target.value as QRCodePosition)}
             >
-                <option value="bottom-right">Kanan Bawah</option>
-                <option value="bottom-left">Kiri Bawah</option>
-                <option value="top-right">Kanan Atas</option>
-                <option value="top-left">Kiri Atas</option>
-                <option value="side-right">Sisi Kanan (Teks)</option>
-                <option value="side-left">Sisi Kiri (Teks)</option>
+                <option value="bottom-right">Kanan Bawah (Floating)</option>
+                <option value="bottom-left">Kiri Bawah (Floating)</option>
+                <option value="top-right">Kanan Atas (Floating)</option>
+                <option value="top-left">Kiri Atas (Floating)</option>
+                <option value="side-right">Sisi Kanan (Split Layout)</option>
+                <option value="side-left">Sisi Kiri (Split Layout)</option>
             </Select>
         </div>
     );

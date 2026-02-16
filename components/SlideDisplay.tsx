@@ -32,12 +32,15 @@ export const SlideDisplay: React.FC<SlideDisplayProps> = ({ slide }) => {
     };
 
     // Determine if the QR code is handled internally by the slide component (Side Layout)
-    const isSideQr = slide.type === 'text' && slide.qrCodeUrl && (slide.qrCodePosition === 'side-left' || slide.qrCodePosition === 'side-right');
+    // Updated to include 'finance' type
+    const isSideQr = (slide.type === 'text' || slide.type === 'finance') && 
+                     slide.qrCodeUrl && 
+                     (slide.qrCodePosition === 'side-left' || slide.qrCodePosition === 'side-right');
 
     return (
         <div className="w-full max-h-full relative overflow-y-auto">
             {renderSlideContent()}
-            {/* Render floating QR Code only if it's not a side-by-side layout handled by TextSlide */}
+            {/* Render floating QR Code only if it's not a side-by-side layout handled by specific slides */}
             {!isSideQr && <QRCodeDisplay slide={slide} />}
         </div>
     );

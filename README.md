@@ -59,11 +59,14 @@ Nama Waqti (وقتي) berarti "Waktuku", menekankan hubungan yang personal denga
     - **Gambar:** Tampilkan gambar dari URL atau unggah langsung dari perangkat.
     - **Jadwal Kajian:** Buat daftar jadwal kajian atau kegiatan masjid yang rapi.
     - **Laporan Keuangan:** Sajikan laporan keuangan kas masjid secara transparan, lengkap dengan grafik visual pemasukan dan pengeluaran.
+- **Remote Control via HP:** Kendalikan tampilan layar (ganti slide, matikan alarm) menggunakan HP Anda dengan memindai kode QR yang tersedia.
+- **Pesan Kilat (Flash Message):** Kirim pengumuman mendadak dari Remote (seperti info parkir) yang akan muncul sebagai popup besar di layar TV selama 30 detik.
 - **Personalisasi Visual:**
     - **Tema Gelap & Terang:** Sesuaikan tema sesuai kondisi pencahayaan.
     - **Warna Aksen:** Pilih warna sorotan utama untuk menyesuaikan dengan identitas visual masjid atau selera pribadi.
     - **Wallpaper Kustom:** Ganti gambar latar belakang utama melalui URL atau unggah gambar.
 - **Wallpaper Kontekstual:** Atur wallpaper berbeda untuk setiap periode waktu shalat (Subuh, Zuhur, Asar, Magrib, Isya) yang akan berubah secara otomatis.
+- **Tampilan Jam Analog:** Pilihan gaya jam klasik (jarum) dengan desain ornamen Islami dan animasi yang halus, cocok untuk preferensi estetika tradisional.
 - **Teks Berjalan Informatif:** Tampilkan pengumuman, pesan kustom, atau konten Islami (ayat Al-Qur'an & hadits pilihan) yang bergerak di bagian bawah layar.
 - **Tampilan Dzikir Kustom:** Rangkaian dzikir setelah shalat yang dapat diaktifkan, diurutkan, ditambah, atau dikurangi sesuai keinginan.
 - **Dukungan Offline (PWA):** Aplikasi dapat diinstal di desktop atau perangkat mobile dan akan tetap berfungsi sepenuhnya (termasuk jadwal shalat dan slide) bahkan tanpa koneksi internet.

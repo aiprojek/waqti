@@ -187,6 +187,7 @@ export const getDefaultSettings = (lang: Language): Settings => {
         fontStyle: 'sans',
         displayMode: 'landscape',
         layoutTemplate: 'focus-jam',
+        clockStyle: 'digital', // DEFAULT Value
         enableMinimalistSwap: true,
         minimalistSwapInterval: 15, // seconds (changed from 3 minutes)
         enableBackgroundAnimation: true,

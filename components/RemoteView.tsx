@@ -16,7 +16,7 @@ import { SlideSettingsTab } from './settings/SlideSettingsTab';
 // Simple Icons
 const PlaybackIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>);
 const MenuIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>);
-const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l.06.06a1.65 1.65 0 0 0 .33-1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
+const SettingsIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>);
 const ArrowUp = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>);
 const ArrowDown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>);
 const ArrowLeft = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m15 18-6-6 6-6"/></svg>);
@@ -25,6 +25,7 @@ const CloseIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="24" heig
 const SendIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>);
 const DownloadIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>);
 const ChevronDown = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"/></svg>);
+const MegaphoneIcon = () => (<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 11 18-5v12L3 14v-3z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>);
 
 const TABS = ['general', 'calculation', 'display', 'alarm', 'slides'];
 type TabNameKey = (typeof TABS)[number];
@@ -36,6 +37,7 @@ export const RemoteView: React.FC = () => {
     const wakeLockRef = useRef<any>(null);
     const [activeTab, setActiveTab] = useState<'playback' | 'nav' | 'settings'>('playback');
     const [inputText, setInputText] = useState('');
+    const [flashMsg, setFlashMsg] = useState('');
 
     // --- Settings State Management (Mirroring SettingsContext) ---
     const [localSettings, setLocalSettings] = useState<Settings>(() => getDefaultSettings(language));
@@ -308,6 +310,14 @@ export const RemoteView: React.FC = () => {
         setInputText('');
     };
 
+    const handleSendFlash = (e: React.FormEvent) => {
+        e.preventDefault();
+        if(!flashMsg.trim()) return;
+        handleCommand('SHOW_FLASH_MESSAGE', flashMsg);
+        setFlashMsg('');
+        alert('Pesan kilat dikirim!');
+    };
+
     const requestSettings = () => {
         handleCommand('REQUEST_SETTINGS');
     };
@@ -371,11 +381,31 @@ export const RemoteView: React.FC = () => {
 
             <div className="flex-grow p-4 overflow-y-auto pb-20">
                 {activeTab === 'playback' && (
-                    <div className="grid grid-cols-2 gap-4 h-full content-start">
-                        <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">Mundur</span></button>
-                        <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">Maju</span></button>
-                        <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">Stop</span></button>
-                        <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">Refresh</span></button>
+                    <div className="space-y-6">
+                        {/* Slide Controls */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">Mundur</span></button>
+                            <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">Maju</span></button>
+                            <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">Stop</span></button>
+                            <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">Refresh</span></button>
+                        </div>
+
+                        {/* Flash Message Section */}
+                        <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                            <h3 className="font-bold text-slate-300 mb-2 flex items-center gap-2"><MegaphoneIcon /> Pesan Kilat (30d)</h3>
+                            <form onSubmit={handleSendFlash} className="flex flex-col gap-2">
+                                <textarea 
+                                    rows={2}
+                                    value={flashMsg}
+                                    onChange={(e) => setFlashMsg(e.target.value)}
+                                    placeholder="Tulis pesan pengumuman..."
+                                    className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-color)] resize-none"
+                                />
+                                <button type="submit" className="bg-amber-600 p-3 rounded-lg flex items-center justify-center gap-2 font-semibold hover:bg-amber-700 active:scale-95 transition-all">
+                                    <SendIcon /> Kirim Pesan
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 )} 
                 

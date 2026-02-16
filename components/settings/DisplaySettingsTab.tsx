@@ -239,6 +239,14 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                             <option value="minimalis">{t('settings.display.layoutMinimalist')}</option>
                         </Select>
                     </div>
+                    {/* Clock Style Selection */}
+                    <div className="md:col-span-2">
+                        <Select label={t('settings.display.clockStyle.title')} name="clockStyle" value={localSettings.clockStyle || 'digital'} onChange={handleInputChange}>
+                            <option value="digital">{t('settings.display.clockStyle.digital')}</option>
+                            <option value="analog">{t('settings.display.clockStyle.analog')}</option>
+                        </Select>
+                    </div>
+
                     {/* Minimalist specific settings */}
                     {localSettings.layoutTemplate === 'minimalis' && (
                         <div className="md:col-span-2 p-4 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg border border-slate-300 dark:border-slate-600 space-y-4">

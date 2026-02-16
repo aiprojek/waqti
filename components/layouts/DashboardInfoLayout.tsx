@@ -1,9 +1,11 @@
+
 import React, { useMemo, useState, useEffect } from 'react';
 import useClock from '../../hooks/useClock';
 import { useSettings } from '../../contexts/SettingsContext';
 import type { PrayerName, PrayerTimes, ScheduleSlide, FinanceSlide, ScheduleItem } from '../../types';
 import { PRAYER_NAMES, IQAMAH_PRAYERS } from '../../constants';
 import { t } from '../../i18n';
+import { AnalogClock } from '../AnalogClock';
 
 interface LayoutProps {
     prayerTimes: PrayerTimes | null;
@@ -179,11 +181,17 @@ export const DashboardInfoLayout: React.FC<LayoutProps> = ({
             <div className="w-full h-full p-2 flex flex-col gap-4">
                 {/* 1. Clock & Date */}
                 <div className="bg-black/20 backdrop-blur-md rounded-2xl p-4 flex flex-col justify-center items-center text-center flex-shrink-0">
-                     <h1 className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(3.5rem,15vh,7rem)] leading-none flex items-baseline justify-center">
-                        <AnimatedDigit value={hours} />
-                        <span>:</span>
-                        <AnimatedDigit value={minutes} />
-                    </h1>
+                     {settings.clockStyle === 'analog' ? (
+                        <div className="py-2">
+                            <AnalogClock size="180px" />
+                        </div>
+                     ) : (
+                        <h1 className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(3.5rem,15vh,7rem)] leading-none flex items-baseline justify-center">
+                            <AnimatedDigit value={hours} />
+                            <span>:</span>
+                            <AnimatedDigit value={minutes} />
+                        </h1>
+                     )}
                     <p className="text-[clamp(0.9rem,2.5vh,1.2rem)]">{formattedDay}, {formattedFullDate}</p>
                     <p className="text-[clamp(0.8rem,2vh,1rem)] text-white/80">{formattedHijriDate}</p>
                 </div>
@@ -216,16 +224,24 @@ export const DashboardInfoLayout: React.FC<LayoutProps> = ({
             {/* Left Column: Clock & Info */}
             <div className={`flex flex-col gap-4 md:gap-6 flex-[2]`}>
                 <div className={`bg-black/20 backdrop-blur-md rounded-2xl p-6 flex flex-col justify-center items-center text-center flex-grow`}>
-                    <h1 className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(3.5rem,18vh,9rem)] leading-none flex items-baseline justify-center">
-                        <AnimatedDigit value={hours} />
-                        <span>:</span>
-                        <AnimatedDigit value={minutes} />
-                        <span className="text-[clamp(1.2rem,5vh,2.5rem)] w-auto px-2">:
-                            <AnimatedDigit value={seconds} />
-                        </span>
-                    </h1>
-                    <p className="text-[clamp(1rem,3vh,1.5rem)]">{formattedDay}, {formattedFullDate}</p>
-                    <p className="text-[clamp(0.9rem,2.5vh,1.2rem)] text-white/80">{formattedHijriDate}</p>
+                    {settings.clockStyle === 'analog' ? (
+                        <div className="flex-grow flex items-center justify-center py-4">
+                            <AnalogClock size="280px" />
+                        </div>
+                    ) : (
+                        <h1 className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(3.5rem,18vh,9rem)] leading-none flex items-baseline justify-center">
+                            <AnimatedDigit value={hours} />
+                            <span>:</span>
+                            <AnimatedDigit value={minutes} />
+                            <span className="text-[clamp(1.2rem,5vh,2.5rem)] w-auto px-2">:
+                                <AnimatedDigit value={seconds} />
+                            </span>
+                        </h1>
+                    )}
+                    <div className="mt-2">
+                        <p className="text-[clamp(1rem,3vh,1.5rem)]">{formattedDay}, {formattedFullDate}</p>
+                        <p className="text-[clamp(0.9rem,2.5vh,1.2rem)] text-white/80">{formattedHijriDate}</p>
+                    </div>
                 </div>
                 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">

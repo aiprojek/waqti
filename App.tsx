@@ -21,6 +21,30 @@ import { WelcomeModal } from './components/WelcomeModal';
 import { db } from './lib/db';
 import { useBlobUrl } from './hooks/useBlobUrl';
 
+// --- Flash Message Component ---
+const FlashMessageOverlay: React.FC<{ message: string | null }> = ({ message }) => {
+    if (!message) return null;
+
+    return (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+            <div className="bg-white dark:bg-slate-800 border-4 border-[var(--accent-color)] rounded-3xl p-8 md:p-12 shadow-2xl max-w-4xl w-full text-center relative overflow-hidden">
+                {/* Decorative background element */}
+                <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--accent-color)]/20 rounded-full blur-2xl"></div>
+                <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[var(--accent-color)]/20 rounded-full blur-2xl"></div>
+                
+                <div className="flex flex-col items-center gap-4 relative z-10">
+                    <div className="w-16 h-16 bg-[var(--accent-color)]/20 text-[var(--accent-color)] rounded-full flex items-center justify-center mb-2 animate-bounce">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                    </div>
+                    <h2 className="text-3xl md:text-5xl font-bold text-slate-800 dark:text-white leading-tight">
+                        {message}
+                    </h2>
+                </div>
+            </div>
+        </div>
+    );
+};
+
 // This component isolates all the logic that needs to update every second.
 const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: boolean }> = ({ prayerTimes, stale }) => {
     const { settings } = useSettings();
@@ -39,9 +63,13 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
     const [countdown, setCountdown] = useState(0);
     const alarmAudioRef = useRef(new Audio());
     
+    // --- Flash Message State ---
+    const [flashMessage, setFlashMessage] = useState<string | null>(null);
+    const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    
     const isFriday = useMemo(() => currentTime.getDay() === 5, [currentTime]);
 
-    // Handle Playback Remote Commands
+    // Handle Playback Remote Commands & Flash Message
     useEffect(() => {
         if (!lastCommand) return;
 
@@ -74,6 +102,17 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
                 break;
             case 'REFRESH':
                 window.location.reload();
+                break;
+            case 'SHOW_FLASH_MESSAGE':
+                if (lastCommand.payload) {
+                    setFlashMessage(lastCommand.payload);
+                    // Clear existing timer if any
+                    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+                    // Auto hide after 30 seconds
+                    flashTimerRef.current = setTimeout(() => {
+                        setFlashMessage(null);
+                    }, 30000);
+                }
                 break;
         }
     }, [lastCommand, displayMode, settings.slides]);
@@ -313,6 +352,8 @@ const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: b
 
     return (
         <div className={`w-full h-full flex justify-center items-center transition-opacity duration-500 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+            <FlashMessageOverlay message={flashMessage} />
+            
             {displayState === DisplayState.Clock && displayMode === 'slide' && enabledSlides.length > 0 ? (
                 <SlideDisplay slide={enabledSlides[currentSlideIndex]} />
             ) : (

@@ -1,9 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import useClock from '../../hooks/useClock';
 import { useSettings } from '../../contexts/SettingsContext';
 import type { PrayerName, PrayerTimes } from '../../types';
 import { PRAYER_NAMES, IQAMAH_PRAYERS } from '../../constants';
 import { t } from '../../i18n';
+import { AnalogClock } from '../AnalogClock';
 
 interface LayoutProps {
     prayerTimes: PrayerTimes | null;
@@ -56,18 +58,25 @@ export const FocusClockLayout: React.FC<LayoutProps> = ({
 
         return (
             <div className={`w-full h-full flex flex-col items-center justify-start p-2 gap-2 transition-opacity duration-300 ${staleClass}`}>
-                <div className="text-center flex-shrink-0">
-                    <h1 
-                        className="font-mono font-bold tracking-tighter text-shadow-lg text-[clamp(3rem,12vh,5.5rem)] leading-none flex items-baseline justify-center py-2"
-                        style={{textShadow: '3px 3px 15px rgba(0,0,0,0.5)'}}
-                    >
-                        <AnimatedDigit value={hours} />
-                        <span>:</span>
-                        <AnimatedDigit value={minutes} />
-                        <span className="text-[clamp(1.2rem,4vh,1.75rem)] w-auto px-2">:
-                            <AnimatedDigit value={seconds} />
-                        </span>
-                    </h1>
+                <div className="text-center flex-shrink-0 w-full flex flex-col items-center">
+                    {settings.clockStyle === 'analog' ? (
+                        <div className="py-2">
+                            <AnalogClock size="25vh" />
+                        </div>
+                    ) : (
+                        <h1 
+                            className="font-mono font-bold tracking-tighter text-shadow-lg text-[clamp(3rem,12vh,5.5rem)] leading-none flex items-baseline justify-center py-2"
+                            style={{textShadow: '3px 3px 15px rgba(0,0,0,0.5)'}}
+                        >
+                            <AnimatedDigit value={hours} />
+                            <span>:</span>
+                            <AnimatedDigit value={minutes} />
+                            <span className="text-[clamp(1.2rem,4vh,1.75rem)] w-auto px-2">:
+                                <AnimatedDigit value={seconds} />
+                            </span>
+                        </h1>
+                    )}
+                    
                     <div className="flex justify-center items-center gap-2 text-[clamp(0.9rem,2.5vh,1.2rem)] tracking-wide text-slate-700 dark:text-white/90 mt-1">
                         <span className="transition-opacity duration-300" style={{ opacity: dateOpacity }}>
                             {formattedDay}, {dateToShow}
@@ -111,18 +120,25 @@ export const FocusClockLayout: React.FC<LayoutProps> = ({
     } else {
         return (
             <div className={`w-full h-full flex flex-col items-center justify-evenly p-2 md:p-4 gap-8 transition-opacity duration-300 ${staleClass}`}>
-                <div className="text-center">
-                    <h1 
-                        className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(5rem,25vh,15rem)] leading-none flex items-baseline justify-center"
-                        style={{textShadow: '3px 3px 25px rgba(0,0,0,0.6)'}}
-                    >
-                        <AnimatedDigit value={hours} />
-                        <span>:</span>
-                        <AnimatedDigit value={minutes} />
-                        <span className="text-[clamp(1.5rem,6vh,4rem)] w-auto px-2 md:px-4">:
-                            <AnimatedDigit value={seconds} />
-                        </span>
-                    </h1>
+                <div className="text-center flex flex-col items-center">
+                    {settings.clockStyle === 'analog' ? (
+                        <div className="mb-4">
+                            <AnalogClock size="35vh" />
+                        </div>
+                    ) : (
+                        <h1 
+                            className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(5rem,25vh,15rem)] leading-none flex items-baseline justify-center"
+                            style={{textShadow: '3px 3px 25px rgba(0,0,0,0.6)'}}
+                        >
+                            <AnimatedDigit value={hours} />
+                            <span>:</span>
+                            <AnimatedDigit value={minutes} />
+                            <span className="text-[clamp(1.5rem,6vh,4rem)] w-auto px-2 md:px-4">:
+                                <AnimatedDigit value={seconds} />
+                            </span>
+                        </h1>
+                    )}
+                    
                     <div className="flex justify-center items-center gap-2 text-[clamp(1rem,4vh,2rem)] tracking-wide text-slate-700 dark:text-white/90 mt-1">
                         <span className="transition-opacity duration-300" style={{ opacity: dateOpacity }}>
                             {formattedDay}, {dateToShow}

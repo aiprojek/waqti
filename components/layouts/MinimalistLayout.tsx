@@ -5,6 +5,7 @@ import { useSettings } from '../../contexts/SettingsContext';
 import { PRAYER_NAMES } from '../../constants';
 import type { PrayerName, PrayerTimes } from '../../types';
 import { t } from '../../i18n';
+import { AnalogClock } from '../AnalogClock';
 
 interface LayoutProps {
     prayerTimes: PrayerTimes | null;
@@ -148,15 +149,21 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
     if (settings.displayMode === 'portrait') {
         return (
             <div className="w-full h-full flex flex-col items-center justify-center text-center p-4 gap-8">
-                <div className="flex-shrink-0">
-                    <h1 
-                        className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(4rem,22vw,10rem)] leading-none flex items-baseline justify-center"
-                        style={{textShadow: '3px 3px 25px rgba(0,0,0,0.6)'}}
-                    >
-                        <AnimatedDigit value={hours} />
-                        <span className="animate-pulse">:</span>
-                        <AnimatedDigit value={minutes} />
-                    </h1>
+                <div className="flex-shrink-0 flex flex-col items-center">
+                    {settings.clockStyle === 'analog' ? (
+                        <div className="mb-4">
+                            <AnalogClock size="280px" />
+                        </div>
+                    ) : (
+                        <h1 
+                            className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(4rem,22vw,10rem)] leading-none flex items-baseline justify-center"
+                            style={{textShadow: '3px 3px 25px rgba(0,0,0,0.6)'}}
+                        >
+                            <AnimatedDigit value={hours} />
+                            <span className="animate-pulse">:</span>
+                            <AnimatedDigit value={minutes} />
+                        </h1>
+                    )}
                     <p className="text-[clamp(1rem,4vw,1.5rem)] tracking-wide text-slate-700 dark:text-white/90 mt-2">
                         <span className="transition-opacity duration-300" style={{ opacity: dateOpacity }}>
                             {formattedDay}, {dateToShow}
@@ -179,15 +186,21 @@ export const MinimalistLayout: React.FC<LayoutProps> = ({
     // --- Landscape Layout ---
     return (
         <div className="w-full h-full flex flex-col md:flex-row items-center justify-center text-center p-4 md:p-8 gap-8 md:gap-12">
-            <div className="flex-shrink-0">
-                 <h1 
-                    className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(4rem,22vw,10rem)] leading-none flex items-baseline justify-center"
-                    style={{textShadow: '3px 3px 25px rgba(0,0,0,0.6)'}}
-                >
-                    <AnimatedDigit value={hours} />
-                    <span className="animate-pulse">:</span>
-                    <AnimatedDigit value={minutes} />
-                </h1>
+            <div className="flex-shrink-0 flex flex-col items-center">
+                 {settings.clockStyle === 'analog' ? (
+                    <div className="mb-4">
+                        <AnalogClock size="350px" />
+                    </div>
+                 ) : (
+                    <h1 
+                        className="font-mono font-bold tracking-tight text-shadow-lg text-[clamp(4rem,22vw,10rem)] leading-none flex items-baseline justify-center"
+                        style={{textShadow: '3px 3px 25px rgba(0,0,0,0.6)'}}
+                    >
+                        <AnimatedDigit value={hours} />
+                        <span className="animate-pulse">:</span>
+                        <AnimatedDigit value={minutes} />
+                    </h1>
+                 )}
                 <p className="text-[clamp(1rem,4vw,1.5rem)] tracking-wide text-slate-700 dark:text-white/90 mt-2">
                      <span className="transition-opacity duration-300" style={{ opacity: dateOpacity }}>
                         {formattedDay}, {dateToShow}
