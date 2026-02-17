@@ -64,6 +64,16 @@ export const id = {
             slides: 'Slide',
             services: 'Layanan & Toko'
         },
+        status: {
+            assetsMissing: 'Aset Hilang',
+            browserNoSupport: 'Browser tidak mendukung caching.',
+            uploadSuccess: 'Berhasil diunggah.',
+            uploadError: 'Gagal membaca file.',
+            unsupportedFormat: 'Format file tidak didukung.',
+            compressing: 'Mengompresi...',
+            ready: 'Siap.',
+            error: 'Error.',
+        },
         general: {
             title: 'Pengaturan Umum',
             mosqueName: 'Nama Masjid',
@@ -292,7 +302,9 @@ export const id = {
                 summary: 'Ringkasan',
                 collected: 'Terkumpul',
                 remaining: 'Sisa',
-                remainingNeeded: 'Dana yang masih dibutuhkan:'
+                remainingNeeded: 'Dana yang masih dibutuhkan:',
+                scanTitle: 'SCAN INFAQ',
+                scanDesc: 'Dukung operasional masjid dengan transaksi non-tunai (QRIS).'
             },
             officer: {
                 title: 'Petugas Jum\'at',
@@ -309,6 +321,31 @@ export const id = {
                 finance: 'Slide Keuangan',
                 'friday-officer': 'Slide Petugas'
             }
+        },
+        remote: {
+            connecting: 'Menghubungkan...',
+            disconnected: 'Terputus',
+            connected: 'Terhubung',
+            online: 'Online',
+            keepAwake: 'Pastikan satu jaringan & layar HP tetap nyala.',
+            retry: 'Coba Lagi',
+            prev: 'Mundur',
+            next: 'Maju',
+            stop: 'Stop',
+            refresh: 'Refresh',
+            flashTitle: 'Pesan Kilat (30d)',
+            flashPlaceholder: 'Tulis pesan pengumuman...',
+            sendFlash: 'Kirim Pesan',
+            menu: 'Menu',
+            close: 'Tutup',
+            navPlaceholder: 'Ketik navigasi lalu kirim...',
+            ok: 'OK',
+            fetch: 'Ambil',
+            send: 'Kirim',
+            sending: 'Mengirim...',
+            dataSynced: 'Data berhasil disinkronkan dari TV!',
+            settingsSent: 'Pengaturan dikirim ke TV!',
+            flashSent: 'Pesan kilat dikirim!'
         }
     },
     info: {
@@ -502,7 +539,7 @@ export const id = {
         ],
         themeOptions: [
             { id: 'quran-tauhid', name: 'Tauhid & Aqidah', category: 'quran' },
-            { id: 'quran-akhlaq', name: 'Akhlak', category: 'quran' },
+            { id: 'quran-akhlaq', name: 'Akhlaq', category: 'quran' },
             { id: 'quran-fikih', name: 'Fikih', category: 'quran' },
             { id: 'quran-random', name: 'Random', category: 'quran' },
             { id: 'hadith-tauhid', name: 'Tauhid & Aqidah', category: 'hadith' },

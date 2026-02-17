@@ -56,26 +56,26 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
         // Let's set a 5MB limit for now.
         const MAX_FILE_SIZE = 5 * 1024 * 1024; 
         if (file.size > MAX_FILE_SIZE) {
-            setStatus({message: 'File too large (Max 5MB).', type: 'error'});
+            setStatus({message: t('settings.display.wallpaper.maxSize'), type: 'error'});
             return;
         }
         if (!file.type.startsWith('image/')) {
-            setStatus({message: 'Unsupported file format.', type: 'error'});
+            setStatus({message: t('settings.status.unsupportedFormat'), type: 'error'});
             return;
         }
 
         try {
-            setStatus({message: 'Saving...', type: 'info'});
+            setStatus({message: t('settings.status.compressing'), type: 'info'});
             const id = await db.assets.add({
                 blob: file,
                 type: file.type,
                 created: Date.now()
             });
             onChange(`local-asset:${id}`);
-            setStatus({message: 'Image saved successfully.', type: 'success'});
+            setStatus({message: t('settings.status.uploadSuccess'), type: 'success'});
         } catch (error) {
             console.error(error);
-            setStatus({message: 'Failed to save image.', type: 'error'});
+            setStatus({message: t('settings.status.uploadError'), type: 'error'});
         }
     };
 
@@ -164,12 +164,6 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
 }) => {
     const localeData = getLocale();
     const THEME_OPTIONS = localeData.defaults.themeOptions;
-    
-    // We keep this to initialize the main wallpaper section, but the actual upload logic
-    // is now handled inside WallpaperPicker for consistency across main/contextual wallpapers.
-    // However, the main wallpaper upload section in this file was distinct. 
-    // To minimize large refactors, I will replace the manual main wallpaper section 
-    // with the reusable WallpaperPicker component.
     
     const applyPreset = (presetId: string) => {
         const preset = THEME_PRESETS.find(p => p.id === presetId);

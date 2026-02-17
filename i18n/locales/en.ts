@@ -64,6 +64,16 @@ export const en = {
             slides: 'Slides',
             services: 'Services & Store'
         },
+        status: {
+            assetsMissing: 'Assets Missing',
+            browserNoSupport: 'Browser does not support caching.',
+            uploadSuccess: 'Uploaded successfully.',
+            uploadError: 'Failed to read file.',
+            unsupportedFormat: 'Unsupported file format.',
+            compressing: 'Compressing...',
+            ready: 'Ready.',
+            error: 'Error.',
+        },
         general: {
             title: 'General Settings',
             mosqueName: 'Mosque Name',
@@ -292,7 +302,9 @@ export const en = {
                 summary: 'Summary',
                 collected: 'Collected',
                 remaining: 'Remaining',
-                remainingNeeded: 'Remaining Amount Needed:'
+                remainingNeeded: 'Remaining Amount Needed:',
+                scanTitle: 'SCAN INFAQ',
+                scanDesc: 'Support mosque operations with non-cash transactions (QRIS).'
             },
             officer: {
                 title: 'Jum\'ah Officers',
@@ -309,6 +321,31 @@ export const en = {
                 finance: 'Finance Slide',
                 'friday-officer': 'Officers Slide'
             }
+        },
+        remote: {
+            connecting: 'Connecting...',
+            disconnected: 'Disconnected',
+            connected: 'Connected',
+            online: 'Online',
+            keepAwake: 'Ensure same network & keep screen awake.',
+            retry: 'Retry',
+            prev: 'Prev',
+            next: 'Next',
+            stop: 'Stop',
+            refresh: 'Refresh',
+            flashTitle: 'Flash Message (30s)',
+            flashPlaceholder: 'Write an announcement...',
+            sendFlash: 'Send Message',
+            menu: 'Menu',
+            close: 'Close',
+            navPlaceholder: 'Type nav then send...',
+            ok: 'OK',
+            fetch: 'Fetch',
+            send: 'Send',
+            sending: 'Sending...',
+            dataSynced: 'Data synced successfully from TV!',
+            settingsSent: 'Settings sent to TV!',
+            flashSent: 'Flash message sent!'
         }
     },
     info: {

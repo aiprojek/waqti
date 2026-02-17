@@ -24,11 +24,11 @@ export const FinanceSlideDisplay: React.FC<FinanceSlideProps> = ({ slide }) => {
 
     const QrComponent = () => (
         <div className="flex flex-col items-center justify-center p-6 bg-white rounded-xl shadow-2xl h-full min-w-[250px] max-w-[300px]">
-            <p className="text-slate-800 font-bold text-lg mb-4 text-center uppercase tracking-wider">Scan Infaq</p>
+            <p className="text-slate-800 font-bold text-lg mb-4 text-center uppercase tracking-wider">{t('settings.slides.finance.scanTitle')}</p>
             <div className="relative w-full aspect-square">
                 <img src={slide.qrCodeUrl!} alt="QRIS Masjid" className="w-full h-full object-contain" />
             </div>
-            <p className="text-slate-500 text-xs mt-4 text-center">Dukung operasional masjid dengan transaksi non-tunai (QRIS).</p>
+            <p className="text-slate-500 text-xs mt-4 text-center">{t('settings.slides.finance.scanDesc')}</p>
         </div>
     );
 

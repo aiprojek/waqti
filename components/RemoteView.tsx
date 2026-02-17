@@ -83,7 +83,7 @@ export const RemoteView: React.FC = () => {
                 ...prev,
                 ...lastCommand.payload
             }));
-            alert('Data berhasil disinkronkan dari TV!');
+            alert(t('remote.dataSynced'));
         }
     }, [lastCommand]);
 
@@ -138,13 +138,13 @@ export const RemoteView: React.FC = () => {
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
-        setUploadStatus({ message: 'Compressing...', type: 'info' });
+        setUploadStatus({ message: t('settings.status.compressing'), type: 'info' });
         try {
             const compressedBase64 = await compressImage(file);
             setLocalSettings(prev => ({...prev, wallpaper: compressedBase64}));
-            setUploadStatus({ message: 'Ready.', type: 'success' });
+            setUploadStatus({ message: t('settings.status.ready'), type: 'success' });
         } catch (e) {
-            setUploadStatus({ message: 'Error.', type: 'error' });
+            setUploadStatus({ message: t('settings.status.error'), type: 'error' });
         }
     };
 
@@ -222,8 +222,8 @@ export const RemoteView: React.FC = () => {
         switch (type) {
             case 'image': newSlide = { ...base, type, imageUrl: '', qrCodeUrl: '' }; break;
             case 'schedule': newSlide = { ...base, type, title: t('settings.slides.type.schedule'), scheduleItems: [] }; break;
-            case 'finance': newSlide = { ...base, type, financeInfo: { title: 'Keuangan', lastBalance: 0, income: 0, expense: 0, currentBalance: 0 } }; break;
-            case 'friday-officer': newSlide = { ...base, type, title: 'Petugas Jumat', officers: { khotib: '', imam: '', muadzin: '', bilal: '' }, fridayOnly: true }; break;
+            case 'finance': newSlide = { ...base, type, financeInfo: { title: t('settings.slides.type.finance'), lastBalance: 0, income: 0, expense: 0, currentBalance: 0 } }; break;
+            case 'friday-officer': newSlide = { ...base, type, title: t('settings.slides.type.friday-officer'), officers: { khotib: '', imam: '', muadzin: '', bilal: '' }, fridayOnly: true }; break;
             case 'text': default: newSlide = { ...base, type, title: '', content: '', qrCodeUrl: '' }; break;
         }
         setLocalSettings(p => ({ ...p, slides: [...(p.slides || []), newSlide] }));
@@ -315,7 +315,7 @@ export const RemoteView: React.FC = () => {
         if(!flashMsg.trim()) return;
         handleCommand('SHOW_FLASH_MESSAGE', flashMsg);
         setFlashMsg('');
-        alert('Pesan kilat dikirim!');
+        alert(t('remote.flashSent'));
     };
 
     const requestSettings = () => {
@@ -327,7 +327,7 @@ export const RemoteView: React.FC = () => {
         handleCommand('UPDATE_DATA', localSettings);
         setTimeout(() => {
             setIsSending(false);
-            alert('Pengaturan dikirim ke TV!');
+            alert(t('remote.settingsSent'));
         }, 1000);
     };
 
@@ -360,10 +360,10 @@ export const RemoteView: React.FC = () => {
         return (
             <div className="h-screen w-full bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-                <h2 className="text-xl font-bold mb-2">{connectionStatus === 'connecting' ? 'Menghubungkan...' : 'Terputus'}</h2>
-                <p className="text-slate-400 mb-6 text-sm">Pastikan satu jaringan & layar HP tetap nyala.</p>
+                <h2 className="text-xl font-bold mb-2">{connectionStatus === 'connecting' ? t('remote.connecting') : t('remote.disconnected')}</h2>
+                <p className="text-slate-400 mb-6 text-sm">{t('remote.keepAwake')}</p>
                 {(showRetry || connectionStatus === 'disconnected') && (
-                    <button onClick={resetConnection} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-full font-semibold transition-colors shadow-lg animate-fade-in">Coba Lagi</button>
+                    <button onClick={resetConnection} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-full font-semibold transition-colors shadow-lg animate-fade-in">{t('remote.retry')}</button>
                 )}
             </div>
         );
@@ -375,7 +375,7 @@ export const RemoteView: React.FC = () => {
                 <h1 className="text-lg font-bold text-[var(--accent-color)]">Waqti Remote</h1>
                 <div className="flex items-center gap-2">
                     <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_currentColor]"></div>
-                    <span className="text-[10px] uppercase tracking-wider">Online</span>
+                    <span className="text-[10px] uppercase tracking-wider">{t('remote.online')}</span>
                 </div>
             </div>
 
@@ -384,25 +384,25 @@ export const RemoteView: React.FC = () => {
                     <div className="space-y-6">
                         {/* Slide Controls */}
                         <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">Mundur</span></button>
-                            <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">Maju</span></button>
-                            <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">Stop</span></button>
-                            <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">Refresh</span></button>
+                            <button onClick={() => handleCommand('PREV_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span className="font-semibold text-sm">{t('remote.prev')}</span></button>
+                            <button onClick={() => handleCommand('NEXT_SLIDE')} className="bg-slate-800 rounded-2xl flex flex-col items-center justify-center gap-3 p-6 active:bg-slate-700 active:scale-95 transition-all shadow-lg border border-slate-700 aspect-square"><svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg><span className="font-semibold text-sm">{t('remote.next')}</span></button>
+                            <button onClick={() => handleCommand('STOP_ALARM')} className="col-span-2 bg-red-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-8 active:bg-red-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"/><path d="M18.63 13A17.89 17.89 0 0 1 18 8"/><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"/><path d="M18 8a6 6 0 0 0-9.33-5"/><line x1="1" y1="1" x2="23" y2="23"/></svg><span className="text-xl font-bold">{t('remote.stop')}</span></button>
+                            <button onClick={() => handleCommand('REFRESH')} className="col-span-2 bg-blue-600/90 rounded-2xl flex flex-col items-center justify-center gap-3 p-4 active:bg-blue-700 active:scale-95 transition-all shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg><span className="font-semibold text-sm">{t('remote.refresh')}</span></button>
                         </div>
 
                         {/* Flash Message Section */}
                         <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                            <h3 className="font-bold text-slate-300 mb-2 flex items-center gap-2"><MegaphoneIcon /> Pesan Kilat (30d)</h3>
+                            <h3 className="font-bold text-slate-300 mb-2 flex items-center gap-2"><MegaphoneIcon /> {t('remote.flashTitle')}</h3>
                             <form onSubmit={handleSendFlash} className="flex flex-col gap-2">
                                 <textarea 
                                     rows={2}
                                     value={flashMsg}
                                     onChange={(e) => setFlashMsg(e.target.value)}
-                                    placeholder="Tulis pesan pengumuman..."
+                                    placeholder={t('remote.flashPlaceholder')}
                                     className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-color)] resize-none"
                                 />
                                 <button type="submit" className="bg-amber-600 p-3 rounded-lg flex items-center justify-center gap-2 font-semibold hover:bg-amber-700 active:scale-95 transition-all">
-                                    <SendIcon /> Kirim Pesan
+                                    <SendIcon /> {t('remote.sendFlash')}
                                 </button>
                             </form>
                         </div>
@@ -412,8 +412,8 @@ export const RemoteView: React.FC = () => {
                 {activeTab === 'nav' && (
                     <div className="flex flex-col h-full gap-4">
                         <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => handleCommand('OPEN_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><SettingsIcon /> Menu</button>
-                            <button onClick={() => handleCommand('CLOSE_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><CloseIcon /> Tutup</button>
+                            <button onClick={() => handleCommand('OPEN_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><SettingsIcon /> {t('remote.menu')}</button>
+                            <button onClick={() => handleCommand('CLOSE_SETTINGS')} className="bg-slate-700 p-4 rounded-xl flex items-center justify-center gap-2 active:bg-slate-600"><CloseIcon /> {t('remote.close')}</button>
                         </div>
                         <div className="flex-grow flex items-center justify-center py-4">
                             <div className="relative w-64 h-64 bg-slate-800 rounded-full shadow-2xl flex items-center justify-center border border-slate-700">
@@ -421,11 +421,11 @@ export const RemoteView: React.FC = () => {
                                 <button onClick={() => handleCommand('NAV_DOWN')} className="absolute bottom-2 left-1/2 -translate-x-1/2 w-16 h-16 bg-slate-700 rounded-lg flex items-center justify-center active:bg-slate-600 shadow-md"><ArrowDown /></button>
                                 <button onClick={() => handleCommand('NAV_LEFT')} className="absolute left-2 top-1/2 -translate-y-1/2 w-16 h-16 bg-slate-700 rounded-lg flex items-center justify-center active:bg-slate-600 shadow-md"><ArrowLeft /></button>
                                 <button onClick={() => handleCommand('NAV_RIGHT')} className="absolute right-2 top-1/2 -translate-y-1/2 w-16 h-16 bg-slate-700 rounded-lg flex items-center justify-center active:bg-slate-600 shadow-md"><ArrowRight /></button>
-                                <button onClick={() => handleCommand('NAV_ENTER')} className="w-20 h-20 bg-[var(--accent-color)] rounded-full flex items-center justify-center font-bold text-xl shadow-lg active:scale-95 transition-transform">OK</button>
+                                <button onClick={() => handleCommand('NAV_ENTER')} className="w-20 h-20 bg-[var(--accent-color)] rounded-full flex items-center justify-center font-bold text-xl shadow-lg active:scale-95 transition-transform">{t('remote.ok')}</button>
                             </div>
                         </div>
                         <form onSubmit={handleSendText} className="flex gap-2 bg-slate-800 p-2 rounded-xl">
-                            <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder="Ketik navigasi lalu kirim..." className="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-color)]" />
+                            <input type="text" value={inputText} onChange={(e) => setInputText(e.target.value)} placeholder={t('remote.navPlaceholder')} className="flex-grow bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-[var(--accent-color)]" />
                             <button type="submit" className="bg-[var(--accent-color)] p-3 rounded-lg flex items-center justify-center"><SendIcon /></button>
                         </form>
                     </div>
@@ -551,14 +551,14 @@ export const RemoteView: React.FC = () => {
                                 onClick={requestSettings} 
                                 className="px-4 py-3 bg-slate-600 rounded-lg text-white font-bold flex items-center gap-2 hover:bg-slate-500 whitespace-nowrap"
                             >
-                                <DownloadIcon /> Ambil
+                                <DownloadIcon /> {t('remote.fetch')}
                             </button>
                             <button 
                                 onClick={handleSaveSettings} 
                                 disabled={isSending}
                                 className="flex-grow px-4 py-3 bg-[var(--accent-color)] rounded-lg text-white font-bold shadow-lg hover:opacity-90 disabled:opacity-50 flex justify-center items-center gap-2 whitespace-nowrap"
                             >
-                                {isSending ? 'Mengirim...' : 'Kirim'} <SendIcon />
+                                {isSending ? t('remote.sending') : t('remote.send')} <SendIcon />
                             </button>
                         </div>
                     </div>
@@ -568,7 +568,7 @@ export const RemoteView: React.FC = () => {
             <div className="flex border-t border-slate-700 bg-slate-800">
                 <button onClick={() => setActiveTab('playback')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'playback' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><PlaybackIcon /><span className="text-xs font-semibold">Playback</span></button>
                 <div className="w-px bg-slate-700"></div>
-                <button onClick={() => setActiveTab('settings')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'settings' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><SettingsIcon /><span className="text-xs font-semibold">Pengaturan</span></button>
+                <button onClick={() => setActiveTab('settings')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'settings' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><SettingsIcon /><span className="text-xs font-semibold">{t('settings.title')}</span></button>
                 <div className="w-px bg-slate-700"></div>
                 <button onClick={() => setActiveTab('nav')} className={`flex-1 py-4 flex flex-col items-center justify-center gap-1 transition-colors ${activeTab === 'nav' ? 'text-[var(--accent-color)] bg-slate-700/50' : 'text-slate-400'}`}><MenuIcon /><span className="text-xs font-semibold">Navigasi</span></button>
             </div>

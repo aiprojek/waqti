@@ -161,7 +161,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
         setStatusMessage(t('settings.general.offlineAssets.downloading'));
         
         if (!('caches' in window)) {
-            setStatusMessage('Browser does not support caching.');
+            setStatusMessage(t('settings.status.browserNoSupport'));
             setDownloadProgress(false);
             return;
         }
@@ -293,7 +293,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${assetsStatus === 'ready' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}`}>
                                 <div className={`w-2 h-2 rounded-full ${assetsStatus === 'ready' ? 'bg-green-500' : 'bg-red-500'}`}></div>
                                 <span className="text-sm font-medium">
-                                    {assetsStatus === 'ready' ? t('settings.general.offlineAssets.ready') : 'Assets Missing'}
+                                    {assetsStatus === 'ready' ? t('settings.general.offlineAssets.ready') : t('settings.status.assetsMissing')}
                                 </span>
                             </div>
 

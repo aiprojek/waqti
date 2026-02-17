@@ -143,20 +143,20 @@ export const SoundPicker: React.FC<SoundPickerProps> = ({ name, value, onChange,
 
         const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
         if (file.size > MAX_FILE_SIZE) {
-            setStatus({message: 'Ukuran file maks 2MB.', type: 'error'});
+            setStatus({message: t('settings.display.wallpaper.maxSize'), type: 'error'});
             return;
         }
         if (!file.type.startsWith('audio/')) {
-            setStatus({message: 'Format file tidak didukung.', type: 'error'});
+            setStatus({message: t('settings.status.unsupportedFormat'), type: 'error'});
             return;
         }
 
         const reader = new FileReader();
         reader.onload = () => {
             onChange(reader.result as string);
-            setStatus({message: 'Audio berhasil diunggah.', type: 'success'});
+            setStatus({message: t('settings.status.uploadSuccess'), type: 'success'});
         };
-        reader.onerror = () => setStatus({message: 'Gagal membaca file.', type: 'error'});
+        reader.onerror = () => setStatus({message: t('settings.status.uploadError'), type: 'error'});
         reader.readAsDataURL(file);
     };
 
@@ -206,7 +206,7 @@ export const SoundPicker: React.FC<SoundPickerProps> = ({ name, value, onChange,
                         disabled={disabled}
                         className="w-full px-4 py-2 bg-slate-200 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-md text-slate-800 dark:text-white hover:bg-slate-300 dark:hover:bg-slate-600 transition-colors"
                     >
-                        Pilih File Audio...
+                        {t('settings.display.wallpaper.selectFile')}
                     </button>
                     {status.message && <p className={`text-xs mt-1 px-1 ${statusColor}`}>{status.message}</p>}
                 </div>
@@ -220,7 +220,7 @@ export const SoundPicker: React.FC<SoundPickerProps> = ({ name, value, onChange,
                         className="text-xs text-red-500 hover:underline"
                         disabled={disabled}
                     >
-                        Hapus
+                        {t('settings.slides.remove')}
                     </button>
                 </div>
             )}
@@ -243,20 +243,20 @@ export const QRCodeManager: React.FC<QRCodeManagerProps> = ({ slide, onSlideChan
         if (!file) return;
 
         if (file.size > 1024 * 1024) { // 1MB limit
-            setQrUploadStatus('Error: Ukuran file maks 1MB.');
+            setQrUploadStatus(t('settings.display.wallpaper.maxSize'));
             return;
         }
         if (!file.type.startsWith('image/')) {
-            setQrUploadStatus('Error: Format file tidak didukung.');
+            setQrUploadStatus(t('settings.status.unsupportedFormat'));
             return;
         }
 
         const reader = new FileReader();
         reader.onload = () => {
             onSlideChange('qrCodeUrl', reader.result as string);
-            setQrUploadStatus('Berhasil diunggah.');
+            setQrUploadStatus(t('settings.status.uploadSuccess'));
         };
-        reader.onerror = () => setQrUploadStatus('Error: Gagal membaca file.');
+        reader.onerror = () => setQrUploadStatus(t('settings.status.uploadError'));
         reader.readAsDataURL(file);
     };
 
@@ -288,7 +288,7 @@ export const QRCodeManager: React.FC<QRCodeManagerProps> = ({ slide, onSlideChan
                             onClick={() => onSlideChange('qrCodeUrl', undefined)}
                             className="absolute inset-0 w-full h-full bg-black/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity text-xs font-semibold"
                         >
-                            Hapus
+                            {t('settings.slides.remove')}
                         </button>
                     </div>
                 )}
@@ -321,6 +321,22 @@ interface CollapsibleSectionProps {
 
 export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ title, children, defaultOpen = false }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
+    const [isOverflowVisible, setIsOverflowVisible] = useState(defaultOpen);
+
+    // FIX: Delay changing overflow to visible until animation completes.
+    // This allows the dropdown (like language selector) to overflow the card when open,
+    // but keeps the sliding animation smooth when opening/closing.
+    useEffect(() => {
+        let timeout: ReturnType<typeof setTimeout>;
+        if (isOpen) {
+            timeout = setTimeout(() => {
+                setIsOverflowVisible(true);
+            }, 300); // Matches duration-300 class
+        } else {
+            setIsOverflowVisible(false);
+        }
+        return () => clearTimeout(timeout);
+    }, [isOpen]);
 
     return (
         <div className="bg-white/50 dark:bg-slate-800/50 border border-slate-300 dark:border-slate-700 rounded-lg">
@@ -335,7 +351,9 @@ export const CollapsibleSection: React.FC<CollapsibleSectionProps> = ({ title, c
                     <ChevronDownIcon />
                 </span>
             </button>
-            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isOpen ? 'max-h-[9999px] opacity-100' : 'max-h-0 opacity-0'}`}>
+            <div 
+                className={`transition-all duration-300 ease-in-out ${isOpen ? 'max-h-[9999px] opacity-100' : 'max-h-0 opacity-0'} ${isOverflowVisible ? 'overflow-visible' : 'overflow-hidden'}`}
+            >
                 <div className="p-6 text-left">
                     {children}
                 </div>
