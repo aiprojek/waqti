@@ -187,6 +187,10 @@ export const en = {
                 enable: 'Enable Dim Screen during Prayer',
                 help: 'The screen will turn black during the "Prayer in Progress" period to simulate being off.'
             },
+            ecoMode: {
+                enable: 'Enable Eco Mode (Extreme Performance)',
+                help: 'Disables complex animations, blur effects, and shadows. Highly recommended for low-end Android boxes or Raspberry Pi.'
+            },
             sleepMode: {
                 title: 'Power Saving (Auto Sleep/Wake)',
                 enable: 'Enable Sleep Mode',
@@ -293,7 +297,7 @@ export const en = {
             },
             finance: {
                 reportTitle: 'Report Title',
-                initialBalance: 'Initial Balance',
+                initialBalance: 'Saldo Awal',
                 income: 'Income',
                 expense: 'Expense',
                 finalBalance: 'Final Balance',
@@ -315,11 +319,11 @@ export const en = {
             },
             empty: 'No slides yet. Please add one.',
             type: {
-                text: 'Text Slide',
-                image: 'Image Slide',
-                schedule: 'Schedule Slide',
-                finance: 'Finance Slide',
-                'friday-officer': 'Officers Slide'
+                text: 'Slide Teks',
+                image: 'Slide Gambar',
+                schedule: 'Slide Jadwal',
+                finance: 'Slide Keuangan',
+                'friday-officer': 'Slide Petugas'
             }
         },
         remote: {
@@ -362,7 +366,7 @@ export const en = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " with simplified usage—no account or backoffice needed. The name Waqti (وقتي) means 'My Time', emphasizing a personal connection to prayer times.",
             featuresTitle: 'Key Features',
-            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Flash Message:Send urgent announcements from Remote that appear as a large popup on the screen.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theme Presets:One-click style application (e.g., Masjidil Haram, Modern Minimalist).|Theming:Customize accent colors and wallpapers.|Analog Clock View:Classic clock style option with elegant hands.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Power Saving:Auto Sleep/Wake feature to turn off the screen rendering at night.|Jum'ah Officers:Dedicated slide to display Imam, Khatib, and Muadzin.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
+            features: "Automatic Prayer Times:Calculates prayer times based on city and selected method.|Remote Control:Control the display (change slides, stop alarms) remotely via smartphone with a built-in QR scanner.|Flash Message:Send urgent announcements from Remote that appear as a large popup on the screen.|Customizable Calculations:Adjust methods, madhab, and time corrections.|Iqamah Countdown:Displays a countdown from adhan to iqamah.|Jum'ah Mode:Special display mode for Friday prayers.|Display Layouts:Choose from Focus, Dashboard, or Minimalist views.|Dynamic Slideshow:Display text, images, schedules, and financial reports.|Theme Presets:One-click style application (e.g., Masjidil Haram, Modern Minimalist).|Theming:Customize accent colors and wallpapers.|Analog Clock View:Classic clock style option with elegant hands.|Running Text:Show custom messages or themed content.|Dhikr Display:Shows a sequence of dhikr after prayers.|Dim Screen:An optional feature to make the screen go black during prayer.|Eco Mode:A lightweight performance mode for old devices (disables animations & blur).|Power Saving:Auto Sleep/Wake feature to turn off the screen rendering at night.|Jum'ah Officers:Dedicated slide to display Imam, Khatib, and Muadzin.|Total Offline Support:Works without internet, complete with asset downloading for images/sounds.|High Performance:Optimized image storage and rendering.|Backup & Restore:Easily export and import settings.",
             supportTitle: 'Developer',
             coffee: 'Buy Me a Coffee',
             discussion: 'Join Discussion',
@@ -430,6 +434,7 @@ export const en = {
 <li><strong>Display Layout Template:</strong> Select the main screen appearance. 'Focus Clock' is large and clear, 'Information Dashboard' shows various info, and 'Minimalist' is simple.</li>
 <li><strong>Clock Style:</strong> Choose between 'Digital' (numbers) or 'Analog' (hands) for the main clock display. The analog clock features classic ornaments and smooth ticking.</li>
 <li><strong>Power Saving (Sleep Mode):</strong> Automatically turns the screen black during specified hours (e.g., 10 PM to 3 AM) to save electricity and prevent burn-in.</li>
+<li><strong>Eco Mode:</strong> A performance mode for low-end devices that disables all heavy animations (like blur, aurora background) to prevent lag.</li>
 <li><strong>Enable Dim Screen:</strong> If enabled, the screen will go black during the prayer time (after the initial 'Establish the Prayer' message) to reduce distractions.</li>
 <li><strong>Accent Color:</strong> The primary color used for highlights, buttons, and the next prayer time marker.</li>
 <li><strong>Wallpaper:</strong> Set the background for the main screen. You can use an image via URL, upload your own image, or choose 'Solid Color' to select a simple matte color.</li>

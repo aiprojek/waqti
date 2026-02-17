@@ -187,6 +187,10 @@ export const id = {
                 enable: 'Aktifkan Layar Redup saat Shalat',
                 help: 'Layar akan menjadi hitam selama periode "Shalat Didirikan" untuk mensimulasikan layar mati.'
             },
+            ecoMode: {
+                enable: 'Aktifkan Eco Mode (Performa Maksimal)',
+                help: 'Mematikan animasi berat, efek blur, dan bayangan. Sangat disarankan untuk Android box murah atau Raspberry Pi.'
+            },
             sleepMode: {
                 title: 'Hemat Daya (Auto Sleep/Wake)',
                 enable: 'Aktifkan Mode Tidur',
@@ -360,9 +364,9 @@ export const id = {
             appName: "Waqti",
             description_part1: "Aplikasi waktu shalat modern dan personal untuk menemani waktu Anda dengan Sang Pencipta. Dilengkapi kustomisasi, tema, dan konten dinamis untuk penggunaan pribadi dan tampilan jam digital masjid. Terinspirasi dari ",
             mawaqit_link_text: "Mawaqit",
-            description_part2: " dengan penggunaan yang lebih sederhana—tanpa akun atau backoffice. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan personal dengan waktu shalat.",
+            description_part2: " dengan penggunaan yang lebih sederhana—no akun atau backoffice. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan personal dengan waktu shalat.",
             featuresTitle: 'Fitur Utama',
-            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Pesan Kilat:Kirim pengumuman mendadak dari Remote yang muncul sebagai popup besar di layar.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Tampilan Jam Analog:Opsi gaya jam klasik dengan jarum yang elegan.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
+            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Pesan Kilat:Kirim pengumuman mendadak dari Remote yang muncul sebagai popup besar di layar.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Tampilan Jam Analog:Opsi gaya jam klasik dengan jarum yang elegan.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Eco Mode:Mode performa ringan untuk perangkat lama (mematikan animasi & blur).|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
             supportTitle: 'Pengembang',
             coffee: 'Traktir Kopi',
             discussion: 'Gabung Diskusi',
@@ -378,8 +382,8 @@ export const id = {
             },
             sdcard: {
                 title: 'WaqtiDrive (USB Bootable)',
-                description: 'Bootable Flashdrive containing a lightweight Custom Linux OS + Waqti. Budget-friendly solution to repurpose old x86 Mini PCs or Laptops into a digital mosque clock.',
-                price: 'Starts from $7'
+                description: 'Flashdrive Bootable berisi OS Linux Kustom ringan + Waqti. Solusi hemat biaya untuk mengubah Mini PC x86 lama atau Laptop menjadi jam digital masjid.',
+                price: 'Mulai Rp 100.000'
             },
             setup: {
                 title: 'Jasa Setup & Instalasi',
@@ -430,6 +434,7 @@ export const id = {
 <li><strong>Template Layout:</strong> Pilih tampilan layar utama. 'Fokus Jam' besar dan jelas, 'Dasbor Informasi' menampilkan beragam info, dan 'Minimalis' lebih sederhana.</li>
 <li><strong>Gaya Jam:</strong> Pilih antara 'Digital' (angka) atau 'Analog' (jarum) untuk tampilan jam utama. Jam analog dilengkapi ornamen klasik dan detik yang halus.</li>
 <li><strong>Hemat Daya (Sleep Mode):</strong> Secara otomatis membuat layar menjadi hitam pekat pada jam-jam tertentu (misal: 22.00 - 03.00) untuk menghemat listrik dan mencegah kerusakan layar.</li>
+<li><strong>Eco Mode (Mode Hemat Daya):</strong> Mode khusus untuk perangkat dengan spesifikasi rendah. Mengaktifkan ini akan mematikan efek visual berat seperti blur (kaca buram), bayangan, dan animasi latar belakang agar aplikasi berjalan lancar tanpa lag.</li>
 <li><strong>Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat berlangsung (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
 <li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Bisa menggunakan gambar dari URL, unggah gambar sendiri, atau pilih 'Warna Polos' untuk warna matte sederhana.</li>

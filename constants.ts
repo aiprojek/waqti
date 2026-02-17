@@ -192,6 +192,9 @@ export const getDefaultSettings = (lang: Language): Settings => {
         minimalistSwapInterval: 15, // seconds (changed from 3 minutes)
         enableBackgroundAnimation: true,
         enableDimScreen: false,
+        
+        enableEcoMode: false, // Default: Off
+
         hijriDateOffset: 0,
         enableSleepMode: false,
         sleepStartTime: '22:00',

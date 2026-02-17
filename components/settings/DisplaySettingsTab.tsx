@@ -283,7 +283,20 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                         />
                     </div>
                     
-                    {/* NEW: Sleep Mode Settings */}
+                    {/* Eco Mode Settings */}
+                    <div className="md:col-span-2 p-4 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-300 dark:border-emerald-700">
+                        <Checkbox
+                            label={t('settings.display.ecoMode.enable')}
+                            name="enableEcoMode"
+                            checked={localSettings.enableEcoMode}
+                            onChange={handleInputChange}
+                        />
+                        <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 pl-7">
+                            {t('settings.display.ecoMode.help')}
+                        </p>
+                    </div>
+
+                    {/* Sleep Mode Settings */}
                     <div className="md:col-span-2 p-4 bg-slate-200/50 dark:bg-slate-700/50 rounded-lg border border-slate-300 dark:border-slate-600 space-y-4">
                         <div className="flex flex-col">
                             <Checkbox

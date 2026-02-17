@@ -71,6 +71,7 @@ Nama Waqti (وقتي) berarti "Waktuku", menekankan hubungan yang personal denga
 - **Tampilan Dzikir Kustom:** Rangkaian dzikir setelah shalat yang dapat diaktifkan, diurutkan, ditambah, atau dikurangi sesuai keinginan.
 - **Dukungan Offline (PWA):** Aplikasi dapat diinstal di desktop atau perangkat mobile dan akan tetap berfungsi sepenuhnya (termasuk jadwal shalat dan slide) bahkan tanpa koneksi internet.
 - **Mode Orientasi Responsif:** Desain antarmuka yang beradaptasi secara otomatis untuk tampilan _landscape_ (layar lebar) maupun _portrait_ (layar tinggi).
+- **Mode Eco (Hemat Daya):** Opsi untuk mematikan animasi berat dan efek blur, sangat berguna untuk perangkat dengan spesifikasi rendah (seperti STB Android lama) agar berjalan lancar.
 - **Manajemen Data Mudah:** Ekspor semua pengaturan Anda ke dalam sebuah file untuk dicadangkan, dan impor kembali dengan satu klik untuk memulihkan atau memindahkan konfigurasi ke perangkat lain.
 
 ## Tumpukan Teknologi

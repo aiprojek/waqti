@@ -227,6 +227,45 @@
           margin-top: 0.75rem;
           list-style-type: circle;
       }
+
+      /* --- ECO MODE OVERRIDES --- */
+      body.eco-mode * {
+          backdrop-filter: none !important;
+          -webkit-backdrop-filter: none !important;
+          box-shadow: none !important;
+          text-shadow: none !important;
+          will-change: auto !important;
+      }
+      
+      body.eco-mode .animate-aurora,
+      body.eco-mode .animate-subtle-pan-zoom,
+      body.eco-mode .animate-pulse-glow,
+      body.eco-mode .animate-fade-in {
+          animation: none !important;
+          transform: none !important;
+      }
+
+      /* Replace semi-transparent glass backgrounds with solid colors for readability */
+      body.eco-mode .bg-black\/20,
+      body.eco-mode .bg-black\/30,
+      body.eco-mode .bg-white\/10,
+      body.eco-mode .bg-white\/20,
+      body.eco-mode .backdrop-blur-md,
+      body.eco-mode .backdrop-blur-sm {
+          background-color: #1e293b !important; /* dark:bg-slate-800 */
+          opacity: 1 !important;
+          border: 1px solid #334155 !important; /* slate-700 */
+      }
+
+      body.eco-mode .text-shadow-lg {
+          text-shadow: none !important;
+      }
+      
+      /* Make sure focused/active elements are still visible without glow */
+      body.eco-mode .animate-pulse-glow {
+          border-color: var(--accent-color) !important;
+          border-width: 2px !important;
+      }
     </style>
   <script type="importmap">
 {

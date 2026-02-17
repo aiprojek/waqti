@@ -125,6 +125,10 @@ export interface Settings {
     minimalistSwapInterval: number; // NEW: Interval in minutes
     enableBackgroundAnimation: boolean;
     enableDimScreen: boolean;
+    
+    // NEW: Eco Mode (Extreme Power Saving)
+    enableEcoMode: boolean;
+
     // NEW: Hijri Date Adjustment
     hijriDateOffset: number;
     // NEW: Sleep Mode (Power Saving)

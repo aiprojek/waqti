@@ -396,6 +396,13 @@ const GlobalThemeApplicator: React.FC = () => {
             root.classList.remove('dark');
         }
 
+        // Apply Eco Mode Class
+        if (settings.enableEcoMode) {
+            document.body.classList.add('eco-mode');
+        } else {
+            document.body.classList.remove('eco-mode');
+        }
+
         if (settings.accentColor) {
             root.style.setProperty('--accent-color', settings.accentColor);
             root.style.setProperty('--accent-glow-color', hexToRgba(settings.accentColor, 0.5));
@@ -410,7 +417,7 @@ const GlobalThemeApplicator: React.FC = () => {
             document.body.style.fontFamily = 'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif';
         }
 
-    }, [settings.theme, settings.accentColor, settings.fontStyle]);
+    }, [settings.theme, settings.accentColor, settings.fontStyle, settings.enableEcoMode]);
 
     return null; 
 };
@@ -517,7 +524,7 @@ const DynamicBackgroundView: React.FC<{
                 style={backgroundStyle} 
                 className={`
                     absolute inset-0 transition-all duration-1000
-                    ${settings.enableBackgroundAnimation && !finalWallpaper?.startsWith('#')
+                    ${settings.enableBackgroundAnimation && !finalWallpaper?.startsWith('#') && !settings.enableEcoMode
                         ? 'animate-subtle-pan-zoom' 
                         : 'transform scale-110'
                     }
@@ -528,7 +535,7 @@ const DynamicBackgroundView: React.FC<{
                 absolute inset-0 transition-opacity duration-500
                 bg-black/20
                 dark:bg-gradient-to-br dark:from-slate-900/70 dark:via-slate-800/50 dark:to-slate-900/70
-                ${settings.theme === 'dark' && settings.enableBackgroundAnimation ? 'animate-aurora' : ''}
+                ${settings.theme === 'dark' && settings.enableBackgroundAnimation && !settings.enableEcoMode ? 'animate-aurora' : ''}
             `}></div>
             
             <div className="relative z-10 h-full w-full">
