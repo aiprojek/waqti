@@ -29,31 +29,50 @@ const usePrayerTimes = () => {
         return () => clearInterval(timer);
     }, [dateTicker]);
 
-    // Helper: Load script manual jika HTML script tag gagal
+    // Helper: Load script manual dengan timeout agar tidak menggantung (stuck stale)
     const loadAdhanScript = async (): Promise<any> => {
         if ((window as any).adhan) return (window as any).adhan;
 
         const load = (src: string) => new Promise<void>((resolve, reject) => {
-            // Cek jika script sudah ada di DOM tapi mungkin belum selesai load
-            const existing = document.querySelector(`script[src="${src}"]`);
-            if (existing) {
-                existing.addEventListener('load', () => resolve());
-                existing.addEventListener('error', () => reject(new Error("Script load failed")));
+            // Cek jika script sudah ada di DOM
+            if (document.querySelector(`script[src="${src}"]`)) {
+                // Jika sudah ada tapi window.adhan belum ready, tunggu sebentar
+                let checks = 0;
+                const checkInterval = setInterval(() => {
+                    if ((window as any).adhan) {
+                        clearInterval(checkInterval);
+                        resolve();
+                    }
+                    checks++;
+                    if (checks > 20) { // 2 detik timeout
+                        clearInterval(checkInterval);
+                        reject(new Error("Script found but Adhan not loaded"));
+                    }
+                }, 100);
                 return;
             }
 
             const script = document.createElement('script');
             script.src = src;
             script.async = true;
-            script.onload = () => resolve();
-            script.onerror = () => reject(new Error(`Failed to load ${src}`));
+            
+            // Timeout safety: Jika script load macet (misal offline dan cache miss), reject promise
+            const timeoutId = setTimeout(() => {
+                script.onerror = null;
+                script.onload = null;
+                reject(new Error(`Timeout loading ${src}`));
+            }, 3000);
+
+            script.onload = () => { clearTimeout(timeoutId); resolve(); };
+            script.onerror = () => { clearTimeout(timeoutId); reject(new Error(`Failed to load ${src}`)); };
+            
             document.body.appendChild(script);
         });
 
         try {
             await load(ADHAN_URL);
         } catch (e) {
-            console.warn("Primary CDN failed, trying backup...");
+            console.warn("Primary CDN failed or timed out, trying backup...");
             await load(ADHAN_URL_BACKUP);
         }
 
@@ -64,18 +83,24 @@ const usePrayerTimes = () => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+
         const fetchPrayerTimes = async () => {
             if (settings.useManualTimes) {
-                setPrayerTimes(settings.manualPrayerTimes);
-                setLoading(false);
-                setError(null);
-                setStale(false);
+                if (isMounted) {
+                    setPrayerTimes(settings.manualPrayerTimes);
+                    setLoading(false);
+                    setError(null);
+                    setStale(false);
+                }
                 return;
             }
 
-            if (prayerTimes) setStale(true);
-            else setLoading(true);
-            setError(null);
+            if (isMounted) {
+                if (prayerTimes) setStale(true);
+                else setLoading(true);
+                setError(null);
+            }
 
             const now = new Date();
             const year = now.getFullYear();
@@ -85,11 +110,11 @@ const usePrayerTimes = () => {
             // --- OFFLINE CALCULATION MODE (via Adhan.js) ---
             if (settings.calculationSource === 'calculated') {
                 try {
-                    // Dapatkan library dengan mekanisme retry
+                    // Dapatkan library dengan mekanisme retry & timeout
                     const adhanLib = await loadAdhanScript();
 
                     if (!settings.latitude || !settings.longitude) {
-                        throw new Error("Coordinates missing. Please update settings.");
+                        throw new Error(t('settings.calculation.source.detectError'));
                     }
 
                     const coordinates = new adhanLib.Coordinates(settings.latitude, settings.longitude);
@@ -152,16 +177,21 @@ const usePrayerTimes = () => {
                         Isha: formatTime(prayerTimesObj.isha),
                     };
 
-                    setPrayerTimes(formattedTimes);
-                    setLoading(false);
-                    setStale(false);
+                    if (isMounted) {
+                        setPrayerTimes(formattedTimes);
+                    }
 
                 } catch (err) {
                     console.error(err);
-                    setError((err instanceof Error ? err.message : String(err)));
-                    setPrayerTimes(null);
-                    setLoading(false);
-                    setStale(false);
+                    if (isMounted) {
+                        setError((err instanceof Error ? err.message : String(err)));
+                        // Keep old prayer times if available to avoid total blank
+                    }
+                } finally {
+                    if (isMounted) {
+                        setLoading(false);
+                        setStale(false); // CRITICAL: Ensure transparency is removed
+                    }
                 }
                 return;
             }
@@ -215,7 +245,8 @@ const usePrayerTimes = () => {
                     if (todayData.meta && todayData.meta.latitude && todayData.meta.longitude) {
                         const newLat = parseFloat(todayData.meta.latitude);
                         const newLng = parseFloat(todayData.meta.longitude);
-                        if (settings.latitude !== newLat || settings.longitude !== newLng) {
+                        // Only auto-update if coords are 0 (not set yet) to avoid overriding user custom coords
+                        if ((settings.latitude === 0 || settings.longitude === 0) && (settings.latitude !== newLat || settings.longitude !== newLng)) {
                             setTimeout(() => {
                                 saveSettings({
                                     ...settings,
@@ -235,11 +266,12 @@ const usePrayerTimes = () => {
                         Maghrib: timings.Maghrib.split(' ')[0],
                         Isha: timings.Isha.split(' ')[0],
                     };
-                    setPrayerTimes(formattedTimes);
+                    if (isMounted) setPrayerTimes(formattedTimes);
                 } else {
                      throw new Error(t('main.error') + ` (${day}/${month}/${year})`);
                 }
             } catch (err) {
+                // Fallback to cache
                 const anyCache = await db.prayerTimesCache.toCollection().first();
                 if (anyCache) {
                     try {
@@ -255,36 +287,37 @@ const usePrayerTimes = () => {
                                 Maghrib: timings.Maghrib.split(' ')[0],
                                 Isha: timings.Isha.split(' ')[0],
                             };
-                            setPrayerTimes(formattedTimes);
-                            setError(t('main.error'));
+                            if (isMounted) {
+                                setPrayerTimes(formattedTimes);
+                                setError(t('main.error')); // Show error but display cached data
+                            }
                         } else {
                              throw err;
                         }
                     } catch (finalError) {
-                         if (err instanceof Error) {
-                            setError(err.message);
-                        } else {
-                            setError(t('main.error'));
+                         if (isMounted) {
+                            setError(err instanceof Error ? err.message : t('main.error'));
+                            // setPrayerTimes(null); // Keep stale data if possible
                         }
-                        setPrayerTimes(null);
                     }
                 } else {
-                    if (err instanceof Error) {
-                        setError(err.message);
-                    } else {
-                        setError(t('main.error'));
+                    if (isMounted) {
+                        setError(err instanceof Error ? err.message : t('main.error'));
                     }
-                    setPrayerTimes(null);
                 }
             } finally {
-                setLoading(false);
-                setStale(false);
+                if (isMounted) {
+                    setLoading(false);
+                    setStale(false);
+                }
             }
         };
 
         if (settings) {
             fetchPrayerTimes();
         }
+
+        return () => { isMounted = false; };
     }, [
         settings,
         dateTicker,
