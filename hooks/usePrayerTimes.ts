@@ -6,9 +6,15 @@ import { PRAYER_NAMES } from '../constants';
 import { t } from '../i18n';
 import { db } from '../lib/db';
 
-// URL Library Adhan (Sama persis dengan yang di service-worker.js)
-const ADHAN_URL = 'https://cdn.jsdelivr.net/npm/adhan@4.4.4/Bundles/adhan.min.js';
-const ADHAN_URL_BACKUP = 'https://unpkg.com/adhan@4.4.4/Bundles/adhan.min.js';
+// Import local implementation directly
+import { 
+    Coordinates, 
+    CalculationMethod, 
+    PrayerTimes as AdhanPrayerTimes, 
+    Madhab, 
+    HighLatitudeRule, 
+    CalculationParameters 
+} from '../lib/adhan';
 
 const usePrayerTimes = () => {
     const { settings, saveSettings } = useSettings();
@@ -28,59 +34,6 @@ const usePrayerTimes = () => {
         }, 60000);
         return () => clearInterval(timer);
     }, [dateTicker]);
-
-    // Helper: Load script manual dengan timeout agar tidak menggantung (stuck stale)
-    const loadAdhanScript = async (): Promise<any> => {
-        if ((window as any).adhan) return (window as any).adhan;
-
-        const load = (src: string) => new Promise<void>((resolve, reject) => {
-            // Cek jika script sudah ada di DOM
-            if (document.querySelector(`script[src="${src}"]`)) {
-                // Jika sudah ada tapi window.adhan belum ready, tunggu sebentar
-                let checks = 0;
-                const checkInterval = setInterval(() => {
-                    if ((window as any).adhan) {
-                        clearInterval(checkInterval);
-                        resolve();
-                    }
-                    checks++;
-                    if (checks > 20) { // 2 detik timeout
-                        clearInterval(checkInterval);
-                        reject(new Error("Script found but Adhan not loaded"));
-                    }
-                }, 100);
-                return;
-            }
-
-            const script = document.createElement('script');
-            script.src = src;
-            script.async = true;
-            
-            // Timeout safety: Jika script load macet (misal offline dan cache miss), reject promise
-            const timeoutId = setTimeout(() => {
-                script.onerror = null;
-                script.onload = null;
-                reject(new Error(`Timeout loading ${src}`));
-            }, 3000);
-
-            script.onload = () => { clearTimeout(timeoutId); resolve(); };
-            script.onerror = () => { clearTimeout(timeoutId); reject(new Error(`Failed to load ${src}`)); };
-            
-            document.body.appendChild(script);
-        });
-
-        try {
-            await load(ADHAN_URL);
-        } catch (e) {
-            console.warn("Primary CDN failed or timed out, trying backup...");
-            await load(ADHAN_URL_BACKUP);
-        }
-
-        if (!(window as any).adhan) {
-            throw new Error("Adhan.js could not be loaded. Please check connection.");
-        }
-        return (window as any).adhan;
-    };
 
     useEffect(() => {
         let isMounted = true;
@@ -107,60 +60,58 @@ const usePrayerTimes = () => {
             const month = now.getMonth() + 1;
             const day = now.getDate();
 
-            // --- OFFLINE CALCULATION MODE (via Adhan.js) ---
+            // --- OFFLINE CALCULATION MODE (Using local library) ---
             if (settings.calculationSource === 'calculated') {
                 try {
-                    // Dapatkan library dengan mekanisme retry & timeout
-                    const adhanLib = await loadAdhanScript();
-
                     if (!settings.latitude || !settings.longitude) {
                         throw new Error(t('settings.calculation.source.detectError'));
                     }
 
-                    const coordinates = new adhanLib.Coordinates(settings.latitude, settings.longitude);
+                    const coordinates = new Coordinates(settings.latitude, settings.longitude);
                     const date = new Date(); 
                     
-                    let params;
+                    let params: CalculationParameters;
                     switch (settings.calculationMethod) {
-                        case 0: params = adhanLib.CalculationMethod.Tehran(); break;
-                        case 1: params = adhanLib.CalculationMethod.Karachi(); break;
-                        case 2: params = adhanLib.CalculationMethod.NorthAmerica(); break;
-                        case 3: params = adhanLib.CalculationMethod.MuslimWorldLeague(); break;
-                        case 4: params = adhanLib.CalculationMethod.UmmAlQura(); break;
-                        case 5: params = adhanLib.CalculationMethod.Egyptian(); break;
-                        case 7: params = adhanLib.CalculationMethod.Tehran(); break;
-                        case 8: params = adhanLib.CalculationMethod.Gulf(); break;
-                        case 9: params = adhanLib.CalculationMethod.Kuwait(); break;
-                        case 10: params = adhanLib.CalculationMethod.Qatar(); break;
-                        case 11: params = adhanLib.CalculationMethod.Singapore(); break;
-                        case 12: params = adhanLib.CalculationMethod.Other(); break;
-                        case 13: params = adhanLib.CalculationMethod.Turkey(); break;
-                        case 14: params = adhanLib.CalculationMethod.Other(); break;
-                        case 15: params = adhanLib.CalculationMethod.MoonsightingCommittee(); break;
-                        case 16: params = adhanLib.CalculationMethod.Dubai(); break;
-                        case 17: params = new adhanLib.CalculationParameters(20, 18); break;
-                        case 99: params = new adhanLib.CalculationParameters(settings.fajrAngle || 18, settings.ishaAngle || 18); break;
-                        default: params = adhanLib.CalculationMethod.MuslimWorldLeague();
+                        case 0: params = CalculationMethod.Tehran(); break;
+                        case 1: params = CalculationMethod.Karachi(); break;
+                        case 2: params = CalculationMethod.NorthAmerica(); break;
+                        case 3: params = CalculationMethod.MuslimWorldLeague(); break;
+                        case 4: params = CalculationMethod.UmmAlQura(); break;
+                        case 5: params = CalculationMethod.Egyptian(); break;
+                        case 7: params = CalculationMethod.Tehran(); break;
+                        case 8: params = CalculationMethod.Gulf(); break;
+                        case 9: params = CalculationMethod.Kuwait(); break;
+                        case 10: params = CalculationMethod.Qatar(); break;
+                        case 11: params = CalculationMethod.Singapore(); break;
+                        case 12: params = CalculationMethod.Other(); break;
+                        case 13: params = CalculationMethod.Turkey(); break;
+                        case 14: params = CalculationMethod.Other(); break;
+                        case 15: params = CalculationMethod.MoonsightingCommittee(); break;
+                        case 16: params = CalculationMethod.Dubai(); break;
+                        case 17: params = new CalculationParameters(20, 18, "Indonesia"); break;
+                        case 99: params = new CalculationParameters(settings.fajrAngle || 18, settings.ishaAngle || 18, "Custom"); break;
+                        default: params = CalculationMethod.MuslimWorldLeague();
                     }
 
-                    if (settings.madhab === 1) params.madhab = adhanLib.Madhab.Hanafi;
-                    else params.madhab = adhanLib.Madhab.Shafi;
+                    // Map settings ID to local Enum
+                    if (settings.madhab === 1) params.madhab = Madhab.Hanafi;
+                    else params.madhab = Madhab.Shafi;
 
                     switch (settings.highLatitudeRule) {
-                        case 'MiddleOfTheNight': params.highLatitudeRule = adhanLib.HighLatitudeRule.MiddleOfTheNight; break;
-                        case 'OneSeventh': params.highLatitudeRule = adhanLib.HighLatitudeRule.SeventhOfTheNight; break;
-                        case 'AngleBased': params.highLatitudeRule = adhanLib.HighLatitudeRule.TwilightAngle; break;
-                        default: params.highLatitudeRule = adhanLib.HighLatitudeRule.MiddleOfTheNight;
+                        case 'MiddleOfTheNight': params.highLatitudeRule = HighLatitudeRule.MiddleOfTheNight; break;
+                        case 'OneSeventh': params.highLatitudeRule = HighLatitudeRule.SeventhOfTheNight; break;
+                        case 'AngleBased': params.highLatitudeRule = HighLatitudeRule.TwilightAngle; break;
+                        default: params.highLatitudeRule = HighLatitudeRule.MiddleOfTheNight;
                     }
                     
-                    params.adjustments.fajr = settings.adjustments.Fajr;
-                    params.adjustments.sunrise = settings.adjustments.Sunrise;
-                    params.adjustments.dhuhr = settings.adjustments.Dhuhr;
-                    params.adjustments.asr = settings.adjustments.Asr;
-                    params.adjustments.maghrib = settings.adjustments.Maghrib;
-                    params.adjustments.isha = settings.adjustments.Isha;
+                    params.adjustments.Fajr = settings.adjustments.Fajr;
+                    params.adjustments.Sunrise = settings.adjustments.Sunrise;
+                    params.adjustments.Dhuhr = settings.adjustments.Dhuhr;
+                    params.adjustments.Asr = settings.adjustments.Asr;
+                    params.adjustments.Maghrib = settings.adjustments.Maghrib;
+                    params.adjustments.Isha = settings.adjustments.Isha;
 
-                    const prayerTimesObj = new adhanLib.PrayerTimes(coordinates, date, params);
+                    const prayerTimesObj = new AdhanPrayerTimes(coordinates, date, params);
 
                     const formatTime = (d: Date) => {
                          const h = d.getHours().toString().padStart(2, '0');
@@ -185,12 +136,11 @@ const usePrayerTimes = () => {
                     console.error(err);
                     if (isMounted) {
                         setError((err instanceof Error ? err.message : String(err)));
-                        // Keep old prayer times if available to avoid total blank
                     }
                 } finally {
                     if (isMounted) {
                         setLoading(false);
-                        setStale(false); // CRITICAL: Ensure transparency is removed
+                        setStale(false);
                     }
                 }
                 return;
@@ -297,7 +247,6 @@ const usePrayerTimes = () => {
                     } catch (finalError) {
                          if (isMounted) {
                             setError(err instanceof Error ? err.message : t('main.error'));
-                            // setPrayerTimes(null); // Keep stale data if possible
                         }
                     }
                 } else {

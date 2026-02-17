@@ -9,8 +9,6 @@ const URLS_TO_CACHE = [
     'https://cdn.tailwindcss.com',
     'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap',
     'https://unpkg.com/dexie@latest/dist/dexie.js',
-    'https://cdn.jsdelivr.net/npm/adhan@4.4.4/Bundles/adhan.min.js',
-    'https://unpkg.com/adhan@4.4.4/Bundles/adhan.min.js', // Added backup URL to cache
     'https://cdn.quilljs.com/1.3.6/quill.snow.css',
     'https://cdn.quilljs.com/1.3.6/quill.js',
     'https://unpkg.com/prop-types@15.8.1/prop-types.min.js',
