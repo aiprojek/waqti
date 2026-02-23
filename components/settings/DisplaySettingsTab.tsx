@@ -30,7 +30,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
         if (value?.startsWith('local-asset:') || value?.startsWith('data:image')) return 'upload';
         return 'url';
     });
-    const [status, setStatus] = useState<{message: string, type: 'success' | 'error' | 'info'}>({message: '', type: 'info'});
+    const [status, setStatus] = useState<{ message: string, type: 'success' | 'error' | 'info' }>({ message: '', type: 'info' });
     const fileInputRef = useRef<HTMLInputElement>(null);
     const resolvedUrl = useBlobUrl(value);
 
@@ -46,7 +46,7 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
         else if (value?.startsWith('local-asset:') || value?.startsWith('data:image')) setType('upload');
         else setType('url');
     }, [value]);
-    
+
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0];
         if (!file) return;
@@ -54,28 +54,28 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
         // With IndexedDB Blob storage, we can allow slightly larger files if we want, 
         // but let's keep 2MB soft limit check for UX, or increase it.
         // Let's set a 5MB limit for now.
-        const MAX_FILE_SIZE = 5 * 1024 * 1024; 
+        const MAX_FILE_SIZE = 5 * 1024 * 1024;
         if (file.size > MAX_FILE_SIZE) {
-            setStatus({message: t('settings.display.wallpaper.maxSize'), type: 'error'});
+            setStatus({ message: t('settings.display.wallpaper.maxSize'), type: 'error' });
             return;
         }
         if (!file.type.startsWith('image/')) {
-            setStatus({message: t('settings.status.unsupportedFormat'), type: 'error'});
+            setStatus({ message: t('settings.status.unsupportedFormat'), type: 'error' });
             return;
         }
 
         try {
-            setStatus({message: t('settings.status.compressing'), type: 'info'});
+            setStatus({ message: t('settings.status.compressing'), type: 'info' });
             const id = await db.assets.add({
                 blob: file,
                 type: file.type,
                 created: Date.now()
             });
             onChange(`local-asset:${id}`);
-            setStatus({message: t('settings.status.uploadSuccess'), type: 'success'});
+            setStatus({ message: t('settings.status.uploadSuccess'), type: 'success' });
         } catch (error) {
             console.error(error);
-            setStatus({message: t('settings.status.uploadError'), type: 'error'});
+            setStatus({ message: t('settings.status.uploadError'), type: 'error' });
         }
     };
 
@@ -113,18 +113,18 @@ const WallpaperPicker: React.FC<WallpaperPickerProps> = ({ label, value, onChang
                         {MATTE_COLORS.map(color => (
                             <button key={color} type="button" onClick={() => onChange(color)} className={`w-8 h-8 rounded-full transition-transform transform hover:scale-110 ${value === color ? 'ring-2 ring-offset-2 ring-offset-slate-200 dark:ring-offset-slate-700 ring-[var(--accent-color)]' : ''}`} style={{ backgroundColor: color }} aria-label={`Select color ${color}`} />
                         ))}
-                         <div className="relative w-8 h-8">
-                            <input type="color" value={value?.startsWith('#') ? value : '#000000'} onChange={(e) => onChange(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Custom color picker"/>
-                            <div className="w-full h-full rounded-full border-2 border-dashed border-slate-400 dark:border-slate-500" style={{backgroundColor: (value && !MATTE_COLORS.includes(value)) ? value : 'transparent'}} aria-hidden="true" />
+                        <div className="relative w-8 h-8">
+                            <input type="color" value={value?.startsWith('#') ? value : '#000000'} onChange={(e) => onChange(e.target.value)} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" aria-label="Custom color picker" />
+                            <div className="w-full h-full rounded-full border-2 border-dashed border-slate-400 dark:border-slate-500" style={{ backgroundColor: (value && !MATTE_COLORS.includes(value)) ? value : 'transparent' }} aria-hidden="true" />
                         </div>
                     </div>
                 )}
-                
+
                 {value && (
                     <div className="flex items-center gap-4">
-                         <div className="relative group w-24 h-16 rounded-md overflow-hidden border border-slate-300 dark:border-slate-600 flex-shrink-0">
+                        <div className="relative group w-24 h-16 rounded-md overflow-hidden border border-slate-300 dark:border-slate-600 flex-shrink-0">
                             {value.startsWith('#') ? (
-                                <div className="w-full h-full" style={{backgroundColor: value}}></div>
+                                <div className="w-full h-full" style={{ backgroundColor: value }}></div>
                             ) : (
                                 <img src={resolvedUrl || value} alt={`${label} preview`} className="w-full h-full object-cover" />
                             )}
@@ -164,7 +164,7 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
 }) => {
     const localeData = getLocale();
     const THEME_OPTIONS = localeData.defaults.themeOptions;
-    
+
     const applyPreset = (presetId: string) => {
         const preset = THEME_PRESETS.find(p => p.id === presetId);
         if (preset) {
@@ -189,18 +189,18 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                         <div key={preset.id} className="border border-slate-300 dark:border-slate-600 rounded-lg overflow-hidden flex flex-col">
                             <div className="h-24 relative bg-slate-200 dark:bg-slate-700">
                                 {preset.wallpaper.startsWith('#') ? (
-                                    <div className="w-full h-full" style={{backgroundColor: preset.wallpaper}}></div>
+                                    <div className="w-full h-full" style={{ backgroundColor: preset.wallpaper }}></div>
                                 ) : (
                                     <img src={preset.wallpaper} alt={preset.name} className="w-full h-full object-cover" />
                                 )}
-                                <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2 border-white shadow-md" style={{backgroundColor: preset.accentColor}}></div>
+                                <div className="absolute bottom-2 right-2 w-6 h-6 rounded-full border-2 border-white shadow-md" style={{ backgroundColor: preset.accentColor }}></div>
                             </div>
                             <div className="p-3 bg-white dark:bg-slate-800 flex-grow flex flex-col justify-between">
                                 <div>
                                     <h4 className="font-bold text-slate-800 dark:text-white">{preset.name}</h4>
                                     <p className="text-xs text-slate-500 dark:text-slate-400 capitalize">{preset.fontStyle} Font</p>
                                 </div>
-                                <button 
+                                <button
                                     onClick={() => applyPreset(preset.id)}
                                     className="mt-3 w-full py-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded text-sm font-semibold transition-colors"
                                 >
@@ -226,7 +226,7 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                         <option value="sans">{t('settings.display.fontStyle.sans')}</option>
                         <option value="serif">{t('settings.display.fontStyle.serif')}</option>
                     </Select>
-                     <div className="md:col-span-2">
+                    <div className="md:col-span-2">
                         <Select label={t('settings.display.layout')} name="layoutTemplate" value={localSettings.layoutTemplate} onChange={handleInputChange}>
                             <option value="focus-jam">{t('settings.display.layoutFocus')}</option>
                             <option value="dashboard-info">{t('settings.display.layoutDashboard')}</option>
@@ -282,7 +282,7 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                             onChange={handleInputChange}
                         />
                     </div>
-                    
+
                     {/* Eco Mode Settings */}
                     <div className="md:col-span-2 p-4 bg-emerald-100/50 dark:bg-emerald-900/20 rounded-lg border border-emerald-300 dark:border-emerald-700">
                         <Checkbox
@@ -311,14 +311,14 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                         </div>
                         {localSettings.enableSleepMode && (
                             <div className="grid grid-cols-2 gap-4 pl-7">
-                                <Input 
+                                <Input
                                     label={t('settings.display.sleepMode.startTime')}
                                     name="sleepStartTime"
                                     type="time"
                                     value={localSettings.sleepStartTime}
                                     onChange={handleInputChange}
                                 />
-                                <Input 
+                                <Input
                                     label={t('settings.display.sleepMode.endTime')}
                                     name="sleepEndTime"
                                     type="time"
@@ -336,7 +336,7 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                                 <button
                                     key={color}
                                     type="button"
-                                    onClick={() => setLocalSettings(p => ({...p, accentColor: color}))}
+                                    onClick={() => setLocalSettings(p => ({ ...p, accentColor: color }))}
                                     className={`w-8 h-8 rounded-full transition-transform transform hover:scale-110 ${localSettings.accentColor === color ? 'ring-2 ring-offset-2 ring-offset-slate-200 dark:ring-offset-slate-700 ring-[var(--accent-color)]' : ''}`}
                                     style={{ backgroundColor: color }}
                                     aria-label={`Select color ${color}`}
@@ -344,17 +344,17 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                             ))}
                             <div className="w-px h-6 bg-slate-300 dark:bg-slate-600 mx-1"></div>
                             <div className="relative w-8 h-8">
-                                <input 
-                                    name="accentColor" 
-                                    type="color" 
-                                    value={localSettings.accentColor} 
-                                    onChange={handleInputChange} 
+                                <input
+                                    name="accentColor"
+                                    type="color"
+                                    value={localSettings.accentColor}
+                                    onChange={handleInputChange}
                                     className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                     aria-label="Custom color picker"
                                 />
-                                <div 
+                                <div
                                     className="w-full h-full rounded-full border-2 border-dashed border-slate-400 dark:border-slate-500 flex items-center justify-center text-slate-500 dark:text-slate-400"
-                                    style={{backgroundColor: VIBRANT_COLORS.includes(localSettings.accentColor) ? 'transparent' : localSettings.accentColor}}
+                                    style={{ backgroundColor: VIBRANT_COLORS.includes(localSettings.accentColor) ? 'transparent' : localSettings.accentColor }}
                                     aria-hidden="true"
                                 >
                                     {VIBRANT_COLORS.includes(localSettings.accentColor) && (
@@ -374,15 +374,15 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                 <WallpaperPicker
                     label={t('settings.display.wallpaper.title')}
                     value={localSettings.wallpaper}
-                    onChange={(val) => setLocalSettings(p => ({...p, wallpaper: val}))}
+                    onChange={(val) => setLocalSettings(p => ({ ...p, wallpaper: val }))}
                     onReset={() => {
-                        setLocalSettings(prev => ({...prev, wallpaper: getDefaultSettings(getLocale().general.credit === 'Made by AI Projek' ? 'en' : 'id').wallpaper}));
+                        setLocalSettings(prev => ({ ...prev, wallpaper: getDefaultSettings(getLocale().general.credit === 'Made by AI Projek' ? 'en' : 'id').wallpaper }));
                     }}
                 />
             </CollapsibleSection>
-            
+
             <CollapsibleSection title={t('settings.display.contextualWallpaper.title')}>
-                 <Checkbox
+                <Checkbox
                     label={t('settings.display.contextualWallpaper.enable')}
                     name="enableContextualWallpapers"
                     checked={localSettings.enableContextualWallpapers}
@@ -396,23 +396,62 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                                 label={`${t('settings.display.wallpaper.title')} ${t(`prayerNames.${prayerName}`)}`}
                                 value={localSettings.contextualWallpapers[prayerName]}
                                 onChange={newValue => {
-                                    const newWallpapers = {...localSettings.contextualWallpapers, [prayerName]: newValue};
-                                    setLocalSettings(prev => ({...prev, contextualWallpapers: newWallpapers}));
+                                    const newWallpapers = { ...localSettings.contextualWallpapers, [prayerName]: newValue };
+                                    setLocalSettings(prev => ({ ...prev, contextualWallpapers: newWallpapers }));
                                 }}
                                 onReset={() => {
                                     const defaultWallpapers = getDefaultSettings(getLocale().general.credit === 'Made by AI Projek' ? 'en' : 'id').contextualWallpapers;
-                                    const newWallpapers = {...localSettings.contextualWallpapers, [prayerName]: defaultWallpapers[prayerName]};
-                                    setLocalSettings(prev => ({...prev, contextualWallpapers: newWallpapers}));
+                                    const newWallpapers = { ...localSettings.contextualWallpapers, [prayerName]: defaultWallpapers[prayerName] };
+                                    setLocalSettings(prev => ({ ...prev, contextualWallpapers: newWallpapers }));
                                 }}
                             />
                         ))}
                     </div>
                 )}
             </CollapsibleSection>
-            
+
+            <CollapsibleSection title={t('settings.display.fridayStream.title')}>
+                <div className="space-y-4">
+                    <Select
+                        label={t('settings.display.fridayStream.enable')}
+                        name="fridayStreamMode"
+                        value={localSettings.fridayStreamMode}
+                        onChange={handleInputChange}
+                    >
+                        <option value="off">{t('settings.display.fridayStream.modeOff')}</option>
+                        <option value="makkah">{t('settings.display.fridayStream.modeMakkah')}</option>
+                        <option value="madinah">{t('settings.display.fridayStream.modeMadinah')}</option>
+                        <option value="custom">{t('settings.display.fridayStream.modeCustom')}</option>
+                    </Select>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {t('settings.display.fridayStream.help')}
+                    </p>
+
+                    {localSettings.fridayStreamMode !== 'off' && (
+                        <div className="pt-2 space-y-4">
+                            {localSettings.fridayStreamMode === 'custom' && (
+                                <Input
+                                    label={t('settings.display.fridayStream.url')}
+                                    name="customStreamUrl"
+                                    value={localSettings.customStreamUrl}
+                                    onChange={handleInputChange}
+                                    placeholder="https://www.youtube.com/embed/..."
+                                />
+                            )}
+                            <Checkbox
+                                label={t('settings.display.fridayStream.mute')}
+                                name="muteFridayStream"
+                                checked={localSettings.muteFridayStream}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+                    )}
+                </div>
+            </CollapsibleSection>
+
             <CollapsibleSection title={t('settings.display.runningText.title')} defaultOpen={true}>
                 <div className="space-y-4">
-                     <Checkbox
+                    <Checkbox
                         label={t('settings.display.runningText.enable')}
                         name="enableRunningText"
                         checked={localSettings.enableRunningText}
@@ -464,29 +503,29 @@ export const DisplaySettingsTab: React.FC<DisplaySettingsTabProps> = ({
                                 <div>
                                     <h5 className="font-semibold text-slate-700 dark:text-slate-200">{t('settings.display.runningText.quranThemes')}</h5>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                                    {THEME_OPTIONS.filter(t => t.category === 'quran').map(theme => (
-                                        <Checkbox key={theme.id} label={theme.name} value={theme.id} checked={(localSettings.runningTextThemes || []).includes(theme.id)} onChange={handleThemeCheckboxChange} />
-                                    ))}
+                                        {THEME_OPTIONS.filter(t => t.category === 'quran').map(theme => (
+                                            <Checkbox key={theme.id} label={theme.name} value={theme.id} checked={(localSettings.runningTextThemes || []).includes(theme.id)} onChange={handleThemeCheckboxChange} />
+                                        ))}
                                     </div>
                                 </div>
                                 <div>
                                     <h5 className="font-semibold text-slate-700 dark:text-slate-200">{t('settings.display.runningText.hadithThemes')}</h5>
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-2">
-                                    {THEME_OPTIONS.filter(t => t.category === 'hadith').map(theme => (
-                                        <Checkbox key={theme.id} label={theme.name} value={theme.id} checked={(localSettings.runningTextThemes || []).includes(theme.id)} onChange={handleThemeCheckboxChange} />
-                                    ))}
+                                        {THEME_OPTIONS.filter(t => t.category === 'hadith').map(theme => (
+                                            <Checkbox key={theme.id} label={theme.name} value={theme.id} checked={(localSettings.runningTextThemes || []).includes(theme.id)} onChange={handleThemeCheckboxChange} />
+                                        ))}
                                     </div>
                                 </div>
                             </div>
                         )}
 
                         <div className="pt-4">
-                            <Input 
+                            <Input
                                 label={t('settings.display.runningText.speed')}
-                                name="runningTextSpeed" 
-                                type="number" 
+                                name="runningTextSpeed"
+                                type="number"
                                 min="1"
-                                value={localSettings.runningTextSpeed} 
+                                value={localSettings.runningTextSpeed}
                                 onChange={handleInputChange}
                                 help={t('settings.display.runningText.speedHelp')}
                             />

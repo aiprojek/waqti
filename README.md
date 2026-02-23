@@ -50,6 +50,7 @@ Nama Waqti (وقتي) berarti "Waktuku", menekankan hubungan yang personal denga
 - **Kustomisasi Kalkulasi Mendalam:** Fleksibilitas penuh untuk menyesuaikan metode perhitungan, madhab (untuk waktu Asar), aturan lintang tinggi, hingga mengatur sudut Subuh & Isya secara manual.
 - **Koreksi Manual & Iqamah:** Atur koreksi waktu (maju/mundur) per shalat dalam hitungan menit, dan tentukan durasi jeda menuju iqamah untuk setiap waktu shalat.
 - **Mode Jum'at Cerdas:** Alur kerja khusus untuk hari Jum'at, termasuk kemampuan untuk mengikuti waktu Zuhur atau mengatur waktu manual, serta menampilkan pesan khutbah yang dapat disesuaikan.
+- **Streaming Live Baitullah (Jumat):** Opsi untuk menampilkan siaran langsung dari Makkah atau Madinah sebagai latar belakang otomatis khusus di hari Jumat (memerlukan internet). Terintegrasi dengan fitur otomatisasi waktu shalat.
 - **Tiga Layout Tampilan Utama:**
     - **Fokus Jam:** Tampilan jam digital besar yang jelas dan mudah dibaca dari jauh.
     - **Dasbor Informasi:** Tampilan multifungsi yang menampilkan jam, jadwal shalat, serta ringkasan jadwal kajian dan keuangan.

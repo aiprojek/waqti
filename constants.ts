@@ -192,15 +192,15 @@ export const getDefaultSettings = (lang: Language): Settings => {
         minimalistSwapInterval: 15, // seconds (changed from 3 minutes)
         enableBackgroundAnimation: true,
         enableDimScreen: false,
-        
+
         enableEcoMode: false, // Default: Off
 
         hijriDateOffset: 0,
         enableSleepMode: false,
         sleepStartTime: '22:00',
         sleepEndTime: '03:00',
-        customTexts: [{ 
-            id: 'default-1', 
+        customTexts: [{
+            id: 'default-1',
             content: `"${locale.footer.runningText.text}" <span class="opacity-80 italic text-xs">(${locale.footer.runningText.source})</span>`
         }],
         enableRunningText: false,
@@ -219,5 +219,10 @@ export const getDefaultSettings = (lang: Language): Settings => {
         khutbahMessageTagline: locale.defaults.khutbah.tagline,
         fridayPrayerDuration: 20,
         enableFridaySlides: true,
+        fridayStreamMode: 'off',
+        makkahStreamUrl: 'https://www.youtube.com/embed/Cm1v4bteXbI',
+        madinahStreamUrl: 'https://www.youtube.com/embed/9A1S0xAPVIs',
+        customStreamUrl: '',
+        muteFridayStream: true,
     };
 };

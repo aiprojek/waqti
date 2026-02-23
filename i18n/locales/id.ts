@@ -214,6 +214,17 @@ export const id = {
                 title: 'Wallpaper Kontekstual',
                 enable: 'Aktifkan wallpaper berbeda untuk setiap waktu shalat'
             },
+            fridayStream: {
+                title: 'Streaming Live Baitullah (Jumat)',
+                enable: 'Mode Streaming Hari Jumat',
+                modeOff: 'Matikan',
+                modeMakkah: 'Makkah Live',
+                modeMadinah: 'Madinah Live',
+                modeCustom: 'Kustom (YouTube URL)',
+                mute: 'Matikan Suara (Mute)',
+                url: 'URL Embed YouTube (Kustom)',
+                help: 'Jika aktif, background akan berubah menjadi streaming Makkah/Madinah khusus pada hari Jumat. Memerlukan internet.'
+            },
             runningText: {
                 title: 'Teks Berjalan',
                 enable: 'Aktifkan Teks Berjalan di Footer',
@@ -366,7 +377,7 @@ export const id = {
             mawaqit_link_text: "Mawaqit",
             description_part2: " dengan penggunaan yang lebih sederhana—no akun atau backoffice. Nama Waqti (وقتي) berarti 'Waktuku', menekankan hubungan personal dengan waktu shalat.",
             featuresTitle: 'Fitur Utama',
-            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Pesan Kilat:Kirim pengumuman mendadak dari Remote yang muncul sebagai popup besar di layar.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Tampilan Jam Analog:Opsi gaya jam klasik dengan jarum yang elegan.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Eco Mode:Mode performa ringan untuk perangkat lama (mematikan animasi & blur).|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
+            features: "Waktu Shalat Otomatis:Menghitung waktu berdasarkan kota dan metode pilihan.|Streaming Baitullah:Tampilkan siaran langsung Makkah atau Madinah sebagai latar belakang otomatis di hari Jumat.|Remote Control:Kendalikan tampilan (ganti slide, matikan alarm) dari jarak jauh via HP dengan pemindai QR bawaan.|Pesan Kilat:Kirim pengumuman mendadak dari Remote yang muncul sebagai popup besar di layar.|Kalkulasi Kustom:Sesuaikan metode, mazhab, dan koreksi waktu.|Hitung Mundur Iqamah:Menampilkan jeda waktu dari azan ke iqamah.|Mode Jum'at:Tampilan khusus untuk shalat Jum'at.|Tata Letak Tampilan:Pilih tampilan Fokus, Dasbor, atau Minimalis.|Slideshow Dinamis:Tampilkan teks, gambar, jadwal, dan laporan keuangan.|Tema Siap Pakai:Terapkan gaya (Masjidil Haram, Minimalis, Nusantara) dengan satu klik.|Theming:Kustomisasi warna aksen dan wallpaper.|Tampilan Jam Analog:Opsi gaya jam klasik dengan jarum yang elegan.|Teks Berjalan:Tampilkan pesan kustom atau konten Islami.|Tampilan Dzikir:Menampilkan urutan dzikir setelah shalat.|Layar Redup:Layar menjadi gelap saat shalat untuk mengurangi gangguan.|Eco Mode:Mode performa ringan untuk perangkat lama (mematikan animasi & blur).|Hemat Daya:Fitur Auto Sleep/Wake untuk mematikan rendering layar di malam hari.|Petugas Jum'at:Slide khusus untuk menampilkan Imam, Khatib, dan Muadzin.|Dukungan Offline Total:Bekerja tanpa internet dengan fitur unduh aset (gambar/suara).|Performa Tinggi:Penyimpanan gambar yang dioptimalkan untuk akses cepat.|Aplikasi PWA:Dapat diinstal seperti aplikasi native.|Backup & Restore:Ekspor dan impor pengaturan dengan mudah.",
             supportTitle: 'Pengembang',
             coffee: 'Traktir Kopi',
             discussion: 'Gabung Diskusi',
@@ -437,6 +448,7 @@ export const id = {
 <li><strong>Eco Mode (Mode Hemat Daya):</strong> Mode khusus untuk perangkat dengan spesifikasi rendah. Mengaktifkan ini akan mematikan efek visual berat seperti blur (kaca buram), bayangan, dan animasi latar belakang agar aplikasi berjalan lancar tanpa lag.</li>
 <li><strong>Layar Redup:</strong> Jika diaktifkan, layar akan menjadi hitam selama waktu shalat berlangsung (setelah pesan awal 'Dirikanlah Shalat') untuk mengurangi gangguan.</li>
 <li><strong>Warna Aksen:</strong> Warna utama yang digunakan untuk sorotan, tombol, dan penanda waktu shalat berikutnya.</li>
+<li><strong>Streaming Live Baitullah (Jumat):</strong> Khusus di hari Jumat, Anda bisa mengganti latar belakang dengan siaran langsung dari Makkah atau Madinah. Fitur ini akan otomatis berhenti saat masuk waktu shalat untuk menjaga kekhusyukan.</li>
 <li><strong>Wallpaper:</strong> Atur latar belakang layar utama. Bisa menggunakan gambar dari URL, unggah gambar sendiri, atau pilih 'Warna Polos' untuk warna matte sederhana.</li>
 <li><strong>Wallpaper Kontekstual:</strong> Jika diaktifkan, wallpaper akan berubah otomatis berdasarkan periode waktu shalat saat ini (misal: gambar berbeda untuk Subuh, Zuhur, dll).</li>
 <li><strong>Teks Berjalan:</strong> Menampilkan teks bergerak di bagian bawah layar. Mode 'Kustom' menggunakan teks buatan Anda, mode 'Tema' memilih acak dari ayat Al-Qur'an atau hadits.</li>

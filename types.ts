@@ -94,7 +94,7 @@ export interface Settings {
     calculationSource: CalculationSource;
     latitude: number;
     longitude: number;
-    
+
     calculationMethod: number;
     madhab: number; // 0 for Standard (Shafii, Maliki, Hanbali), 1 for Hanafi
     highLatitudeRule: string; // e.g., 'auto', 'middleofthenight', 'oneseventh', 'anglebased'
@@ -125,7 +125,7 @@ export interface Settings {
     minimalistSwapInterval: number; // NEW: Interval in minutes
     enableBackgroundAnimation: boolean;
     enableDimScreen: boolean;
-    
+
     // NEW: Eco Mode (Extreme Power Saving)
     enableEcoMode: boolean;
 
@@ -135,7 +135,7 @@ export interface Settings {
     enableSleepMode: boolean;
     sleepStartTime: string; // HH:mm
     sleepEndTime: string; // HH:mm
-    
+
     customTexts: Array<{ id: string; content: string; }>; // Replaces runningText
     enableRunningText: boolean; // NEW: On/Off switch for the running text feature
     runningTextMode: 'custom' | 'themed'; // Renamed 'static' to 'custom'
@@ -155,6 +155,11 @@ export interface Settings {
     khutbahMessageTagline: string;
     fridayPrayerDuration: number; // in minutes, for khutbah display
     enableFridaySlides: boolean;
+    fridayStreamMode: 'off' | 'makkah' | 'madinah' | 'custom'; // NEW: Selective stream mode
+    makkahStreamUrl: string; // NEW: YouTube embed URL for Makkah stream
+    madinahStreamUrl: string; // NEW: YouTube embed URL for Madinah stream
+    customStreamUrl: string; // NEW: YouTube embed URL for Custom stream
+    muteFridayStream: boolean; // NEW: Toggle to mute/unmute stream audio
 }
 
 export enum DisplayState {
@@ -168,11 +173,11 @@ export enum DisplayState {
 }
 
 // NEW: Remote Control Types
-export type RemoteCommandType = 
-    | 'NEXT_SLIDE' 
-    | 'PREV_SLIDE' 
-    | 'STOP_ALARM' 
-    | 'REFRESH' 
+export type RemoteCommandType =
+    | 'NEXT_SLIDE'
+    | 'PREV_SLIDE'
+    | 'STOP_ALARM'
+    | 'REFRESH'
     | 'PING'
     // Navigation Commands
     | 'OPEN_SETTINGS'

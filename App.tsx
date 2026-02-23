@@ -31,10 +31,10 @@ const FlashMessageOverlay: React.FC<{ message: string | null }> = ({ message }) 
                 {/* Decorative background element */}
                 <div className="absolute -top-10 -right-10 w-32 h-32 bg-[var(--accent-color)]/20 rounded-full blur-2xl"></div>
                 <div className="absolute -bottom-10 -left-10 w-32 h-32 bg-[var(--accent-color)]/20 rounded-full blur-2xl"></div>
-                
+
                 <div className="flex flex-col items-center gap-4 relative z-10">
                     <div className="w-16 h-16 bg-[var(--accent-color)]/20 text-[var(--accent-color)] rounded-full flex items-center justify-center mb-2 animate-bounce">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
                     </div>
                     <h2 className="text-3xl md:text-5xl font-bold text-slate-800 dark:text-white leading-tight">
                         {message}
@@ -46,331 +46,345 @@ const FlashMessageOverlay: React.FC<{ message: string | null }> = ({ message }) 
 };
 
 // This component isolates all the logic that needs to update every second.
-const TimeSensitiveContent: React.FC<{ prayerTimes: PrayerTimes | null, stale: boolean }> = ({ prayerTimes, stale }) => {
-    const { settings } = useSettings();
-    const { currentTime } = useClock();
-    const { lastCommand } = useRemote();
-    
-    const dayOfMonth = currentTime.getDate();
+const TimeSensitiveContent: React.FC<{
+    prayerTimes: PrayerTimes | null,
+    stale: boolean,
+    displayState: DisplayState,
+    setDisplayState: React.Dispatch<React.SetStateAction<DisplayState>>,
+    activePrayer: PrayerName | null,
+    setActivePrayer: React.Dispatch<React.SetStateAction<PrayerName | null>>,
+    countdown: number,
+    setCountdown: React.Dispatch<React.SetStateAction<number>>
+}> = ({
+    prayerTimes,
+    stale,
+    displayState,
+    setDisplayState,
+    activePrayer,
+    setActivePrayer,
+    countdown,
+    setCountdown
+}) => {
+        const { settings } = useSettings();
+        const { currentTime } = useClock();
+        const { lastCommand } = useRemote();
 
-    const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
-    const [displayMode, setDisplayMode] = useState<'clock' | 'slide'>('clock');
-    const [isTransitioning, setIsTransitioning] = useState(false);
+        const dayOfMonth = currentTime.getDate();
 
-    // --- Prayer State Machine Logic ---
-    const [displayState, setDisplayState] = useState<DisplayState>(DisplayState.Clock);
-    const [activePrayer, setActivePrayer] = useState<PrayerName | null>(null);
-    const [countdown, setCountdown] = useState(0);
-    const alarmAudioRef = useRef(new Audio());
-    
-    // --- Flash Message State ---
-    const [flashMessage, setFlashMessage] = useState<string | null>(null);
-    const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-    
-    const isFriday = useMemo(() => currentTime.getDay() === 5, [currentTime]);
+        const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+        const [displayMode, setDisplayMode] = useState<'clock' | 'slide'>('clock');
+        const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Handle Playback Remote Commands & Flash Message
-    useEffect(() => {
-        if (!lastCommand) return;
+        const alarmAudioRef = useRef(new Audio());
 
-        switch (lastCommand.type) {
-            case 'NEXT_SLIDE':
-                if (displayMode !== 'slide') {
-                    setDisplayMode('slide');
-                } else {
-                    const enabledSlides = settings.slides.filter(s => s.enabled);
-                    if (enabledSlides.length > 0) {
-                        setCurrentSlideIndex(prev => (prev + 1) % enabledSlides.length);
+        // --- Flash Message State ---
+        const [flashMessage, setFlashMessage] = useState<string | null>(null);
+        const flashTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+        const isFriday = useMemo(() => currentTime.getDay() === 5, [currentTime]);
+
+        // Handle Playback Remote Commands & Flash Message
+        useEffect(() => {
+            if (!lastCommand) return;
+
+            switch (lastCommand.type) {
+                case 'NEXT_SLIDE':
+                    if (displayMode !== 'slide') {
+                        setDisplayMode('slide');
+                    } else {
+                        const enabledSlides = settings.slides.filter(s => s.enabled);
+                        if (enabledSlides.length > 0) {
+                            setCurrentSlideIndex(prev => (prev + 1) % enabledSlides.length);
+                        }
                     }
-                }
-                break;
-            case 'PREV_SLIDE':
-                if (displayMode !== 'slide') {
-                    setDisplayMode('slide');
-                } else {
-                    const enabledSlides = settings.slides.filter(s => s.enabled);
-                    if (enabledSlides.length > 0) {
-                        setCurrentSlideIndex(prev => (prev - 1 + enabledSlides.length) % enabledSlides.length);
+                    break;
+                case 'PREV_SLIDE':
+                    if (displayMode !== 'slide') {
+                        setDisplayMode('slide');
+                    } else {
+                        const enabledSlides = settings.slides.filter(s => s.enabled);
+                        if (enabledSlides.length > 0) {
+                            setCurrentSlideIndex(prev => (prev - 1 + enabledSlides.length) % enabledSlides.length);
+                        }
                     }
-                }
-                break;
-            case 'STOP_ALARM':
-                if (alarmAudioRef.current) {
-                    alarmAudioRef.current.pause();
-                    alarmAudioRef.current.currentTime = 0;
-                }
-                break;
-            case 'REFRESH':
-                window.location.reload();
-                break;
-            case 'SHOW_FLASH_MESSAGE':
-                if (lastCommand.payload) {
-                    setFlashMessage(lastCommand.payload);
-                    // Clear existing timer if any
-                    if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
-                    // Auto hide after 30 seconds
-                    flashTimerRef.current = setTimeout(() => {
-                        setFlashMessage(null);
-                    }, 30000);
-                }
-                break;
-        }
-    }, [lastCommand, displayMode, settings.slides]);
+                    break;
+                case 'STOP_ALARM':
+                    if (alarmAudioRef.current) {
+                        alarmAudioRef.current.pause();
+                        alarmAudioRef.current.currentTime = 0;
+                    }
+                    break;
+                case 'REFRESH':
+                    window.location.reload();
+                    break;
+                case 'SHOW_FLASH_MESSAGE':
+                    if (lastCommand.payload) {
+                        setFlashMessage(lastCommand.payload);
+                        // Clear existing timer if any
+                        if (flashTimerRef.current) clearTimeout(flashTimerRef.current);
+                        // Auto hide after 30 seconds
+                        flashTimerRef.current = setTimeout(() => {
+                            setFlashMessage(null);
+                        }, 30000);
+                    }
+                    break;
+            }
+        }, [lastCommand, displayMode, settings.slides]);
 
-    const prayerTimesToUse = useMemo(() => {
-        if (!prayerTimes) return null;
-        if (isFriday && settings.enableFridayMode && settings.fridayTimeSource === 'manual') {
-            return {
-                ...prayerTimes,
-                Dhuhr: settings.manualFridayTime,
+        const prayerTimesToUse = useMemo(() => {
+            if (!prayerTimes) return null;
+            if (isFriday && settings.enableFridayMode && settings.fridayTimeSource === 'manual') {
+                return {
+                    ...prayerTimes,
+                    Dhuhr: settings.manualFridayTime,
+                };
+            }
+            return prayerTimes;
+        }, [prayerTimes, isFriday, settings.enableFridayMode, settings.fridayTimeSource, settings.manualFridayTime]);
+
+        const sortedPrayerTimes = useMemo(() => {
+            if (!prayerTimesToUse) return [];
+            return IQAMAH_PRAYERS
+                .map(name => ({ name, time: parseTimeToDate(prayerTimesToUse[name]) }))
+                .sort((a, b) => a.time.getTime() - b.time.getTime());
+        }, [prayerTimesToUse, dayOfMonth]);
+
+        const nextPrayer = useMemo(() => {
+            if (sortedPrayerTimes.length === 0) return null;
+            const now = currentTime.getTime();
+            const futurePrayers = sortedPrayerTimes.filter(p => p.time.getTime() > now);
+
+            if (futurePrayers.length > 0) {
+                return futurePrayers[0];
+            }
+            const tomorrowPrayer = {
+                ...sortedPrayerTimes[0],
+                time: new Date(sortedPrayerTimes[0].time)
             };
-        }
-        return prayerTimes;
-    }, [prayerTimes, isFriday, settings.enableFridayMode, settings.fridayTimeSource, settings.manualFridayTime]);
+            tomorrowPrayer.time.setDate(tomorrowPrayer.time.getDate() + 1);
+            return tomorrowPrayer;
+        }, [currentTime, sortedPrayerTimes]);
 
-    const sortedPrayerTimes = useMemo(() => {
-        if (!prayerTimesToUse) return [];
-        return IQAMAH_PRAYERS
-            .map(name => ({ name, time: parseTimeToDate(prayerTimesToUse[name]) }))
-            .sort((a, b) => a.time.getTime() - b.time.getTime());
-    }, [prayerTimesToUse, dayOfMonth]);
+        const timeToNextPrayer = useMemo(() => {
+            if (!nextPrayer) return '';
+            let diff = nextPrayer.time.getTime() - currentTime.getTime();
+            const totalSeconds = Math.floor(diff / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
 
-    const nextPrayer = useMemo(() => {
-        if (sortedPrayerTimes.length === 0) return null;
-        const now = currentTime.getTime();
-        const futurePrayers = sortedPrayerTimes.filter(p => p.time.getTime() > now);
-        
-        if (futurePrayers.length > 0) {
-            return futurePrayers[0];
-        }
-        const tomorrowPrayer = { 
-            ...sortedPrayerTimes[0],
-            time: new Date(sortedPrayerTimes[0].time) 
-        };
-        tomorrowPrayer.time.setDate(tomorrowPrayer.time.getDate() + 1);
-        return tomorrowPrayer;
-    }, [currentTime, sortedPrayerTimes]);
-    
-    const timeToNextPrayer = useMemo(() => {
-        if (!nextPrayer) return '';
-        let diff = nextPrayer.time.getTime() - currentTime.getTime();
-        const totalSeconds = Math.floor(diff / 1000);
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        
-        if (hours > 0) {
-            return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
-        }
-        return `${String(minutes).padStart(2, '0')}:${String(Math.floor(totalSeconds % 60)).padStart(2, '0')}`;
-    },[currentTime, nextPrayer]);
-    
-    // Dynamic Page Title Effect
-    useEffect(() => {
-        const originalTitle = "Waqti";
-        const isJumatPrayer = isFriday && settings.enableFridayMode && activePrayer === 'Dhuhr';
+            if (hours > 0) {
+                return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+            }
+            return `${String(minutes).padStart(2, '0')}:${String(Math.floor(totalSeconds % 60)).padStart(2, '0')}`;
+        }, [currentTime, nextPrayer]);
 
-        switch(displayState) {
-            case DisplayState.Clock:
-                if (nextPrayer) {
-                    const nextPrayerName = isFriday && settings.enableFridayMode && nextPrayer.name === 'Dhuhr'
-                        ? t('general.jummah')
-                        : t(`prayerNames.${nextPrayer.name}`);
-                    document.title = `${timeToNextPrayer} ${t('main.until')} ${nextPrayerName}`;
-                } else {
-                    document.title = originalTitle;
-                }
-                break;
-            case DisplayState.PrayerTime:
-                 if (activePrayer) {
-                    const prayerName = isJumatPrayer ? t('general.jummah') : t(`prayerNames.${activePrayer}`);
-                    document.title = `${t('main.prayerTime')} ${prayerName.toUpperCase()}`;
-                }
-                break;
-            default:
-                document.title = originalTitle;
-        }
+        // Dynamic Page Title Effect
+        useEffect(() => {
+            const originalTitle = "Waqti";
+            const isJumatPrayer = isFriday && settings.enableFridayMode && activePrayer === 'Dhuhr';
 
-        return () => {
-            document.title = originalTitle;
-        }
-
-    }, [displayState, timeToNextPrayer, nextPrayer, activePrayer, isFriday, settings]);
-
-
-    const playAlarm = (soundSrc: string) => {
-        const audio = alarmAudioRef.current;
-        audio.src = soundSrc;
-        audio.play().catch(error => console.error("Audio playback failed:", error));
-    };
-
-    // Prayer Time Trigger
-    useEffect(() => {
-        let prayerTimer: ReturnType<typeof setTimeout>;
-
-        if (displayState === DisplayState.Clock && nextPrayer) {
-            const now = new Date();
-            const timeToNextAdhan = nextPrayer.time.getTime() - now.getTime();
-            
-            if (timeToNextAdhan > 0) {
-                prayerTimer = setTimeout(() => {
-                    setActivePrayer(nextPrayer.name);
-                    if (settings.enableAdhanAlarm) {
-                        playAlarm(settings.adhanAlarmSound);
+            switch (displayState) {
+                case DisplayState.Clock:
+                    if (nextPrayer) {
+                        const nextPrayerName = isFriday && settings.enableFridayMode && nextPrayer.name === 'Dhuhr'
+                            ? t('general.jummah')
+                            : t(`prayerNames.${nextPrayer.name}`);
+                        document.title = `${timeToNextPrayer} ${t('main.until')} ${nextPrayerName}`;
+                    } else {
+                        document.title = originalTitle;
                     }
-                    setDisplayState(DisplayState.PrayerTime);
-                }, timeToNextAdhan);
+                    break;
+                case DisplayState.PrayerTime:
+                    if (activePrayer) {
+                        const prayerName = isJumatPrayer ? t('general.jummah') : t(`prayerNames.${activePrayer}`);
+                        document.title = `${t('main.prayerTime')} ${prayerName.toUpperCase()}`;
+                    }
+                    break;
+                default:
+                    document.title = originalTitle;
             }
-        }
 
-        return () => {
-            if (prayerTimer) {
-                clearTimeout(prayerTimer);
+            return () => {
+                document.title = originalTitle;
             }
+
+        }, [displayState, timeToNextPrayer, nextPrayer, activePrayer, isFriday, settings]);
+
+
+        const playAlarm = (soundSrc: string) => {
+            const audio = alarmAudioRef.current;
+            audio.src = soundSrc;
+            audio.play().catch(error => console.error("Audio playback failed:", error));
         };
-    }, [nextPrayer, displayState, settings.enableAdhanAlarm, settings.adhanAlarmSound]);
 
+        // Prayer Time Trigger
+        useEffect(() => {
+            let prayerTimer: ReturnType<typeof setTimeout>;
 
-    useEffect(() => {
-        const isJumatPrayer = isFriday && settings.enableFridayMode && activePrayer === 'Dhuhr';
+            if (displayState === DisplayState.Clock && nextPrayer) {
+                const now = new Date();
+                const timeToNextAdhan = nextPrayer.time.getTime() - now.getTime();
 
-        if (displayState === DisplayState.PrayerTime && activePrayer) {
-            const timer = setTimeout(() => {
-                if (isJumatPrayer) {
-                    setDisplayState(DisplayState.KhutbahInProgress);
-                } else {
-                    const iqamahOffset = settings.iqamahOffsets[activePrayer] * 60;
-                    setCountdown(iqamahOffset);
-                    setDisplayState(DisplayState.IqamahCountdown);
+                if (timeToNextAdhan > 0) {
+                    prayerTimer = setTimeout(() => {
+                        setActivePrayer(nextPrayer.name);
+                        if (settings.enableAdhanAlarm) {
+                            playAlarm(settings.adhanAlarmSound);
+                        }
+                        setDisplayState(DisplayState.PrayerTime);
+                    }, timeToNextAdhan);
                 }
-            }, 10000); 
-            return () => clearTimeout(timer);
-        } else if (displayState === DisplayState.IqamahCountdown && activePrayer) {
-            if (countdown > 0) {
-                const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
-                return () => clearTimeout(timer);
-            } else {
-                if (settings.enableIqamahAlarm) {
-                    playAlarm(settings.iqamahAlarmSound);
-                }
-                setDisplayState(DisplayState.PrayerInProgress);
             }
-        } else if (displayState === DisplayState.KhutbahInProgress) {
-             const khutbahDurationMs = settings.fridayPrayerDuration * 60 * 1000;
-             const timer = setTimeout(() => {
-                setDisplayState(DisplayState.Clock);
-                setActivePrayer(null);
-            }, khutbahDurationMs);
-            return () => clearTimeout(timer);
-        } else if (displayState === DisplayState.PrayerInProgress && activePrayer) {
-            if (settings.enableDimScreen && !isJumatPrayer) {
+
+            return () => {
+                if (prayerTimer) {
+                    clearTimeout(prayerTimer);
+                }
+            };
+        }, [nextPrayer, displayState, settings.enableAdhanAlarm, settings.adhanAlarmSound]);
+
+
+        useEffect(() => {
+            const isJumatPrayer = isFriday && settings.enableFridayMode && activePrayer === 'Dhuhr';
+
+            if (displayState === DisplayState.PrayerTime && activePrayer) {
                 const timer = setTimeout(() => {
-                    setDisplayState(DisplayState.DimScreen);
+                    if (isJumatPrayer) {
+                        setDisplayState(DisplayState.KhutbahInProgress);
+                    } else {
+                        const iqamahOffset = settings.iqamahOffsets[activePrayer] * 60;
+                        setCountdown(iqamahOffset);
+                        setDisplayState(DisplayState.IqamahCountdown);
+                    }
                 }, 10000);
                 return () => clearTimeout(timer);
-            } else {
-                const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
-                const prayerDurationMs = durationForCurrentPrayer * 60 * 1000;
+            } else if (displayState === DisplayState.IqamahCountdown && activePrayer) {
+                if (countdown > 0) {
+                    const timer = setTimeout(() => setCountdown(c => c - 1), 1000);
+                    return () => clearTimeout(timer);
+                } else {
+                    if (settings.enableIqamahAlarm) {
+                        playAlarm(settings.iqamahAlarmSound);
+                    }
+                    setDisplayState(DisplayState.PrayerInProgress);
+                }
+            } else if (displayState === DisplayState.KhutbahInProgress) {
+                const khutbahDurationMs = settings.fridayPrayerDuration * 60 * 1000;
                 const timer = setTimeout(() => {
-                    if (isJumatPrayer || !settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
+                    setDisplayState(DisplayState.Clock);
+                    setActivePrayer(null);
+                }, khutbahDurationMs);
+                return () => clearTimeout(timer);
+            } else if (displayState === DisplayState.PrayerInProgress && activePrayer) {
+                if (settings.enableDimScreen && !isJumatPrayer) {
+                    const timer = setTimeout(() => {
+                        setDisplayState(DisplayState.DimScreen);
+                    }, 10000);
+                    return () => clearTimeout(timer);
+                } else {
+                    const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
+                    const prayerDurationMs = durationForCurrentPrayer * 60 * 1000;
+                    const timer = setTimeout(() => {
+                        if (isJumatPrayer || !settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
+                            setDisplayState(DisplayState.Clock);
+                            setActivePrayer(null);
+                        } else {
+                            setDisplayState(DisplayState.Dhikr);
+                        }
+                    }, prayerDurationMs);
+                    return () => clearTimeout(timer);
+                }
+            } else if (displayState === DisplayState.DimScreen && activePrayer) {
+                const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
+                const dimDurationMs = (durationForCurrentPrayer * 60 * 1000) - 10000;
+                const timer = setTimeout(() => {
+                    if (!settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
                         setDisplayState(DisplayState.Clock);
                         setActivePrayer(null);
                     } else {
                         setDisplayState(DisplayState.Dhikr);
                     }
-                }, prayerDurationMs);
+                }, Math.max(0, dimDurationMs));
                 return () => clearTimeout(timer);
-            }
-        } else if (displayState === DisplayState.DimScreen && activePrayer) {
-            const durationForCurrentPrayer = settings.prayerDurations[activePrayer] || 10;
-            const dimDurationMs = (durationForCurrentPrayer * 60 * 1000) - 10000;
-            const timer = setTimeout(() => {
-                if (!settings.enableDhikr || (settings.selectedDhikr?.length ?? 0) === 0) {
+            } else if (displayState === DisplayState.Dhikr) {
+                const dhikrDurationMs = settings.dhikrDuration * 60 * 1000;
+                const timer = setTimeout(() => {
                     setDisplayState(DisplayState.Clock);
                     setActivePrayer(null);
-                } else {
-                    setDisplayState(DisplayState.Dhikr);
-                }
-            }, Math.max(0, dimDurationMs));
-            return () => clearTimeout(timer);
-        } else if (displayState === DisplayState.Dhikr) {
-            const dhikrDurationMs = settings.dhikrDuration * 60 * 1000;
-            const timer = setTimeout(() => {
-                setDisplayState(DisplayState.Clock);
-                setActivePrayer(null);
-            }, dhikrDurationMs);
-            return () => clearTimeout(timer);
-        }
-    }, [displayState, countdown, activePrayer, settings, isFriday]);
-    
-    const enabledSlides = useMemo(() => {
-        return settings.slides.filter(s => {
-            if (!s.enabled) return false;
-            if (s.fridayOnly) {
-                return isFriday && settings.enableFridayMode && settings.enableFridaySlides;
+                }, dhikrDurationMs);
+                return () => clearTimeout(timer);
             }
-            return true;
-        });
-    }, [settings.slides, isFriday, settings.enableFridayMode, settings.enableFridaySlides]);
-    
-     useEffect(() => {
-        if (enabledSlides.length === 0) {
-            if (displayMode !== 'clock') setDisplayMode('clock');
-            return;
-        }
+        }, [displayState, countdown, activePrayer, settings, isFriday]);
 
-        const validIndex = currentSlideIndex >= enabledSlides.length ? 0 : currentSlideIndex;
-        if (validIndex !== currentSlideIndex) {
-            setCurrentSlideIndex(validIndex);
-            return;
-        }
-
-        let durationSeconds: number;
-        if (displayMode === 'clock') {
-            durationSeconds = enabledSlides[validIndex].duration;
-        } else {
-            durationSeconds = enabledSlides[validIndex].duration;
-        }
-
-        const timer = setTimeout(() => {
-            setIsTransitioning(true);
-            setTimeout(() => {
-                if (displayMode === 'clock') {
-                    setDisplayMode('slide');
-                } else {
-                    const nextIndex = (validIndex + 1) % enabledSlides.length;
-                    setCurrentSlideIndex(nextIndex);
-                    setDisplayMode('clock');
+        const enabledSlides = useMemo(() => {
+            return settings.slides.filter(s => {
+                if (!s.enabled) return false;
+                if (s.fridayOnly) {
+                    return isFriday && settings.enableFridayMode && settings.enableFridaySlides;
                 }
-                setIsTransitioning(false);
-            }, 500); 
-        }, (durationSeconds || 15) * 1000); 
+                return true;
+            });
+        }, [settings.slides, isFriday, settings.enableFridayMode, settings.enableFridaySlides]);
 
-        return () => clearTimeout(timer);
+        useEffect(() => {
+            if (enabledSlides.length === 0) {
+                if (displayMode !== 'clock') setDisplayMode('clock');
+                return;
+            }
 
-    }, [enabledSlides, displayMode, currentSlideIndex]);
+            const validIndex = currentSlideIndex >= enabledSlides.length ? 0 : currentSlideIndex;
+            if (validIndex !== currentSlideIndex) {
+                setCurrentSlideIndex(validIndex);
+                return;
+            }
+
+            let durationSeconds: number;
+            if (displayMode === 'clock') {
+                durationSeconds = enabledSlides[validIndex].duration;
+            } else {
+                durationSeconds = enabledSlides[validIndex].duration;
+            }
+
+            const timer = setTimeout(() => {
+                setIsTransitioning(true);
+                setTimeout(() => {
+                    if (displayMode === 'clock') {
+                        setDisplayMode('slide');
+                    } else {
+                        const nextIndex = (validIndex + 1) % enabledSlides.length;
+                        setCurrentSlideIndex(nextIndex);
+                        setDisplayMode('clock');
+                    }
+                    setIsTransitioning(false);
+                }, 500);
+            }, (durationSeconds || 15) * 1000);
+
+            return () => clearTimeout(timer);
+
+        }, [enabledSlides, displayMode, currentSlideIndex]);
 
 
-    return (
-        <div className={`w-full h-full flex justify-center items-center transition-opacity duration-500 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-            <FlashMessageOverlay message={flashMessage} />
-            
-            {displayState === DisplayState.Clock && displayMode === 'slide' && enabledSlides.length > 0 ? (
-                <SlideDisplay slide={enabledSlides[currentSlideIndex]} />
-            ) : (
-                <MainClock
-                    stale={stale}
-                    displayState={displayState}
-                    activePrayer={activePrayer}
-                    countdown={countdown}
-                    prayerTimes={prayerTimesToUse}
-                    nextPrayer={nextPrayer}
-                    timeToNextPrayer={timeToNextPrayer}
-                    isFriday={isFriday}
-                />
-            )}
-        </div>
-    );
-};
+        return (
+            <div className={`w-full h-full flex justify-center items-center transition-opacity duration-500 ease-in-out ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                <FlashMessageOverlay message={flashMessage} />
+
+                {displayState === DisplayState.Clock && displayMode === 'slide' && enabledSlides.length > 0 ? (
+                    <SlideDisplay slide={enabledSlides[currentSlideIndex]} />
+                ) : (
+                    <MainClock
+                        stale={stale}
+                        displayState={displayState}
+                        activePrayer={activePrayer}
+                        countdown={countdown}
+                        prayerTimes={prayerTimesToUse}
+                        nextPrayer={nextPrayer}
+                        timeToNextPrayer={timeToNextPrayer}
+                        isFriday={isFriday}
+                    />
+                )}
+            </div>
+        );
+    };
 
 const GlobalThemeApplicator: React.FC = () => {
     const { settings } = useSettings();
@@ -407,8 +421,8 @@ const GlobalThemeApplicator: React.FC = () => {
             root.style.setProperty('--accent-color', settings.accentColor);
             root.style.setProperty('--accent-glow-color', hexToRgba(settings.accentColor, 0.5));
         } else {
-             root.style.setProperty('--accent-color', '#8B5CF6'); 
-             root.style.setProperty('--accent-glow-color', 'rgba(139, 92, 246, 0.5)');
+            root.style.setProperty('--accent-color', '#8B5CF6');
+            root.style.setProperty('--accent-glow-color', 'rgba(139, 92, 246, 0.5)');
         }
 
         if (settings.fontStyle === 'serif') {
@@ -419,7 +433,7 @@ const GlobalThemeApplicator: React.FC = () => {
 
     }, [settings.theme, settings.accentColor, settings.fontStyle, settings.enableEcoMode]);
 
-    return null; 
+    return null;
 };
 
 const SleepOverlay: React.FC = () => {
@@ -459,10 +473,11 @@ const SleepOverlay: React.FC = () => {
     );
 };
 
-const DynamicBackgroundView: React.FC<{ 
-    children: React.ReactNode; 
+const DynamicBackgroundView: React.FC<{
+    children: React.ReactNode;
     prayerTimes: PrayerTimes | null;
-}> = ({ children, prayerTimes }) => {
+    displayState?: DisplayState;
+}> = ({ children, prayerTimes, displayState }) => {
     const { settings } = useSettings();
     const { currentTime } = useClock();
 
@@ -477,7 +492,7 @@ const DynamicBackgroundView: React.FC<{
         }));
 
         const ishaTimeStr = prayerTimes['Isha'];
-        if (!ishaTimeStr) return settings.wallpaper; 
+        if (!ishaTimeStr) return settings.wallpaper;
 
         const yesterdayIsha = parseTimeToDate(ishaTimeStr);
         yesterdayIsha.setDate(yesterdayIsha.getDate() - 1);
@@ -489,13 +504,32 @@ const DynamicBackgroundView: React.FC<{
 
         const pastOrCurrentMoments = allMoments.filter(p => p.date.getTime() <= currentTime.getTime());
 
-        let currentPrayerPeriod: PrayerName = 'Isha'; 
+        let currentPrayerPeriod: PrayerName = 'Isha';
         if (pastOrCurrentMoments.length > 0) {
             currentPrayerPeriod = pastOrCurrentMoments[pastOrCurrentMoments.length - 1].name;
         }
 
         return settings.contextualWallpapers[currentPrayerPeriod as keyof typeof settings.contextualWallpapers] || settings.wallpaper;
     }, [currentTime, prayerTimes, settings]);
+
+    const isFriday = useMemo(() => currentTime.getDay() === 5, [currentTime]);
+    const isPrayerTime = displayState === DisplayState.PrayerInProgress ||
+        displayState === DisplayState.DimScreen ||
+        displayState === DisplayState.KhutbahInProgress;
+
+    const showStream = settings.fridayStreamMode !== 'off' && isFriday && !isPrayerTime;
+
+    const streamUrl = useMemo(() => {
+        if (!showStream) return '';
+        let baseUrl = '';
+        if (settings.fridayStreamMode === 'makkah') baseUrl = settings.makkahStreamUrl;
+        else if (settings.fridayStreamMode === 'madinah') baseUrl = settings.madinahStreamUrl;
+        else if (settings.fridayStreamMode === 'custom') baseUrl = settings.customStreamUrl;
+
+        if (!baseUrl) return '';
+        const connector = baseUrl.includes('?') ? '&' : '?';
+        return `${baseUrl}${connector}autoplay=1&mute=${settings.muteFridayStream ? '1' : '0'}&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1`;
+    }, [showStream, settings.fridayStreamMode, settings.makkahStreamUrl, settings.madinahStreamUrl, settings.muteFridayStream]);
 
     const resolvedWallpaper = useBlobUrl(activeWallpaperSetting);
 
@@ -513,19 +547,35 @@ const DynamicBackgroundView: React.FC<{
     }
 
     return (
-        <div 
+        <div
             className={`
                 h-screen font-sans text-slate-800 dark:text-white 
                 bg-gray-100 dark:bg-gray-900 
                 transition-colors duration-500 w-full relative overflow-hidden
             `}
         >
-            <div 
-                style={backgroundStyle} 
+            {showStream && streamUrl && (
+                <div className="absolute inset-0 z-0 bg-black">
+                    <iframe
+                        className="w-[100vw] h-[56.25vw] min-h-[100vh] min-w-[177.77vh] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                        src={streamUrl}
+                        title="Holy Sites Live Stream"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                    ></iframe>
+                    {/* Dark overlay for video to ensure readability */}
+                    <div className="absolute inset-0 bg-black/40"></div>
+                </div>
+            )}
+
+            <div
+                style={backgroundStyle}
                 className={`
                     absolute inset-0 transition-all duration-1000
-                    ${settings.enableBackgroundAnimation && !finalWallpaper?.startsWith('#') && !settings.enableEcoMode
-                        ? 'animate-subtle-pan-zoom' 
+                    ${showStream ? 'opacity-0' : 'opacity-100'}
+                    ${settings.enableBackgroundAnimation && !finalWallpaper?.startsWith('#') && !settings.enableEcoMode && !showStream
+                        ? 'animate-subtle-pan-zoom'
                         : 'transform scale-110'
                     }
                 `}
@@ -533,30 +583,56 @@ const DynamicBackgroundView: React.FC<{
 
             <div className={`
                 absolute inset-0 transition-opacity duration-500
-                bg-black/20
+                ${showStream ? 'bg-black/10' : 'bg-black/20'}
                 dark:bg-gradient-to-br dark:from-slate-900/70 dark:via-slate-800/50 dark:to-slate-900/70
-                ${settings.theme === 'dark' && settings.enableBackgroundAnimation && !settings.enableEcoMode ? 'animate-aurora' : ''}
+                ${settings.theme === 'dark' && settings.enableBackgroundAnimation && !settings.enableEcoMode && !showStream ? 'animate-aurora' : ''}
             `}></div>
-            
+
             <div className="relative z-10 h-full w-full">
-                 {children}
+                {children}
             </div>
         </div>
     );
 };
 
-const MainViewLayout: React.FC<{ 
+const MainViewLayout: React.FC<{
     prayerTimes: PrayerTimes | null;
     stale: boolean;
-    onSettingsClick: () => void; 
+    onSettingsClick: () => void;
     onInfoClick: () => void;
-}> = React.memo(({ prayerTimes, stale, onSettingsClick, onInfoClick }) => {
+    displayState: DisplayState;
+    setDisplayState: React.Dispatch<React.SetStateAction<DisplayState>>;
+    activePrayer: PrayerName | null;
+    setActivePrayer: React.Dispatch<React.SetStateAction<PrayerName | null>>;
+    countdown: number;
+    setCountdown: React.Dispatch<React.SetStateAction<number>>;
+}> = React.memo(({
+    prayerTimes,
+    stale,
+    onSettingsClick,
+    onInfoClick,
+    displayState,
+    setDisplayState,
+    activePrayer,
+    setActivePrayer,
+    countdown,
+    setCountdown
+}) => {
     const { settings } = useSettings();
     return (
         <div className="h-full flex flex-col w-full">
             <AppHeader onSettingsClick={onSettingsClick} onInfoClick={onInfoClick} />
             <main className={`flex-grow flex flex-col min-h-0 p-4 gap-4 md:gap-8 relative ${settings.layoutTemplate !== 'dashboard-info' ? 'justify-center items-center' : ''}`}>
-                 <TimeSensitiveContent prayerTimes={prayerTimes} stale={stale} />
+                <TimeSensitiveContent
+                    prayerTimes={prayerTimes}
+                    stale={stale}
+                    displayState={displayState}
+                    setDisplayState={setDisplayState}
+                    activePrayer={activePrayer}
+                    setActivePrayer={setActivePrayer}
+                    countdown={countdown}
+                    setCountdown={setCountdown}
+                />
             </main>
             <Footer />
         </div>
@@ -573,6 +649,11 @@ const AppContent = () => {
     const [loading, setLoading] = useState(true);
     const { lastCommand, sendCommand } = useRemote();
 
+    // --- Prayer State Machine Logic (Lifted) ---
+    const [displayState, setDisplayState] = useState<DisplayState>(DisplayState.Clock);
+    const [activePrayer, setActivePrayer] = useState<PrayerName | null>(null);
+    const [countdown, setCountdown] = useState(0);
+
     // --- Remote Navigation & Control Logic ---
     useEffect(() => {
         if (!lastCommand) return;
@@ -582,7 +663,7 @@ const AppContent = () => {
             // Include inputs, buttons, and anything with tabIndex
             const focusableElements = document.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
             const focusableArray = Array.from(focusableElements) as HTMLElement[];
-            
+
             if (focusableArray.length === 0) return;
 
             const currentIndex = focusableArray.indexOf(document.activeElement as HTMLElement);
@@ -609,10 +690,10 @@ const AppContent = () => {
             if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) {
                 // Programmatically set value and dispatch events for React to pick it up
                 const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-                    window.HTMLInputElement.prototype, 
+                    window.HTMLInputElement.prototype,
                     "value"
                 )?.set;
-                
+
                 if (nativeInputValueSetter) {
                     nativeInputValueSetter.call(active, text);
                     const event = new Event('input', { bubbles: true });
@@ -629,9 +710,9 @@ const AppContent = () => {
         // NEW: Handle update commands from remote
         const handleUpdateData = async (payload: any) => {
             if (!payload) return;
-            
+
             let newSettings = { ...settings };
-            
+
             // Merge simple properties
             if (payload.mosqueName) newSettings.mosqueName = payload.mosqueName;
             if (payload.city) newSettings.city = payload.city;
@@ -641,7 +722,12 @@ const AppContent = () => {
             if (payload.madhab) newSettings.madhab = Number(payload.madhab);
             if (payload.manualFridayTime) newSettings.manualFridayTime = payload.manualFridayTime;
             if (payload.khutbahMessageTitle) newSettings.khutbahMessageTitle = payload.khutbahMessageTitle;
-            
+            if (payload.fridayStreamMode !== undefined) newSettings.fridayStreamMode = payload.fridayStreamMode;
+            if (payload.makkahStreamUrl !== undefined) newSettings.makkahStreamUrl = payload.makkahStreamUrl;
+            if (payload.madinahStreamUrl !== undefined) newSettings.madinahStreamUrl = payload.madinahStreamUrl;
+            if (payload.customStreamUrl !== undefined) newSettings.customStreamUrl = payload.customStreamUrl;
+            if (payload.muteFridayStream !== undefined) newSettings.muteFridayStream = !!payload.muteFridayStream;
+
             // Merge nested objects (Corrections/Offsets)
             if (payload.adjustments) {
                 newSettings.adjustments = { ...newSettings.adjustments, ...payload.adjustments };
@@ -663,7 +749,7 @@ const AppContent = () => {
                 newSettings.enableRunningText = true;
                 newSettings.runningTextMode = 'custom';
             }
-            
+
             // Wallpaper logic (same as before)
             if (payload.wallpaper) {
                 if (payload.wallpaper.startsWith('data:image')) {
@@ -680,7 +766,7 @@ const AppContent = () => {
                         console.error("Failed to save remote wallpaper", e);
                     }
                 } else if (payload.wallpaper.startsWith('#') || payload.wallpaper.startsWith('http')) {
-                     newSettings.wallpaper = payload.wallpaper;
+                    newSettings.wallpaper = payload.wallpaper;
                 }
             }
 
@@ -728,7 +814,13 @@ const AppContent = () => {
                     adjustments: settings.adjustments,
                     iqamahOffsets: settings.iqamahOffsets,
                     manualFridayTime: settings.manualFridayTime,
-                    khutbahMessageTitle: settings.khutbahMessageTitle
+                    khutbahMessageTitle: settings.khutbahMessageTitle,
+                    enableFridayMakkahStream: settings.fridayStreamMode !== 'off', // Backward compat for old remote if needed, but snapshots might be used
+                    fridayStreamMode: settings.fridayStreamMode,
+                    makkahStreamUrl: settings.makkahStreamUrl,
+                    madinahStreamUrl: settings.madinahStreamUrl,
+                    customStreamUrl: settings.customStreamUrl,
+                    muteFridayStream: settings.muteFridayStream
                 };
                 sendCommand({ type: 'SETTINGS_SNAPSHOT', payload: snapshot, timestamp: Date.now() });
                 break;
@@ -755,19 +847,19 @@ const AppContent = () => {
         try {
             await db.appState.put({ key: 'hasSeenWelcome', value: true });
         } catch (error) {
-             console.error("Could not set item in IndexedDB", error);
+            console.error("Could not set item in IndexedDB", error);
         }
         setShowWelcomeModal(false);
     };
 
     const handleGoToGuide = () => {
-        handleCloseWelcome(); 
+        handleCloseWelcome();
         setInfoDefaultTab('guide');
         setCurrentView('info');
     };
 
     const handleInfoClick = () => {
-        setInfoDefaultTab('about'); 
+        setInfoDefaultTab('about');
         setCurrentView('info');
     };
 
@@ -796,7 +888,7 @@ const AppContent = () => {
     }
 
     return (
-        <DynamicBackgroundView prayerTimes={prayerTimes}>
+        <DynamicBackgroundView prayerTimes={prayerTimes} displayState={displayState}>
             <SleepOverlay />
             {(() => {
                 switch (currentView) {
@@ -806,11 +898,17 @@ const AppContent = () => {
                         return <InfoPage key={key} onBack={() => setCurrentView('main')} defaultTab={infoDefaultTab} />;
                     default:
                         return (
-                            <MainViewLayout 
+                            <MainViewLayout
                                 prayerTimes={prayerTimes}
                                 stale={stale}
-                                onSettingsClick={() => setCurrentView('settings')} 
-                                onInfoClick={handleInfoClick} 
+                                onSettingsClick={() => setCurrentView('settings')}
+                                onInfoClick={handleInfoClick}
+                                displayState={displayState}
+                                setDisplayState={setDisplayState}
+                                activePrayer={activePrayer}
+                                setActivePrayer={setActivePrayer}
+                                countdown={countdown}
+                                setCountdown={setCountdown}
                             />
                         );
                 }
