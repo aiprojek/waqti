@@ -218,8 +218,10 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
         try {
             const cacheName = 'waqti-cache-v3';
             const cache = await caches.open(cacheName);
-            const match = await cache.match('/index.html');
-            return !!match;
+            // Check for both root and index.html to be robust
+            const matchRoot = await cache.match('/');
+            const matchIndex = await cache.match('/index.html');
+            return !!(matchRoot || matchIndex);
         } catch (e) {
             return false;
         }
