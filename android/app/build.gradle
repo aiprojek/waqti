@@ -9,14 +9,14 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace "com.aiprojek.waqti"
     compileSdk rootProject.ext.compileSdkVersion
-    def buildDate = new Date().format("yyyyMMddHHmm")
-    def buildDateCode = Integer.parseInt(buildDate)
+    def buildVersion = System.getenv("BUILD_VERSION") ?: new Date().format("yyyyMMddHHmm")
+    def androidVersionCode = System.getenv("ANDROID_VERSION_CODE") ? System.getenv("ANDROID_VERSION_CODE").toInteger() : (int)(System.currentTimeMillis() / 600000)
     defaultConfig {
         applicationId "com.aiprojek.waqti"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode buildDateCode
-        versionName buildDate
+        versionCode androidVersionCode
+        versionName buildVersion
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.

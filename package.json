@@ -63,7 +63,7 @@
     },
     "artifactName": "Waqti-${env.BUILD_VERSION}.${ext}",
     "extraMetadata": {
-      "version": "${env.BUILD_VERSION}"
+      "version": "${env.WIN_VERSION}"
     },
     "icon": "assets/icon.png",
     "win": {
