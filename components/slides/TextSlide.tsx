@@ -1,7 +1,6 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import type { TextSlide } from '../../types';
-
-declare const DOMPurify: any;
 
 interface TextSlideProps {
     slide: TextSlide;
@@ -16,10 +15,19 @@ export const TextSlideDisplay: React.FC<TextSlideProps> = ({ slide }) => {
         </div>
     );
 
+    const escapeHtml = (input: string) => (
+        input
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;')
+    );
+
     // Sanitize content to prevent XSS
-    const sanitizedContent = typeof DOMPurify !== 'undefined' 
-        ? DOMPurify.sanitize(slide.content || '') 
-        : (slide.content || '');
+    const sanitizedContent = typeof DOMPurify !== 'undefined'
+        ? DOMPurify.sanitize(slide.content || '')
+        : escapeHtml(slide.content || '');
 
     const TextComponent = () => (
             <div className={`w-full ${isSideQr ? 'max-w-3xl text-left' : 'max-w-5xl text-center'}`}>

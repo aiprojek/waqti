@@ -1,18 +1,5 @@
+import Dexie, { Table } from 'dexie';
 import type { Settings } from '../types';
-
-// Let TypeScript know that Dexie is available globally from the CDN script
-declare var Dexie: any;
-
-// FIX: Define a local interface for Dexie's Table and use it to type the table properties.
-// This avoids the "Cannot find namespace 'Dexie'" error that occurs when using `Dexie.Table`
-// with `declare var Dexie: any;`, while still providing type safety for database operations.
-interface DexieTable<T, TKey> {
-    get(key: TKey): Promise<T | undefined>;
-    put(item: T, key?: TKey): Promise<TKey>;
-    add(item: T, key?: TKey): Promise<TKey>;
-    clear(): Promise<void>;
-    toCollection(): { first(): Promise<T | undefined> };
-}
 
 interface StoredSettings extends Settings {
     id: number;
@@ -37,10 +24,10 @@ export interface StoredAsset {
 }
 
 class WaqtiDB extends Dexie {
-    settings: DexieTable<StoredSettings, number>;
-    prayerTimesCache: DexieTable<PrayerTimesCache, string>;
-    appState: DexieTable<AppState, string>;
-    assets: DexieTable<StoredAsset, number>; // New Table
+    settings!: Table<StoredSettings, number>;
+    prayerTimesCache!: Table<PrayerTimesCache, string>;
+    appState!: Table<AppState, string>;
+    assets!: Table<StoredAsset, number>; // New Table
 
     constructor() {
         super('waqtiDB');

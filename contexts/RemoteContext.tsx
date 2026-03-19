@@ -1,8 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useRef, useCallback } from 'react';
+import Peer from 'peerjs';
 import type { RemoteCommand } from '../types';
-
-declare const Peer: any;
 
 interface RemoteContextType {
     peerId: string | null;
@@ -11,6 +10,8 @@ interface RemoteContextType {
     sendCommand: (command: RemoteCommand) => void;
     lastCommand: RemoteCommand | null;
     isHost: boolean;
+    authStatus: 'idle' | 'pending' | 'ok' | 'failed';
+    pairingToken: string | null;
     resetConnection: () => void;
 }
 
@@ -21,6 +22,10 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const [connectionStatus, setConnectionStatus] = useState<'disconnected' | 'connecting' | 'connected'>('disconnected');
     const [lastCommand, setLastCommand] = useState<RemoteCommand | null>(null);
     const [isHost, setIsHost] = useState(false);
+    const [authToken, setAuthToken] = useState<string | null>(null);
+    const [authStatus, setAuthStatus] = useState<'idle' | 'pending' | 'ok' | 'failed'>('idle');
+    const authStatusRef = useRef<'idle' | 'pending' | 'ok' | 'failed'>('idle');
+    const authTokenRef = useRef<string | null>(null);
     
     // Refs to keep track of instances without triggering re-renders
     const peerRef = useRef<any>(null);
@@ -28,6 +33,8 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     const isInitialized = useRef(false);
     const reconnectTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
     const heartbeatInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+    const connectionAuth = useRef<WeakMap<any, boolean>>(new WeakMap());
+    const authTimeouts = useRef<WeakMap<any, ReturnType<typeof setTimeout>>>(new WeakMap());
 
     // --- Heartbeat Logic ---
     const startHeartbeat = (connection: any) => {
@@ -51,7 +58,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     };
 
     // --- Peer Initialization ---
-    const initializePeer = useCallback((isHostMode: boolean, remoteTarget?: string) => {
+    const initializePeer = useCallback((isHostMode: boolean, remoteTarget?: string, remoteToken?: string) => {
         if (typeof Peer === 'undefined') {
             console.error("PeerJS library not loaded");
             return;
@@ -95,14 +102,25 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
                 const finalShortId = id.replace('waqti-', '').split('-')[0]; 
                 setPeerId(finalShortId);
             });
+            let token = localStorage.getItem('waqti_remote_token');
+            if (!token) {
+                token = Math.random().toString(36).substring(2, 10).toUpperCase();
+                localStorage.setItem('waqti_remote_token', token);
+            }
+            setAuthToken(token);
+            authTokenRef.current = token;
         } else {
             setIsHost(false);
             peer = new Peer(peerConfig); // Let server assign ID for remote
+            if (remoteToken) {
+                setAuthToken(remoteToken);
+                authTokenRef.current = remoteToken;
+            }
             
             peer.on('open', (id: string) => {
                 setPeerId(id);
                 if (remoteTarget) {
-                    connectToHost(peer, remoteTarget);
+                    connectToHost(peer, remoteTarget, remoteToken);
                 }
             });
         }
@@ -111,17 +129,71 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         peer.on('connection', (conn: any) => {
             conn.on('open', () => {
                 connRef.current = conn;
-                setConnectionStatus('connected');
+                setConnectionStatus('connecting');
+                if (isHostMode) {
+                    setAuthStatus('idle');
+                    authStatusRef.current = 'idle';
+                }
+                connectionAuth.current.set(conn, false);
+                const timeout = setTimeout(() => {
+                    const isAuthed = connectionAuth.current.get(conn);
+                    if (!isAuthed) {
+                        try { conn.close(); } catch (e) { /* ignore */ }
+                    }
+                }, 8000);
+                authTimeouts.current.set(conn, timeout);
             });
 
             conn.on('data', (data: RemoteCommand) => {
                 if (data.type === 'PING') return;
+                if (data.type === 'AUTH') {
+                    if (data.payload && data.payload.token && data.payload.token === authTokenRef.current) {
+                        connectionAuth.current.set(conn, true);
+                        const timeout = authTimeouts.current.get(conn);
+                        if (timeout) clearTimeout(timeout);
+                        setConnectionStatus('connected');
+                        try {
+                            conn.send({ type: 'AUTH_OK', timestamp: Date.now() });
+                        } catch (e) {
+                            // ignore
+                        }
+                    } else {
+                        try {
+                            conn.send({ type: 'AUTH_FAIL', timestamp: Date.now() });
+                        } catch (e) {
+                            // ignore
+                        }
+                        try { conn.close(); } catch (e) { /* ignore */ }
+                    }
+                    return;
+                }
+                if (data.type === 'AUTH_OK') {
+                        setAuthStatus('ok');
+                        authStatusRef.current = 'ok';
+                        setConnectionStatus('connected');
+                        return;
+                    }
+                    if (data.type === 'AUTH_FAIL') {
+                    setAuthStatus('failed');
+                    authStatusRef.current = 'failed';
+                    setConnectionStatus('disconnected');
+                    return;
+                }
+                if (!connectionAuth.current.get(conn)) return;
                 setLastCommand(data);
             });
 
             conn.on('close', () => {
                 setConnectionStatus('disconnected');
                 connRef.current = null;
+                connectionAuth.current.delete(conn);
+                const timeout = authTimeouts.current.get(conn);
+                if (timeout) clearTimeout(timeout);
+                authTimeouts.current.delete(conn);
+                if (isHostMode) {
+                    setAuthStatus('idle');
+                    authStatusRef.current = 'idle';
+                }
             });
             
             conn.on('error', (err: any) => {});
@@ -175,10 +247,16 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     }, []);
 
     // --- Connect Logic (Remote Side) ---
-    const connectToHost = (peer: any, targetShortId: string) => {
+    const connectToHost = (peer: any, targetShortId: string, token?: string) => {
         if (!peer || peer.destroyed) return;
 
         setConnectionStatus('connecting');
+        if (!token) {
+            setAuthStatus('failed');
+            authStatusRef.current = 'failed';
+            setConnectionStatus('disconnected');
+            return;
+        }
         const targetFullId = `waqti-${targetShortId.toUpperCase()}`;
 
         const conn = peer.connect(targetFullId, {
@@ -197,20 +275,50 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         conn.on('open', () => {
             clearTimeout(connectionTimeout);
-            setConnectionStatus('connected');
+            setConnectionStatus('connecting');
             connRef.current = conn;
             startHeartbeat(conn);
+            if (token) {
+                try {
+                    conn.send({ type: 'AUTH', payload: { token }, timestamp: Date.now() });
+                    setAuthStatus('pending');
+                    authStatusRef.current = 'pending';
+                    setTimeout(() => {
+                        if (authStatusRef.current === 'pending') {
+                            setAuthStatus('failed');
+                            authStatusRef.current = 'failed';
+                            setConnectionStatus('disconnected');
+                            try { conn.close(); } catch (e) { /* ignore */ }
+                        }
+                    }, 8000);
+                } catch (e) {
+                    // ignore
+                }
+            }
         });
 
         conn.on('close', () => {
             setConnectionStatus('disconnected');
             connRef.current = null;
+            if (!isHost) {
+                if (authStatusRef.current === 'pending') {
+                    setAuthStatus('failed');
+                    authStatusRef.current = 'failed';
+                } else if (authStatusRef.current !== 'failed') {
+                    setAuthStatus('idle');
+                    authStatusRef.current = 'idle';
+                }
+            }
             stopHeartbeat();
             clearTimeout(connectionTimeout);
         });
 
         conn.on('error', (err: any) => {
             setConnectionStatus('disconnected');
+            if (!isHost) {
+                setAuthStatus('failed');
+                authStatusRef.current = 'failed';
+            }
             clearTimeout(connectionTimeout);
         });
     };
@@ -222,8 +330,9 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
         const params = new URLSearchParams(window.location.search);
         const remoteTarget = params.get('remote');
+        const remoteToken = params.get('token') || undefined;
         
-        initializePeer(!remoteTarget, remoteTarget || undefined);
+        initializePeer(!remoteTarget, remoteTarget || undefined, remoteToken);
 
         return () => {
             stopHeartbeat();
@@ -238,7 +347,7 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
 
     const connectToPeer = (remoteId: string) => {
         if (peerRef.current && !isHost) {
-            connectToHost(peerRef.current, remoteId);
+            connectToHost(peerRef.current, remoteId, authTokenRef.current || undefined);
         }
     };
 
@@ -269,18 +378,18 @@ export const RemoteProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         if (remoteTarget && !isHost) {
             if (peerRef.current && !peerRef.current.destroyed) {
                 // If peer is alive, just try to connect again
-                connectToHost(peerRef.current, remoteTarget);
+                connectToHost(peerRef.current, remoteTarget, authTokenRef.current || undefined);
             } else {
                 // If peer is dead, restart everything
                 if (peerRef.current) peerRef.current.destroy();
                 peerRef.current = null;
-                initializePeer(false, remoteTarget);
+                initializePeer(false, remoteTarget, authTokenRef.current || undefined);
             }
         }
     };
 
     return (
-        <RemoteContext.Provider value={{ peerId, connectionStatus, connectToPeer, sendCommand, lastCommand, isHost, resetConnection }}>
+        <RemoteContext.Provider value={{ peerId, connectionStatus, connectToPeer, sendCommand, lastCommand, isHost, authStatus, pairingToken: authToken, resetConnection }}>
             {children}
         </RemoteContext.Provider>
     );

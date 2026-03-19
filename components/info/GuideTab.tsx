@@ -1,8 +1,7 @@
 import React from 'react';
+import DOMPurify from 'dompurify';
 import { t } from '../../i18n';
 import { CollapsibleSection } from '../settings/Shared';
-
-declare const DOMPurify: any;
 
 export const GuideTab: React.FC = () => {
     

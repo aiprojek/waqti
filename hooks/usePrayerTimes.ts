@@ -163,11 +163,21 @@ const usePrayerTimes = () => {
 
                     const tuneString = PRAYER_NAMES.map(name => settings.adjustments[name] || 0).join(',');
                     let apiUrl = '';
+                    const highLatitudeMap: Record<string, number> = {
+                        MiddleOfTheNight: 1,
+                        OneSeventh: 2,
+                        AngleBased: 3
+                    };
+                    const highLatitudeParam = highLatitudeMap[settings.highLatitudeRule];
                     
                     if (hasCoords) {
-                        apiUrl = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${settings.latitude}&longitude=${settings.longitude}&method=${settings.calculationMethod}&school=${settings.madhab}&latitudeAdjustmentMethod=${settings.highLatitudeRule}&tune=${tuneString}`;
+                        apiUrl = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${settings.latitude}&longitude=${settings.longitude}&method=${settings.calculationMethod}&school=${settings.madhab}&tune=${tuneString}`;
                     } else {
-                        apiUrl = `https://api.aladhan.com/v1/calendarByCity?city=${settings.city}&country=Indonesia&method=${settings.calculationMethod}&month=${month}&year=${year}&school=${settings.madhab}&latitudeAdjustmentMethod=${settings.highLatitudeRule}&tune=${tuneString}`;
+                        apiUrl = `https://api.aladhan.com/v1/calendarByCity?city=${encodeURIComponent(settings.city)}&country=Indonesia&method=${settings.calculationMethod}&month=${month}&year=${year}&school=${settings.madhab}&tune=${tuneString}`;
+                    }
+
+                    if (highLatitudeParam !== undefined) {
+                        apiUrl += `&latitudeAdjustmentMethod=${highLatitudeParam}`;
                     }
 
                     if (settings.calculationMethod === 99) {
@@ -221,13 +231,13 @@ const usePrayerTimes = () => {
                      throw new Error(t('main.error') + ` (${day}/${month}/${year})`);
                 }
             } catch (err) {
-                // Fallback to cache
-                const anyCache = await db.prayerTimesCache.toCollection().first();
-                if (anyCache) {
+                // Fallback to cache for the same location + month only
+                const fallbackEntry = await db.prayerTimesCache.get(cacheKey);
+                if (fallbackEntry) {
                     try {
-                        const oldMonthlyData = anyCache.data;
+                        const oldMonthlyData = fallbackEntry.data;
                         const todayInOldData = oldMonthlyData?.find((d: any) => parseInt(d.date.gregorian.day, 10) === day && parseInt(d.date.gregorian.month.number, 10) === month);
-                         if (todayInOldData) {
+                        if (todayInOldData) {
                             const timings = todayInOldData.timings;
                             const formattedTimes: PrayerTimes = {
                                 Fajr: timings.Fajr.split(' ')[0],
@@ -239,13 +249,13 @@ const usePrayerTimes = () => {
                             };
                             if (isMounted) {
                                 setPrayerTimes(formattedTimes);
-                                setError(t('main.error')); // Show error but display cached data
+                                setError(t('main.offlineUsingCache')); // Show error but display cached data
                             }
                         } else {
-                             throw err;
+                            throw err;
                         }
                     } catch (finalError) {
-                         if (isMounted) {
+                        if (isMounted) {
                             setError(err instanceof Error ? err.message : t('main.error'));
                         }
                     }

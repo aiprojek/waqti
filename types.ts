@@ -135,6 +135,8 @@ export interface Settings {
     enableSleepMode: boolean;
     sleepStartTime: string; // HH:mm
     sleepEndTime: string; // HH:mm
+    // NEW: Bluetooth Remote (Android)
+    enableBluetoothRemote: boolean;
 
     customTexts: Array<{ id: string; content: string; }>; // Replaces runningText
     enableRunningText: boolean; // NEW: On/Off switch for the running text feature
@@ -179,6 +181,9 @@ export type RemoteCommandType =
     | 'STOP_ALARM'
     | 'REFRESH'
     | 'PING'
+    | 'AUTH'
+    | 'AUTH_OK'
+    | 'AUTH_FAIL'
     // Navigation Commands
     | 'OPEN_SETTINGS'
     | 'CLOSE_SETTINGS'

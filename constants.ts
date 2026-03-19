@@ -199,6 +199,7 @@ export const getDefaultSettings = (lang: Language): Settings => {
         enableSleepMode: false,
         sleepStartTime: '22:00',
         sleepEndTime: '03:00',
+        enableBluetoothRemote: false,
         customTexts: [{
             id: 'default-1',
             content: `"${locale.footer.runningText.text}" <span class="opacity-80 italic text-xs">(${locale.footer.runningText.source})</span>`

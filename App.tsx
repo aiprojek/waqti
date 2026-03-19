@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { PrayerTimesDisplay } from './components/PrayerTimesDisplay';
 import { MainClock } from './components/MainClock';
 import { AppHeader } from './components/AppHeader';
@@ -14,12 +14,14 @@ import { RemoteView } from './components/RemoteView';
 import useClock from './hooks/useClock';
 import usePrayerTimes from './hooks/usePrayerTimes';
 import { DisplayState, PrayerName, PrayerTimes } from './types';
-import { IQAMAH_PRAYERS } from './constants';
+import { IQAMAH_PRAYERS, PRAYER_NAMES } from './constants';
 import { parseTimeToDate } from './utils';
 import { t } from './i18n';
 import { WelcomeModal } from './components/WelcomeModal';
 import { db } from './lib/db';
 import { useBlobUrl } from './hooks/useBlobUrl';
+import { BluetoothRemote } from './lib/bluetoothRemote';
+import { Capacitor } from '@capacitor/core';
 
 // --- Flash Message Component ---
 const FlashMessageOverlay: React.FC<{ message: string | null }> = ({ message }) => {
@@ -655,8 +657,8 @@ const AppContent = () => {
     const [countdown, setCountdown] = useState(0);
 
     // --- Remote Navigation & Control Logic ---
-    useEffect(() => {
-        if (!lastCommand) return;
+    const handleRemoteCommand = useCallback((command: any) => {
+        if (!command) return;
 
         // Navigation Helper function
         const navigateFocus = (direction: 'next' | 'prev') => {
@@ -713,41 +715,107 @@ const AppContent = () => {
 
             let newSettings = { ...settings };
 
+            const isNonEmptyString = (value: unknown) =>
+                typeof value === 'string' && value.trim().length > 0;
+
+            const toSafeString = (value: unknown, maxLen: number) => {
+                if (!isNonEmptyString(value)) return null;
+                return value.trim().slice(0, maxLen);
+            };
+
+            const toSafeNumber = (value: unknown) => {
+                const num = typeof value === 'number' ? value : Number(value);
+                return Number.isFinite(num) ? num : null;
+            };
+
+            const toSafeInt = (value: unknown) => {
+                const num = toSafeNumber(value);
+                if (num === null) return null;
+                return Math.round(num);
+            };
+
+            const isTimeString = (value: unknown) => {
+                if (typeof value !== 'string') return false;
+                const match = value.match(/^(\d{1,2}):(\d{2})$/);
+                if (!match) return false;
+                const hours = Number(match[1]);
+                const minutes = Number(match[2]);
+                return hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59;
+            };
+
+            const isSafeUrl = (value: unknown) => {
+                if (!isNonEmptyString(value)) return false;
+                try {
+                    const url = new URL(value);
+                    return url.protocol === 'http:' || url.protocol === 'https:';
+                } catch (e) {
+                    return false;
+                }
+            };
+
+            const allowedCalculationMethods = new Set([0, 1, 2, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 99]);
+
             // Merge simple properties
-            if (payload.mosqueName) newSettings.mosqueName = payload.mosqueName;
-            if (payload.city) newSettings.city = payload.city;
-            if (payload.theme) newSettings.theme = payload.theme;
-            if (payload.displayMode) newSettings.displayMode = payload.displayMode;
-            if (payload.calculationMethod) newSettings.calculationMethod = Number(payload.calculationMethod);
-            if (payload.madhab) newSettings.madhab = Number(payload.madhab);
-            if (payload.manualFridayTime) newSettings.manualFridayTime = payload.manualFridayTime;
-            if (payload.khutbahMessageTitle) newSettings.khutbahMessageTitle = payload.khutbahMessageTitle;
-            if (payload.fridayStreamMode !== undefined) newSettings.fridayStreamMode = payload.fridayStreamMode;
-            if (payload.makkahStreamUrl !== undefined) newSettings.makkahStreamUrl = payload.makkahStreamUrl;
-            if (payload.madinahStreamUrl !== undefined) newSettings.madinahStreamUrl = payload.madinahStreamUrl;
-            if (payload.customStreamUrl !== undefined) newSettings.customStreamUrl = payload.customStreamUrl;
+            const mosqueName = toSafeString(payload.mosqueName, 80);
+            if (mosqueName) newSettings.mosqueName = mosqueName;
+            const city = toSafeString(payload.city, 80);
+            if (city) newSettings.city = city;
+            if (payload.theme === 'light' || payload.theme === 'dark') newSettings.theme = payload.theme;
+            if (payload.displayMode === 'landscape' || payload.displayMode === 'portrait') newSettings.displayMode = payload.displayMode;
+            const calcMethod = toSafeNumber(payload.calculationMethod);
+            if (calcMethod !== null && allowedCalculationMethods.has(Math.round(calcMethod))) newSettings.calculationMethod = Math.round(calcMethod);
+            const madhab = toSafeNumber(payload.madhab);
+            if (madhab === 0 || madhab === 1) newSettings.madhab = madhab;
+            if (isTimeString(payload.manualFridayTime)) newSettings.manualFridayTime = payload.manualFridayTime;
+            const khutbahTitle = toSafeString(payload.khutbahMessageTitle, 120);
+            if (khutbahTitle) newSettings.khutbahMessageTitle = khutbahTitle;
+            if (payload.fridayStreamMode === 'off' || payload.fridayStreamMode === 'makkah' || payload.fridayStreamMode === 'madinah' || payload.fridayStreamMode === 'custom') {
+                newSettings.fridayStreamMode = payload.fridayStreamMode;
+            }
+            if (payload.makkahStreamUrl !== undefined && isSafeUrl(payload.makkahStreamUrl)) newSettings.makkahStreamUrl = payload.makkahStreamUrl;
+            if (payload.madinahStreamUrl !== undefined && isSafeUrl(payload.madinahStreamUrl)) newSettings.madinahStreamUrl = payload.madinahStreamUrl;
+            if (payload.customStreamUrl !== undefined && isSafeUrl(payload.customStreamUrl)) newSettings.customStreamUrl = payload.customStreamUrl;
             if (payload.muteFridayStream !== undefined) newSettings.muteFridayStream = !!payload.muteFridayStream;
 
             // Merge nested objects (Corrections/Offsets)
             if (payload.adjustments) {
-                newSettings.adjustments = { ...newSettings.adjustments, ...payload.adjustments };
+                const nextAdjustments = { ...newSettings.adjustments };
+                for (const key of Object.keys(payload.adjustments)) {
+                    if (!PRAYER_NAMES.includes(key as any)) continue;
+                    const value = toSafeInt(payload.adjustments[key]);
+                    if (value === null) continue;
+                    if (value < -30 || value > 30) continue;
+                    nextAdjustments[key as keyof typeof nextAdjustments] = value;
+                }
+                newSettings.adjustments = nextAdjustments;
             }
             if (payload.iqamahOffsets) {
-                newSettings.iqamahOffsets = { ...newSettings.iqamahOffsets, ...payload.iqamahOffsets };
+                const nextOffsets = { ...newSettings.iqamahOffsets };
+                for (const key of Object.keys(payload.iqamahOffsets)) {
+                    if (!PRAYER_NAMES.includes(key as any)) continue;
+                    const value = toSafeInt(payload.iqamahOffsets[key]);
+                    if (value === null) continue;
+                    if (value < 0 || value > 60) continue;
+                    nextOffsets[key as keyof typeof nextOffsets] = value;
+                }
+                newSettings.iqamahOffsets = nextOffsets;
             }
 
             // Running Text Logic
             if (payload.runningText) {
                 // Update first custom text item or create one
                 const currentCustoms = [...(newSettings.customTexts || [])];
-                if (currentCustoms.length > 0) {
-                    currentCustoms[0] = { ...currentCustoms[0], content: payload.runningText };
-                } else {
-                    currentCustoms.push({ id: `remote-${Date.now()}`, content: payload.runningText });
+                const safeText = toSafeString(payload.runningText, 500);
+                if (safeText) {
+                    if (currentCustoms.length > 0) {
+                        currentCustoms[0] = { ...currentCustoms[0], content: safeText };
+                    } else {
+                        currentCustoms.push({ id: `remote-${Date.now()}`, content: safeText });
+                    }
+                    newSettings.customTexts = currentCustoms;
+                    newSettings.enableRunningText = true;
+                    newSettings.runningTextMode = 'custom';
                 }
-                newSettings.customTexts = currentCustoms;
-                newSettings.enableRunningText = true;
-                newSettings.runningTextMode = 'custom';
             }
 
             // Wallpaper logic (same as before)
@@ -765,7 +833,7 @@ const AppContent = () => {
                     } catch (e) {
                         console.error("Failed to save remote wallpaper", e);
                     }
-                } else if (payload.wallpaper.startsWith('#') || payload.wallpaper.startsWith('http')) {
+                } else if (payload.wallpaper.startsWith('#') || isSafeUrl(payload.wallpaper)) {
                     newSettings.wallpaper = payload.wallpaper;
                 }
             }
@@ -773,7 +841,7 @@ const AppContent = () => {
             saveSettings(newSettings);
         };
 
-        switch (lastCommand.type) {
+        switch (command.type) {
             case 'OPEN_SETTINGS':
                 setCurrentView('settings');
                 break;
@@ -792,12 +860,12 @@ const AppContent = () => {
                 enterFocus();
                 break;
             case 'SEND_TEXT':
-                if (lastCommand.payload) {
-                    handleInputText(lastCommand.payload);
+                if (command.payload) {
+                    handleInputText(command.payload);
                 }
                 break;
             case 'UPDATE_DATA':
-                handleUpdateData(lastCommand.payload);
+                handleUpdateData(command.payload);
                 break;
             case 'REQUEST_SETTINGS':
                 // Send current settings back to remote (sanitize images if needed to save bandwidth)
@@ -825,7 +893,57 @@ const AppContent = () => {
                 sendCommand({ type: 'SETTINGS_SNAPSHOT', payload: snapshot, timestamp: Date.now() });
                 break;
         }
-    }, [lastCommand, settings, saveSettings, sendCommand]);
+    }, [settings, saveSettings, sendCommand]);
+
+    useEffect(() => {
+        if (!lastCommand) return;
+        handleRemoteCommand(lastCommand);
+    }, [lastCommand, handleRemoteCommand]);
+
+    useEffect(() => {
+        if (Capacitor.getPlatform() !== 'android') return;
+        let removeListener: (() => void) | null = null;
+
+        const startHost = async () => {
+            if (!settings.enableBluetoothRemote) return;
+            try {
+                await BluetoothRemote.startHost();
+                const listener = await BluetoothRemote.addListener('command', (event) => {
+                    if (!event?.payload) return;
+                    try {
+                        const parsed = JSON.parse(event.payload);
+                        if (parsed && parsed.type) {
+                            handleRemoteCommand({ type: parsed.type, payload: parsed.payload, timestamp: parsed.timestamp || Date.now() });
+                        }
+                    } catch (e) {
+                        // ignore malformed payload
+                    }
+                });
+                removeListener = listener.remove;
+            } catch (e) {
+                console.error('Failed to start Bluetooth remote host', e);
+            }
+        };
+
+        const stopHost = async () => {
+            try {
+                if (removeListener) removeListener();
+                await BluetoothRemote.stopHost();
+            } catch (e) {
+                // ignore
+            }
+        };
+
+        if (settings.enableBluetoothRemote) {
+            startHost();
+        } else {
+            stopHost();
+        }
+
+        return () => {
+            stopHost();
+        };
+    }, [settings.enableBluetoothRemote, sendCommand]);
 
     useEffect(() => {
         const checkWelcomeStatus = async () => {

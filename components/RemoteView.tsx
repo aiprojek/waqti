@@ -5,6 +5,7 @@ import { Settings, ScheduleItem, FinanceInfo, Slide, FridayOfficerSlide } from '
 import { getDefaultSettings } from '../constants';
 import { useLanguage } from '../contexts/LanguageContext';
 import { t } from '../i18n';
+import { BLUETOOTH_CHAR_UUID, BLUETOOTH_SERVICE_UUID } from '../lib/bluetoothRemote';
 
 // Import actual settings tabs to mirror the main app experience
 import { GeneralSettingsTab } from './settings/GeneralSettingsTab';
@@ -31,13 +32,17 @@ const TABS = ['general', 'calculation', 'display', 'alarm', 'slides'];
 type TabNameKey = (typeof TABS)[number];
 
 export const RemoteView: React.FC = () => {
-    const { connectionStatus, sendCommand, resetConnection, lastCommand } = useRemote();
+    const { connectionStatus, sendCommand, resetConnection, lastCommand, authStatus } = useRemote();
     const { language } = useLanguage();
     const [showRetry, setShowRetry] = useState(false);
     const wakeLockRef = useRef<any>(null);
     const [activeTab, setActiveTab] = useState<'playback' | 'nav' | 'settings'>('playback');
+    const [transport, setTransport] = useState<'webrtc' | 'bluetooth'>('webrtc');
     const [inputText, setInputText] = useState('');
     const [flashMsg, setFlashMsg] = useState('');
+    const [btStatus, setBtStatus] = useState<'idle' | 'connecting' | 'connected' | 'error'>('idle');
+    const [btCharacteristic, setBtCharacteristic] = useState<BluetoothRemoteGATTCharacteristic | null>(null);
+    const bluetoothSupported = typeof navigator !== 'undefined' && !!(navigator as any).bluetooth;
 
     // --- Settings State Management (Mirroring SettingsContext) ---
     const [localSettings, setLocalSettings] = useState<Settings>(() => getDefaultSettings(language));
@@ -299,9 +304,25 @@ export const RemoteView: React.FC = () => {
     };
 
     // --- Main Actions ---
-    const handleCommand = (type: any, payload?: any) => {
+    const handleCommand = async (type: any, payload?: any) => {
         if (navigator.vibrate) navigator.vibrate(50);
-        sendCommand({ type, payload, timestamp: Date.now() });
+        const command = { type, payload, timestamp: Date.now() };
+        if (transport === 'bluetooth') {
+            if (!btCharacteristic) {
+                alert(t('remote.bluetoothNotConnected'));
+                return;
+            }
+            try {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(JSON.stringify(command));
+                await btCharacteristic.writeValue(data);
+            } catch (e) {
+                setBtStatus('error');
+                alert(t('remote.bluetoothSendFailed'));
+            }
+            return;
+        }
+        sendCommand(command);
     };
 
     const handleSendText = (e: React.FormEvent) => {
@@ -356,12 +377,18 @@ export const RemoteView: React.FC = () => {
     }, [connectionStatus]);
 
 
-    if (connectionStatus !== 'connected') {
+    if (transport === 'webrtc' && connectionStatus !== 'connected') {
+        const authFailed = authStatus === 'failed';
+        const authPending = authStatus === 'pending';
         return (
             <div className="h-screen w-full bg-slate-900 text-white flex flex-col items-center justify-center p-6 text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-purple-500 mb-4"></div>
-                <h2 className="text-xl font-bold mb-2">{connectionStatus === 'connecting' ? t('remote.connecting') : t('remote.disconnected')}</h2>
-                <p className="text-slate-400 mb-6 text-sm">{t('remote.keepAwake')}</p>
+                <h2 className="text-xl font-bold mb-2">
+                    {authFailed ? t('remote.authFailedTitle') : (connectionStatus === 'connecting' ? t('remote.connecting') : t('remote.disconnected'))}
+                </h2>
+                <p className="text-slate-400 mb-6 text-sm">
+                    {authFailed ? t('remote.authFailedDesc') : (authPending ? t('remote.authPending') : t('remote.keepAwake'))}
+                </p>
                 {(showRetry || connectionStatus === 'disconnected') && (
                     <button onClick={resetConnection} className="px-6 py-2 bg-purple-600 hover:bg-purple-700 rounded-full font-semibold transition-colors shadow-lg animate-fade-in">{t('remote.retry')}</button>
                 )}
@@ -374,10 +401,70 @@ export const RemoteView: React.FC = () => {
             <div className="flex justify-between items-center p-4 border-b border-slate-700 bg-slate-800/50 backdrop-blur-md">
                 <h1 className="text-lg font-bold text-[var(--accent-color)]">Waqti Remote</h1>
                 <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_currentColor]"></div>
-                    <span className="text-[10px] uppercase tracking-wider">{t('remote.online')}</span>
+                    <div className={`w-2 h-2 rounded-full ${transport === 'bluetooth' ? (btStatus === 'connected' ? 'bg-green-500' : 'bg-yellow-500') : 'bg-green-500'} shadow-[0_0_5px_currentColor]`}></div>
+                    <span className="text-[10px] uppercase tracking-wider">{transport === 'bluetooth' ? t('remote.bluetooth') : t('remote.online')}</span>
                 </div>
             </div>
+
+            <div className="px-4 pt-3">
+                <div className="bg-slate-800/60 rounded-xl p-2 flex gap-2">
+                    <button
+                        onClick={() => setTransport('webrtc')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-semibold ${transport === 'webrtc' ? 'bg-slate-700' : 'bg-slate-900/40'}`}
+                        title={t('remote.tooltipWifi')}
+                    >
+                        {t('remote.transportWifi')}
+                    </button>
+                    <button
+                        onClick={() => bluetoothSupported && setTransport('bluetooth')}
+                        className={`flex-1 py-2 rounded-lg text-sm font-semibold ${transport === 'bluetooth' ? 'bg-slate-700' : 'bg-slate-900/40'} ${bluetoothSupported ? '' : 'opacity-50 cursor-not-allowed'}`}
+                        disabled={!bluetoothSupported}
+                        title={t('remote.tooltipBluetooth')}
+                    >
+                        {t('remote.transportBluetooth')}
+                    </button>
+                </div>
+            </div>
+
+            {transport === 'bluetooth' && (
+                <div className="px-4 pt-3">
+                    <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                        <p className="text-sm text-slate-300 mb-2">{t('remote.bluetoothHint')}</p>
+                        <p className="text-xs text-slate-400 mb-3">{t('remote.bluetoothHostNote')}</p>
+                        {!bluetoothSupported && (
+                            <p className="text-xs text-amber-400">{t('remote.bluetoothUnsupported')}</p>
+                        )}
+                        {bluetoothSupported && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={async () => {
+                                        try {
+                                            setBtStatus('connecting');
+                                            const device = await (navigator as any).bluetooth.requestDevice({
+                                                filters: [{ services: [BLUETOOTH_SERVICE_UUID] }]
+                                            });
+                                            const server = await device.gatt.connect();
+                                            const service = await server.getPrimaryService(BLUETOOTH_SERVICE_UUID);
+                                            const characteristic = await service.getCharacteristic(BLUETOOTH_CHAR_UUID);
+                                            setBtCharacteristic(characteristic);
+                                            setBtStatus('connected');
+                                        } catch (e) {
+                                            console.error('Bluetooth connect failed', e);
+                                            setBtStatus('error');
+                                        }
+                                    }}
+                                    className="px-4 py-2 bg-blue-600 rounded-md text-sm font-semibold"
+                                >
+                                    {btStatus === 'connected' ? t('remote.bluetoothConnected') : t('remote.bluetoothConnect')}
+                                </button>
+                                <span className="text-xs text-slate-400">
+                                    {btStatus === 'connected' ? t('remote.bluetoothReady') : (btStatus === 'connecting' ? t('remote.bluetoothConnecting') : '')}
+                                </span>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
 
             <div className="flex-grow p-4 overflow-y-auto pb-20">
                 {activeTab === 'playback' && (

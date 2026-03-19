@@ -1,13 +1,11 @@
 
 import React, { useRef, useEffect, useState } from 'react';
+import Quill from 'quill';
 import type { Slide, QRCodePosition } from '../../types';
 // FIX: Replaced DEFAULT_SETTINGS with getDefaultSettings and useLanguage hook to get dynamic default settings.
 import { getDefaultSettings } from '../../constants';
 import { useLanguage } from '../../contexts/LanguageContext';
 import { t } from '../../i18n';
-
-// Let TypeScript know that Quill is available globally from the CDN script
-declare var Quill: any;
 
 // --- Quill Editor Component ---
 interface QuillEditorProps {

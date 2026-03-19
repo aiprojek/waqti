@@ -1,28 +1,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import QRCode from 'qrcode';
 import type { Settings } from '../../types';
 import { CollapsibleSection, Input } from './Shared';
 import { t } from '../../i18n';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import { useRemote } from '../../contexts/RemoteContext';
+import { Capacitor } from '@capacitor/core';
+import { BluetoothRemote } from '../../lib/bluetoothRemote';
+import { db } from '../../lib/db';
 
-declare const QRCode: any;
-declare const Html5Qrcode: any;
-
-// List must match service-worker.js URLS_TO_CACHE
+// Optional media assets for offline use (download on demand)
 const CRITICAL_ASSETS = [
     // Libraries
-    'https://cdn.tailwindcss.com',
-    'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap',
-    'https://unpkg.com/dexie@latest/dist/dexie.js',
-    'https://cdn.jsdelivr.net/npm/adhan@4.4.4/Bundles/adhan.min.js',
-    'https://cdn.quilljs.com/1.3.6/quill.snow.css',
-    'https://cdn.quilljs.com/1.3.6/quill.js',
-    'https://unpkg.com/prop-types@15.8.1/prop-types.min.js',
-    'https://unpkg.com/recharts@2.12.7/umd/Recharts.min.js',
-    'https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js',
-    'https://unpkg.com/html5-qrcode',
     // Default Sound
     'https://cdn.pixabay.com/download/audio/2022/03/15/audio_32283e5329.mp3?filename=alarm-clock-90867.mp3',
     // Default Images
@@ -31,7 +21,8 @@ const CRITICAL_ASSETS = [
     'https://cdn.pixabay.com/photo/2019/11/27/21/06/jerusalem-4657867_960_720.jpg',
     'https://images.pexels.com/photos/2291789/pexels-photo-2291789.jpeg',
     'https://cdn.pixabay.com/photo/2013/05/08/14/07/mecca-109852_960_720.jpg',
-    'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg'
+    'https://images.pexels.com/photos/15463931/pexels-photo-15463931.jpeg',
+    'https://images.pexels.com/photos/35236668/pexels-photo-35236668.jpeg'
 ];
 
 interface GeneralSettingsTabProps {
@@ -58,52 +49,123 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
     const [statusMessage, setStatusMessage] = useState('');
     
     // Remote Control Hooks
-    const { peerId, connectionStatus, isHost } = useRemote();
+    const { peerId, connectionStatus, isHost, pairingToken } = useRemote();
     const qrCodeRef = useRef<HTMLDivElement>(null);
     const [isScanning, setIsScanning] = useState(false);
     const scannerRef = useRef<any>(null);
     const [manualRemoteId, setManualRemoteId] = useState('');
+    const html5QrCtorRef = useRef<any>(null);
+    const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
+    const isAndroid = Capacitor.getPlatform() === 'android';
+    const isNative = Capacitor.isNativePlatform?.() || !!(window as any).__TAURI__;
+    const [bluetoothHostStatus, setBluetoothHostStatus] = useState<'unknown' | 'on' | 'off' | 'unsupported' | 'error'>('unknown');
+    const [bluetoothHostDetail, setBluetoothHostDetail] = useState('');
 
     useEffect(() => {
-        if (!isRemote && peerId && qrCodeRef.current && isHost && !isScanning) {
-            qrCodeRef.current.innerHTML = ''; // Clear previous
-            const remoteUrl = `${window.location.origin}${window.location.pathname}?remote=${peerId}`;
-            new QRCode(qrCodeRef.current, {
-                text: remoteUrl,
-                width: 128,
-                height: 128,
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.H
-            });
-        }
-    }, [peerId, isHost, isRemote, isScanning]);
+        if (!isAndroid) return;
+        let isMounted = true;
+        let pollId: ReturnType<typeof setInterval> | null = null;
+
+        const refreshStatus = async () => {
+            try {
+                const supported = await BluetoothRemote.isSupported();
+                if (!supported.supported) {
+                    if (isMounted) setBluetoothHostStatus('unsupported');
+                    return;
+                }
+                const status = await BluetoothRemote.getStatus();
+                if (isMounted) {
+                    setBluetoothHostStatus(status.started ? 'on' : 'off');
+                    setBluetoothHostDetail('');
+                }
+            } catch (e) {
+                if (isMounted) {
+                    setBluetoothHostStatus('error');
+                    setBluetoothHostDetail(t('settings.general.remote.bluetoothError'));
+                }
+            }
+        };
+
+        refreshStatus();
+        pollId = setInterval(refreshStatus, 5000);
+
+        return () => {
+            isMounted = false;
+            if (pollId) clearInterval(pollId);
+        };
+    }, [isAndroid, localSettings.enableBluetoothRemote]);
+
+    useEffect(() => {
+        const renderQr = async () => {
+            if (!isRemote && peerId && isHost && !isScanning) {
+                const tokenParam = pairingToken ? `&token=${encodeURIComponent(pairingToken)}` : '';
+                const remoteUrl = `${window.location.origin}${window.location.pathname}?remote=${peerId}${tokenParam}`;
+                try {
+                    const dataUrl = await QRCode.toDataURL(remoteUrl, {
+                        width: 128,
+                        margin: 1,
+                        color: {
+                            dark: '#000000',
+                            light: '#FFFFFF'
+                        }
+                    });
+                    setQrCodeDataUrl(dataUrl);
+                } catch (e) {
+                    console.error('Failed to generate QR code', e);
+                    setQrCodeDataUrl('');
+                }
+            } else {
+                setQrCodeDataUrl('');
+            }
+        };
+        renderQr();
+    }, [peerId, isHost, isRemote, isScanning, pairingToken]);
 
     // Handle Scanner Logic
-    const startScanner = () => {
+    const startScanner = async () => {
         setIsScanning(true);
         // Add a small delay to ensure the DOM element #qr-reader is rendered
-        setTimeout(() => {
-            const html5QrCode = new Html5Qrcode("qr-reader");
-            scannerRef.current = html5QrCode;
-            
-            const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-            
-            html5QrCode.start({ facingMode: "environment" }, config, (decodedText: string) => {
-                if (decodedText.includes('?remote=')) {
-                    html5QrCode.stop().then(() => {
-                        scannerRef.current = null;
-                        setIsScanning(false);
-                        window.location.href = decodedText;
-                    });
+        setTimeout(async () => {
+            try {
+                if (!html5QrCtorRef.current) {
+                    const mod: any = await import('html5-qrcode');
+                    html5QrCtorRef.current = mod?.Html5Qrcode || mod?.default || mod;
                 }
-            }, (errorMessage: string) => {
-                // scanning...
-            }).catch((err: any) => {
-                console.error("Error starting scanner", err);
+                const Html5QrcodeCtor = html5QrCtorRef.current;
+                if (!Html5QrcodeCtor) throw new Error('Html5Qrcode not available');
+
+                const html5QrCode = new Html5QrcodeCtor("qr-reader");
+                scannerRef.current = html5QrCode;
+                
+                const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+                
+                html5QrCode.start({ facingMode: "environment" }, config, (decodedText: string) => {
+                    try {
+                        const url = new URL(decodedText);
+                        const sameOrigin = url.origin === window.location.origin;
+                        const hasRemote = url.searchParams.get('remote');
+                        if (sameOrigin && hasRemote) {
+                        html5QrCode.stop().then(() => {
+                            scannerRef.current = null;
+                            setIsScanning(false);
+                            window.location.href = url.toString();
+                        });
+                        }
+                    } catch (e) {
+                        // Ignore invalid QR content
+                    }
+                }, (_errorMessage: string) => {
+                    // scanning...
+                }).catch((err: any) => {
+                    console.error("Error starting scanner", err);
+                    setIsScanning(false);
+                    alert("Could not start camera. Please ensure camera permissions are granted.");
+                });
+            } catch (err) {
+                console.error("Error preparing scanner", err);
                 setIsScanning(false);
-                alert("Could not start camera. Please ensure camera permissions are granted.");
-            });
+                alert("QR scanner is not available.");
+            }
         }, 100);
     };
 
@@ -123,7 +185,8 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
 
     const handleManualConnect = () => {
         if (manualRemoteId.trim()) {
-            window.location.href = `?remote=${manualRemoteId.trim()}`;
+            const tokenParam = pairingToken ? `&token=${encodeURIComponent(pairingToken)}` : '';
+            window.location.href = `?remote=${manualRemoteId.trim()}${tokenParam}`;
         }
     };
 
@@ -131,28 +194,54 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
         if (!('caches' in window)) return;
         
         try {
-            const cacheName = 'waqti-cache-v2';
+            const cacheName = 'waqti-cache-v3';
             const cache = await caches.open(cacheName);
-            let allFound = true;
+            let foundCount = 0;
 
             for (const url of CRITICAL_ASSETS) {
                 const match = await cache.match(url);
-                if (!match) {
-                    allFound = false;
-                    break;
-                }
+                if (match) foundCount += 1;
             }
 
+            const allFound = foundCount === CRITICAL_ASSETS.length;
             setAssetsStatus(allFound ? 'ready' : 'missing');
+            setStatusMessage(t('settings.status.assetsProgress', { cached: foundCount, total: CRITICAL_ASSETS.length }));
         } catch (e) {
             console.error('Error checking cache:', e);
             setAssetsStatus('missing');
+            setStatusMessage(t('settings.status.assetsCheckError'));
         }
     };
+
+    const checkAppShellReady = async (): Promise<boolean> => {
+        if (!('caches' in window)) return false;
+        try {
+            const cacheName = 'waqti-cache-v3';
+            const cache = await caches.open(cacheName);
+            const match = await cache.match('/index.html');
+            return !!match;
+        } catch (e) {
+            return false;
+        }
+    };
+
+    const checkPrayerTimesReady = async (): Promise<boolean> => {
+        try {
+            const anyCache = await db.prayerTimesCache.toCollection().first();
+            return !!anyCache;
+        } catch (e) {
+            return false;
+        }
+    };
+
+    const [shellReady, setShellReady] = useState<'unknown' | 'ready' | 'missing'>('unknown');
+    const [prayerReady, setPrayerReady] = useState<'unknown' | 'ready' | 'missing'>('unknown');
 
     useEffect(() => {
         if (!isRemote) {
             checkOfflineReadiness();
+            checkAppShellReady().then(ok => setShellReady(ok ? 'ready' : 'missing'));
+            checkPrayerTimesReady().then(ok => setPrayerReady(ok ? 'ready' : 'missing'));
         }
     }, [isRemote]);
 
@@ -167,7 +256,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
         }
 
         try {
-            const cacheName = 'waqti-cache-v2';
+            const cacheName = 'waqti-cache-v3';
             const cache = await caches.open(cacheName);
             
             await Promise.all(CRITICAL_ASSETS.map(async (url) => {
@@ -218,7 +307,11 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                                 {isScanning ? (
                                     <div id="qr-reader" className="w-full h-full"></div>
                                 ) : (
-                                    <div ref={qrCodeRef} className="w-[128px] h-[128px] bg-gray-200"></div>
+                                    <div ref={qrCodeRef} className="w-[128px] h-[128px] bg-gray-200 flex items-center justify-center">
+                                        {qrCodeDataUrl ? (
+                                            <img src={qrCodeDataUrl} alt="QR Code" className="w-full h-full object-contain" />
+                                        ) : null}
+                                    </div>
                                 )}
                             </div>
                             <div className="space-y-4 text-center md:text-left flex-grow w-full">
@@ -226,10 +319,50 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                                     <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
                                         {t('settings.general.remote.description')}
                                     </p>
+                                    {!peerId && (
+                                        <p className="text-xs text-amber-600 dark:text-amber-400 mb-2">
+                                            {t('settings.general.remote.unavailable')}
+                                        </p>
+                                    )}
                                     {!isScanning && (
                                         <div className="bg-slate-200 dark:bg-slate-700 p-3 rounded-lg inline-block">
                                             <p className="text-xs font-bold uppercase text-slate-500 dark:text-slate-400">{t('settings.general.remote.pairingCode')}</p>
                                             <p className="text-2xl font-mono font-bold tracking-widest text-[var(--accent-color)]">{peerId || '...'}</p>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="pt-2 border-t border-slate-200 dark:border-slate-700">
+                                    {isAndroid && (
+                                        <label className="flex items-center gap-2 text-sm text-slate-700 dark:text-slate-300">
+                                            <input
+                                                type="checkbox"
+                                                name="enableBluetoothRemote"
+                                                checked={localSettings.enableBluetoothRemote}
+                                                onChange={handleInputChange}
+                                                className="w-4 h-4"
+                                            />
+                                            {t('settings.general.remote.bluetoothEnable')}
+                                        </label>
+                                    )}
+                                    {isAndroid && (
+                                        <div className="mt-2 text-xs">
+                                            <span className={`inline-flex items-center gap-2 px-2 py-1 rounded-full ${
+                                                bluetoothHostStatus === 'on'
+                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                                                    : bluetoothHostStatus === 'off'
+                                                        ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300'
+                                                        : bluetoothHostStatus === 'unsupported'
+                                                            ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                                                            : 'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300'
+                                            }`}>
+                                                <span className="w-2 h-2 rounded-full bg-current"></span>
+                                                {bluetoothHostStatus === 'on' && t('settings.general.remote.bluetoothHostOn')}
+                                                {bluetoothHostStatus === 'off' && t('settings.general.remote.bluetoothHostOff')}
+                                                {bluetoothHostStatus === 'unsupported' && t('settings.general.remote.bluetoothHostUnsupported')}
+                                                {bluetoothHostStatus === 'error' && (bluetoothHostDetail || t('settings.general.remote.bluetoothHostError'))}
+                                                {bluetoothHostStatus === 'unknown' && t('settings.general.remote.bluetoothHostUnknown')}
+                                            </span>
                                         </div>
                                     )}
                                 </div>
@@ -287,7 +420,37 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                     </CollapsibleSection>
 
                     <CollapsibleSection title={t('settings.general.offlineAssets.title')}>
-                        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">{t('settings.general.offlineAssets.description')}</p>
+                        <div className="flex items-center justify-between mb-4">
+                            <p className="text-sm text-slate-600 dark:text-slate-300">
+                                {isNative ? t('settings.general.offlineAssets.descriptionNative') : t('settings.general.offlineAssets.description')}
+                            </p>
+                            {isNative && (
+                                <span className="text-[10px] uppercase tracking-wide px-2 py-1 rounded-full bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-200">
+                                    {t('settings.general.offlineAssets.nativeBadge')}
+                                </span>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+                            <div className={`p-3 rounded-lg border ${shellReady === 'ready' ? 'border-green-500/40 bg-green-500/10 text-green-600 dark:text-green-300' : 'border-slate-300 dark:border-slate-700 text-slate-500'}`}>
+                                <p className="text-xs uppercase tracking-wide mb-1">{t('settings.general.offlineAssets.shellTitle')}</p>
+                                <p className="text-sm font-semibold" title={t('settings.general.offlineAssets.shellTooltip')}>
+                                    {shellReady === 'ready' ? t('settings.general.offlineAssets.shellReady') : t('settings.general.offlineAssets.shellMissing')}
+                                </p>
+                            </div>
+                            <div className={`p-3 rounded-lg border ${assetsStatus === 'ready' ? 'border-green-500/40 bg-green-500/10 text-green-600 dark:text-green-300' : 'border-slate-300 dark:border-slate-700 text-slate-500'}`}>
+                                <p className="text-xs uppercase tracking-wide mb-1">{t('settings.general.offlineAssets.mediaTitle')}</p>
+                                <p className="text-sm font-semibold" title={t('settings.general.offlineAssets.mediaTooltip')}>
+                                    {assetsStatus === 'ready' ? t('settings.general.offlineAssets.mediaReady') : t('settings.general.offlineAssets.mediaMissing')}
+                                </p>
+                            </div>
+                            <div className={`p-3 rounded-lg border ${prayerReady === 'ready' ? 'border-green-500/40 bg-green-500/10 text-green-600 dark:text-green-300' : 'border-slate-300 dark:border-slate-700 text-slate-500'}`}>
+                                <p className="text-xs uppercase tracking-wide mb-1">{t('settings.general.offlineAssets.prayerTitle')}</p>
+                                <p className="text-sm font-semibold" title={t('settings.general.offlineAssets.prayerTooltip')}>
+                                    {prayerReady === 'ready' ? t('settings.general.offlineAssets.prayerReady') : t('settings.general.offlineAssets.prayerMissing')}
+                                </p>
+                            </div>
+                        </div>
                         
                         <div className="flex flex-col sm:flex-row items-center gap-4">
                             <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full ${assetsStatus === 'ready' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300' : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'}`}>
@@ -308,7 +471,7 @@ export const GeneralSettingsTab: React.FC<GeneralSettingsTabProps> = ({
                                         {t('settings.general.offlineAssets.downloading')}
                                     </>
                                 ) : (
-                                    t('settings.general.offlineAssets.download')
+                                    isNative ? t('settings.general.offlineAssets.downloadNative') : t('settings.general.offlineAssets.download')
                                 )}
                             </button>
                         </div>

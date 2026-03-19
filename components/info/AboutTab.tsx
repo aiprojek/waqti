@@ -1,5 +1,6 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { t } from '../../i18n';
 
 // --- Social Icons ---
@@ -41,6 +42,17 @@ const getFeatureIcon = (index: number) => {
 export const AboutTab: React.FC = () => {
     const [currentFeatureIndex, setCurrentFeatureIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
+    const platform = useMemo(() => {
+        const cap = Capacitor.isNativePlatform?.();
+        if (cap) {
+            const p = Capacitor.getPlatform();
+            if (p === 'android') return 'Android';
+            if (p === 'ios') return 'iOS';
+            return 'Native';
+        }
+        if ((window as any).__TAURI__) return 'Desktop';
+        return 'Web';
+    }, []);
 
     const features = t('info.about.features', {}).split('|').map(f => {
         const [title, description] = f.split(':', 2);
@@ -65,7 +77,15 @@ export const AboutTab: React.FC = () => {
     return (
         <div className="space-y-6 pb-4">
             <section className="text-center">
-                <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--accent-color)] to-purple-600 mb-2">{t('info.about.appName')}</h1>
+                <div className="flex flex-col items-center gap-2 mb-2">
+                    <img src="/icon.svg" alt="Waqti Logo" className="w-16 h-16" />
+                    <h1 className="text-3xl md:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[var(--accent-color)] to-purple-600">
+                        {t('info.about.appName')}
+                    </h1>
+                    <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                        {t('info.about.versionLabel')}: {__APP_VERSION__}
+                    </p>
+                </div>
                 <p className="mt-2 text-base text-slate-600 dark:text-slate-300 max-w-2xl mx-auto leading-relaxed">
                     {t('info.about.description_part1')}
                     <a href="https://mawaqit.net" target="_blank" rel="noopener noreferrer" className="text-[var(--accent-color)] hover:underline font-semibold decoration-2 decoration-[var(--accent-color)]/30 hover:decoration-[var(--accent-color)]">
@@ -182,6 +202,7 @@ export const AboutTab: React.FC = () => {
                     <span>•</span>
                     <p>{t('info.dataSource')} <a href="https://aladhan.com/prayer-times-api" target="_blank" rel="noopener noreferrer" className="underline">Aladhan API</a></p>
                 </div>
+                <p className="mt-2 opacity-80">{t('info.about.platformLabel')}: {platform}</p>
             </footer>
         </div>
     );

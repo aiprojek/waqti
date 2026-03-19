@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef, memo, useMemo, useCallback } from 'react';
+import DOMPurify from 'dompurify';
 import { useSettings } from '../contexts/SettingsContext';
 import { QURAN_THEMES_CONTENT, HADITH_THEMES_CONTENT } from '../constants';
 import { t } from '../i18n';
-
-declare const DOMPurify: any;
 
 const FooterComponent: React.FC = () => {
     const [isOnline, setIsOnline] = useState(navigator.onLine);
@@ -28,14 +27,18 @@ const FooterComponent: React.FC = () => {
 
             // 2. Jika browser bilang online, verifikasi dengan ping ke internet (Google)
             try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 3000);
                 // Fetch ke resource kecil dan publik dengan no-cors (opaque response)
-                // Cache: no-store agar tidak mengambil dari disk cache
+                // Cache: no-store agar tidak mengambil dari cache dan tidak disajikan SW
                 // Random time query param untuk menghindari caching
-                await fetch('https://www.google.com/favicon.ico?' + new Date().getTime(), {
+                await fetch(`https://clients3.google.com/generate_204?ts=${Date.now()}`, {
                     mode: 'no-cors',
                     cache: 'no-store',
-                    method: 'HEAD'
+                    method: 'GET',
+                    signal: controller.signal
                 });
+                clearTimeout(timeoutId);
                 setIsOnline(true);
             } catch (error) {
                 // Jika fetch gagal (network error), berarti tidak ada internet
