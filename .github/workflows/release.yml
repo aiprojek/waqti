@@ -3,7 +3,7 @@ name: Release Build
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
   workflow_dispatch:
 
 env:
@@ -22,10 +22,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
       - name: Set build version
-        run: node -e "const fs=require('fs');const d=new Date();const pad=(n)=>String(n).padStart(2,'0');const v=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}`;fs.appendFileSync(process.env.GITHUB_ENV,`BUILD_VERSION=${v}\\n`);"
-      
+        run: |
+          node -e "
+            const fs = require('fs');
+            const d = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const v = d.getFullYear() +
+                      pad(d.getMonth() + 1) +
+                      pad(d.getDate()) +
+                      pad(d.getHours()) +
+                      pad(d.getMinutes());
+            fs.appendFileSync(process.env.GITHUB_ENV, 'BUILD_VERSION=' + v + '\n');
+          "
+
       - name: Install dependencies
         run: npm install
 
@@ -35,8 +46,8 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
-          java-version: '17'
+          distribution: "zulu"
+          java-version: "17"
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
@@ -93,10 +104,21 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'npm'
+          cache: "npm"
       - name: Set build version
-        run: node -e "const fs=require('fs');const d=new Date();const pad=(n)=>String(n).padStart(2,'0');const v=`${d.getFullYear()}${pad(d.getMonth()+1)}${pad(d.getDate())}${pad(d.getHours())}${pad(d.getMinutes())}`;fs.appendFileSync(process.env.GITHUB_ENV,`BUILD_VERSION=${v}\\n`);"
-      
+        run: |
+          node -e "
+            const fs = require('fs');
+            const d = new Date();
+            const pad = (n) => String(n).padStart(2, '0');
+            const v = d.getFullYear() +
+                      pad(d.getMonth() + 1) +
+                      pad(d.getDate()) +
+                      pad(d.getHours()) +
+                      pad(d.getMinutes());
+            fs.appendFileSync(process.env.GITHUB_ENV, 'BUILD_VERSION=' + v + '\n');
+          "
+
       - name: Install App dependencies
         run: npm install
 
@@ -131,7 +153,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Download Android Artifact
         uses: actions/download-artifact@v4
         with:
